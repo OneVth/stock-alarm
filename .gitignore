@@ -8,3 +8,29 @@ wheels/
 
 # Virtual environments
 .venv
+
+# 환경 변수
+.env
+
+# DB
+data/*.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 테스트 / 커버리지
+.pytest_cache/
+.coverage
+htmlcov/
+
+# 빌드
+dist/
+build/
+*.egg-info/
