@@ -1,7 +1,30 @@
 [project]
 name = "stock-alarm"
 version = "0.1.0"
-description = "Add your description here"
+description = "주식 시장 모니터링 및 이메일 알림 서비스"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "finance-datareader>=0.9.102",
+    "flask>=3.1.2",
+    "flask-sqlalchemy>=3.1.1",
+    "openai>=2.16.0",
+    "python-dotenv>=1.2.1",
+]
+
+[dependency-groups]
+dev = [
+    "black>=26.1.0",
+    "pytest>=9.0.2",
+    "pytest-cov>=7.0.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py312"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
+addopts = "-v"
