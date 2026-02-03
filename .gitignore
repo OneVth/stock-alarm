@@ -34,3 +34,6 @@ htmlcov/
 dist/
 build/
 *.egg-info/
+
+# 구현 계획
+docs/plans

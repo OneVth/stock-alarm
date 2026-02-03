@@ -28,6 +28,9 @@ uv sync
 # 개발 서버 실행
 uv run python run.py
 
+# 코드 포맷팅
+uv run black .
+
 # cron 알림 체크 스크립트 실행
 uv run python scripts/check_alert.py
 ```
@@ -71,8 +74,9 @@ MVP: 등록가(base_price) 대비 변동률 (±N%) 도달 시 알림
 ## 코딩 컨벤션
 
 - PEP 8 준수
+- 포맷터: Black (line-length: 88)
 - 함수/변수: snake_case, 클래스: PascalCase
-- 문자열: 작은따옴표(') 우선
+- 문자열: 큰따옴표(") 사용 (Black 기본값)
 - 함수 docstring 필수
 - 커밋: feat/fix/docs/refactor/style 접두사
 
@@ -90,3 +94,8 @@ DATABASE_PATH=data/stock_alarm.db
 
 - 도메인: stockalarm.co.kr
 - Cloudflare Tunnel → Nginx (localhost:80) → Flask
+
+## Claude 행동 지침
+
+- git commit은 직접 실행하지 않음 (커밋 메시지 제안만)
+- 커밋은 사용자가 수동으로 진행
