@@ -3,15 +3,7 @@
 import pytest
 
 from app import create_app, db
-from app.config import Config
-
-
-class TestConfig(Config):
-    """테스트용 설정"""
-
-    TESTING = True
-    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
-    WTF_CSRF_ENABLED = False
+from app.config import TestConfig
 
 
 @pytest.fixture

@@ -2,7 +2,16 @@
 
 import re
 
-from flask import Blueprint, render_template, redirect, url_for, flash, abort, request
+from flask import (
+    Blueprint,
+    render_template,
+    redirect,
+    url_for,
+    flash,
+    abort,
+    request,
+    current_app,
+)
 
 from app import db
 from app.models import User, Alert
@@ -21,7 +30,10 @@ def settings_page(uuid):
     """사용자 설정 페이지"""
     user = User.query.filter_by(uuid=uuid).first()
     if not user:
+        current_app.logger.warning(f"[설정 페이지] 존재하지 않는 UUID: {uuid}")
         abort(404)
+
+    current_app.logger.info(f"[설정 페이지] 접근 성공 - 사용자: {user.email}")
     return render_template("settings.html", user=user)
 
 
@@ -31,6 +43,7 @@ def add_alert(uuid):
     # 1. 사용자 조회
     user = User.query.filter_by(uuid=uuid).first()
     if not user:
+        current_app.logger.warning(f"[종목 추가] 존재하지 않는 UUID: {uuid}")
         abort(404)
 
     # 2. 폼 데이터 추출
@@ -38,12 +51,21 @@ def add_alert(uuid):
     threshold_upper = request.form.get("threshold_upper", "").strip()
     threshold_lower = request.form.get("threshold_lower", "").strip()
 
+    current_app.logger.info(
+        f"[종목 추가 요청] 사용자: {user.email}, "
+        f"종목코드: {stock_code}, 상승: {threshold_upper}%, 하락: {threshold_lower}%"
+    )
+
     # 3. 종목코드 유효성 검증
     if not stock_code:
+        current_app.logger.warning(f"[종목 추가 실패] 종목코드 미입력 - 사용자: {user.email}")
         flash("종목코드를 입력해주세요.", "error")
         return redirect(url_for("settings.settings_page", uuid=uuid))
 
     if not is_valid_stock_code_format(stock_code):
+        current_app.logger.warning(
+            f"[종목 추가 실패] 종목코드 형식 오류: {stock_code} - 사용자: {user.email}"
+        )
         flash("종목코드는 6자리 숫자여야 합니다.", "error")
         return redirect(url_for("settings.settings_page", uuid=uuid))
 
@@ -55,6 +77,9 @@ def add_alert(uuid):
         try:
             upper_value = float(threshold_upper)
         except ValueError:
+            current_app.logger.warning(
+                f"[종목 추가 실패] 상승 기준 형식 오류: {threshold_upper} - 사용자: {user.email}"
+            )
             flash("상승 기준은 숫자여야 합니다.", "error")
             return redirect(url_for("settings.settings_page", uuid=uuid))
 
@@ -62,15 +87,25 @@ def add_alert(uuid):
         try:
             lower_value = float(threshold_lower)
         except ValueError:
+            current_app.logger.warning(
+                f"[종목 추가 실패] 하락 기준 형식 오류: {threshold_lower} - 사용자: {user.email}"
+            )
             flash("하락 기준은 숫자여야 합니다.", "error")
             return redirect(url_for("settings.settings_page", uuid=uuid))
 
     if upper_value is None and lower_value is None:
+        current_app.logger.warning(
+            f"[종목 추가 실패] 기준 미입력 - 사용자: {user.email}, 종목: {stock_code}"
+        )
         flash("상승 또는 하락 기준 중 하나 이상을 입력해주세요.", "error")
         return redirect(url_for("settings.settings_page", uuid=uuid))
 
     # 5. 종목코드 실제 존재 여부 검증 (FDR 캐시)
+    current_app.logger.debug(f"[종목 검증] FDR 캐시 조회: {stock_code}")
     if not validate_stock_code(stock_code):
+        current_app.logger.warning(
+            f"[종목 추가 실패] 유효하지 않은 종목코드: {stock_code} - 사용자: {user.email}"
+        )
         flash("유효하지 않은 종목코드입니다. 종목코드를 확인해주세요.", "error")
         return redirect(url_for("settings.settings_page", uuid=uuid))
 
@@ -80,18 +115,29 @@ def add_alert(uuid):
     ).first()
 
     if existing_alert:
+        current_app.logger.warning(
+            f"[종목 추가 실패] 중복 등록: {stock_code} - 사용자: {user.email}"
+        )
         flash("이미 등록된 종목입니다.", "error")
         return redirect(url_for("settings.settings_page", uuid=uuid))
 
     # 7. 종목명 조회 (FDR 캐시)
+    current_app.logger.debug(f"[종목명 조회] FDR 캐시: {stock_code}")
     stock_name = get_stock_name(stock_code)
     if not stock_name:
+        current_app.logger.error(
+            f"[종목 추가 실패] 종목명 조회 실패: {stock_code} - 사용자: {user.email}"
+        )
         flash("종목 정보를 조회할 수 없습니다. 잠시 후 다시 시도해주세요.", "error")
         return redirect(url_for("settings.settings_page", uuid=uuid))
 
     # 8. 현재가 조회 (네이버 API)
+    current_app.logger.debug(f"[현재가 조회] 네이버 API: {stock_code}")
     current_price = get_stock_price(stock_code)
     if current_price is None:
+        current_app.logger.error(
+            f"[종목 추가 실패] 현재가 조회 실패: {stock_code} - 사용자: {user.email}"
+        )
         flash("주식 정보를 조회할 수 없습니다. 잠시 후 다시 시도해주세요.", "error")
         return redirect(url_for("settings.settings_page", uuid=uuid))
 
@@ -109,6 +155,11 @@ def add_alert(uuid):
     db.session.add(alert)
     db.session.commit()
 
+    current_app.logger.info(
+        f"[종목 추가 성공] 사용자: {user.email}, "
+        f"종목: {stock_name}({stock_code}), 기준가: {current_price:,.0f}원, "
+        f"상승: {upper_value}%, 하락: {lower_value}%"
+    )
     flash(f"{stock_name} ({stock_code}) 종목이 추가되었습니다.", "success")
     return redirect(url_for("settings.settings_page", uuid=uuid))
 
@@ -116,18 +167,28 @@ def add_alert(uuid):
 @settings_bp.route("/settings/<uuid>/alerts/<int:alert_id>/delete", methods=["POST"])
 def delete_alert(uuid, alert_id):
     """종목 삭제"""
+    current_app.logger.info(f"[종목 삭제 요청] UUID: {uuid}, Alert ID: {alert_id}")
+
     # 1. 사용자 조회
     user = User.query.filter_by(uuid=uuid).first()
     if not user:
+        current_app.logger.warning(f"[종목 삭제 실패] 존재하지 않는 UUID: {uuid}")
         abort(404)
 
     # 2. Alert 조회
     alert = db.session.get(Alert, alert_id)
     if not alert:
+        current_app.logger.warning(
+            f"[종목 삭제 실패] 존재하지 않는 Alert ID: {alert_id} - 사용자: {user.email}"
+        )
         abort(404)
 
     # 3. 소유권 검증
     if alert.user_id != user.id:
+        current_app.logger.warning(
+            f"[종목 삭제 실패] 권한 없음 - Alert ID: {alert_id}, "
+            f"요청자: {user.email}, 소유자 ID: {alert.user_id}"
+        )
         abort(403)
 
     # 4. 삭제 전 정보 저장 (메시지용)
@@ -138,5 +199,8 @@ def delete_alert(uuid, alert_id):
     db.session.delete(alert)
     db.session.commit()
 
+    current_app.logger.info(
+        f"[종목 삭제 성공] 사용자: {user.email}, 종목: {stock_name}({stock_code})"
+    )
     flash(f"{stock_name} ({stock_code}) 종목이 삭제되었습니다.", "success")
     return redirect(url_for("settings.settings_page", uuid=uuid))

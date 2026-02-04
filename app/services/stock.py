@@ -84,13 +84,17 @@ def validate_stock_code(stock_code: str) -> bool:
         bool: 유효한 종목코드 여부
     """
     if not is_valid_stock_code_format(stock_code):
+        current_app.logger.debug(f"종목코드 형식 오류: {stock_code}")
         return False
 
     df = _get_stock_list()
     if df.empty:
+        current_app.logger.warning("종목 리스트가 비어있음")
         return False
 
-    return stock_code.strip() in df["Code"].values
+    is_valid = stock_code.strip() in df["Code"].values
+    current_app.logger.debug(f"종목코드 검증: {stock_code} -> {'유효' if is_valid else '무효'}")
+    return is_valid
 
 
 def search_stock(query: str, limit: int = 10) -> list[dict]:
@@ -160,6 +164,8 @@ def get_stock_price(stock_code: str) -> float | None:
     """
     url = f"https://m.stock.naver.com/api/stock/{stock_code}/basic"
 
+    current_app.logger.debug(f"[네이버 API] 현재가 조회 요청: {stock_code}")
+
     try:
         response = requests.get(url, timeout=NAVER_API_TIMEOUT)
         response.raise_for_status()
@@ -171,7 +177,9 @@ def get_stock_price(stock_code: str) -> float | None:
             # 문자열인 경우 쉼표 제거 후 변환
             if isinstance(close_price, str):
                 close_price = close_price.replace(",", "")
-            return float(close_price)
+            price = float(close_price)
+            current_app.logger.debug(f"[네이버 API] 현재가 조회 성공: {stock_code} -> {price:,.0f}원")
+            return price
 
         current_app.logger.warning(f"현재가 없음: {stock_code}, 응답: {data}")
         return None
@@ -249,6 +257,8 @@ def get_market_summary() -> dict | None:
                 "kosdaq_change_rate": -0.38
             }
     """
+    current_app.logger.debug("[네이버 API] 시장 지수 조회 요청")
+
     try:
         kospi_url = "https://m.stock.naver.com/api/index/KOSPI/basic"
         kosdaq_url = "https://m.stock.naver.com/api/index/KOSDAQ/basic"
@@ -262,7 +272,7 @@ def get_market_summary() -> dict | None:
         kospi_data = kospi_resp.json()
         kosdaq_data = kosdaq_resp.json()
 
-        return {
+        result = {
             "kospi": _parse_price(kospi_data.get("closePrice")),
             "kosdaq": _parse_price(kosdaq_data.get("closePrice")),
             "kospi_change": _parse_price(kospi_data.get("compareToPreviousClosePrice")),
@@ -270,6 +280,12 @@ def get_market_summary() -> dict | None:
             "kospi_change_rate": _parse_price(kospi_data.get("fluctuationsRatio")),
             "kosdaq_change_rate": _parse_price(kosdaq_data.get("fluctuationsRatio")),
         }
+
+        current_app.logger.debug(
+            f"[네이버 API] 시장 지수 조회 성공 - "
+            f"KOSPI: {result['kospi']:,.2f}, KOSDAQ: {result['kosdaq']:,.2f}"
+        )
+        return result
 
     except requests.exceptions.RequestException as e:
         current_app.logger.error(f"시장 지수 조회 실패: {e}")
