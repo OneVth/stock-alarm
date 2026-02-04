@@ -359,4 +359,4 @@ class TestIntegration:
                 # API 호출 검증
                 call_args = mock_client.chat.completions.create.call_args
                 assert call_args.kwargs["model"] == "gpt-5-nano"
-                assert call_args.kwargs["max_tokens"] == 300
+                assert call_args.kwargs["max_completion_tokens"] == 2000

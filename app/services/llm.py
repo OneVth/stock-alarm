@@ -11,9 +11,9 @@ from openai import OpenAI, APIConnectionError, RateLimitError, APIStatusError, A
 
 # OpenAI API 설정
 OPENAI_MODEL = "gpt-5-nano"
-OPENAI_MAX_TOKENS = 300
-OPENAI_TEMPERATURE = 0.7
+OPENAI_MAX_COMPLETION_TOKENS = 2000  # gpt-5-nano는 reasoning 모델, 추론+출력 토큰 필요
 OPENAI_TIMEOUT = 30  # 초
+# Note: gpt-5-nano는 temperature=1만 지원하므로 파라미터 생략 (기본값 사용)
 
 # 재시도 설정
 MAX_RETRIES = 3
@@ -178,8 +178,7 @@ def generate_alert_comment(
                     },
                     {"role": "user", "content": prompt},
                 ],
-                max_tokens=OPENAI_MAX_TOKENS,
-                temperature=OPENAI_TEMPERATURE,
+                max_completion_tokens=OPENAI_MAX_COMPLETION_TOKENS,
             )
 
             # 성공
