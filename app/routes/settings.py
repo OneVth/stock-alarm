@@ -14,7 +14,7 @@ from flask import (
 )
 
 from app import db
-from app.models import User, Alert
+from app.models import User, Alert, AlertLog
 from app.services.stock import (
     is_valid_stock_code_format,
     validate_stock_code,
@@ -34,7 +34,46 @@ def settings_page(uuid):
         abort(404)
 
     current_app.logger.info(f"[설정 페이지] 접근 성공 - 사용자: {user.email}")
-    return render_template("settings.html", user=user)
+
+    # 통계 계산
+    stats = {
+        "total": len(user.alerts),
+        "active": len([a for a in user.alerts if a.status == "active"]),
+        "triggered": len([a for a in user.alerts if a.status == "triggered"]),
+        "inactive": len([a for a in user.alerts if a.status == "inactive"]),
+    }
+
+    # 현재가 정보 포함한 알림 목록
+    alerts_with_price = []
+    for alert in user.alerts:
+        try:
+            current_price = get_stock_price(alert.stock_code)
+            if current_price is not None:
+                change_rate = (
+                    (current_price - alert.base_price) / alert.base_price
+                ) * 100
+            else:
+                current_price = alert.base_price
+                change_rate = 0
+        except Exception as e:
+            current_app.logger.warning(f"현재가 조회 실패: {alert.stock_code}, {e}")
+            current_price = alert.base_price
+            change_rate = 0
+
+        alerts_with_price.append(
+            {
+                "alert": alert,
+                "current_price": current_price,
+                "change_rate": change_rate,
+            }
+        )
+
+    return render_template(
+        "settings.html",
+        user=user,
+        stats=stats,
+        alerts_with_price=alerts_with_price,
+    )
 
 
 @settings_bp.route("/settings/<uuid>/alerts", methods=["POST"])
@@ -58,7 +97,9 @@ def add_alert(uuid):
 
     # 3. 종목코드 유효성 검증
     if not stock_code:
-        current_app.logger.warning(f"[종목 추가 실패] 종목코드 미입력 - 사용자: {user.email}")
+        current_app.logger.warning(
+            f"[종목 추가 실패] 종목코드 미입력 - 사용자: {user.email}"
+        )
         flash("종목코드를 입력해주세요.", "error")
         return redirect(url_for("settings.settings_page", uuid=uuid))
 
@@ -164,6 +205,119 @@ def add_alert(uuid):
     return redirect(url_for("settings.settings_page", uuid=uuid))
 
 
+@settings_bp.route("/settings/<uuid>/alerts/<int:alert_id>/update", methods=["POST"])
+def update_alert(uuid, alert_id):
+    """알림 기준 수정"""
+    current_app.logger.info(f"[알림 수정 요청] UUID: {uuid}, Alert ID: {alert_id}")
+
+    # 1. 사용자 조회
+    user = User.query.filter_by(uuid=uuid).first()
+    if not user:
+        current_app.logger.warning(f"[알림 수정 실패] 존재하지 않는 UUID: {uuid}")
+        abort(404)
+
+    # 2. Alert 조회
+    alert = db.session.get(Alert, alert_id)
+    if not alert:
+        current_app.logger.warning(
+            f"[알림 수정 실패] 존재하지 않는 Alert ID: {alert_id} - 사용자: {user.email}"
+        )
+        abort(404)
+
+    # 3. 소유권 검증
+    if alert.user_id != user.id:
+        current_app.logger.warning(
+            f"[알림 수정 실패] 권한 없음 - Alert ID: {alert_id}, "
+            f"요청자: {user.email}, 소유자 ID: {alert.user_id}"
+        )
+        abort(403)
+
+    # 4. 폼 데이터 추출
+    threshold_upper = request.form.get("threshold_upper", "").strip()
+    threshold_lower = request.form.get("threshold_lower", "").strip()
+
+    # 5. 알림 기준 검증
+    upper_value = None
+    lower_value = None
+
+    if threshold_upper:
+        try:
+            upper_value = float(threshold_upper)
+        except ValueError:
+            flash("상승 기준은 숫자여야 합니다.", "error")
+            return redirect(url_for("settings.settings_page", uuid=uuid))
+
+    if threshold_lower:
+        try:
+            lower_value = float(threshold_lower)
+        except ValueError:
+            flash("하락 기준은 숫자여야 합니다.", "error")
+            return redirect(url_for("settings.settings_page", uuid=uuid))
+
+    if upper_value is None and lower_value is None:
+        flash("상승 또는 하락 기준 중 하나 이상을 입력해주세요.", "error")
+        return redirect(url_for("settings.settings_page", uuid=uuid))
+
+    # 6. Alert 업데이트
+    alert.threshold_upper = upper_value
+    alert.threshold_lower = lower_value
+    db.session.commit()
+
+    current_app.logger.info(
+        f"[알림 수정 성공] 사용자: {user.email}, "
+        f"종목: {alert.stock_name}({alert.stock_code}), "
+        f"상승: {upper_value}%, 하락: {lower_value}%"
+    )
+    flash(f"{alert.stock_name} 알림 기준이 수정되었습니다.", "success")
+    return redirect(url_for("settings.settings_page", uuid=uuid))
+
+
+@settings_bp.route("/settings/<uuid>/alerts/<int:alert_id>/toggle", methods=["POST"])
+def toggle_alert_status(uuid, alert_id):
+    """알림 상태 토글 (활성/비활성)"""
+    current_app.logger.info(f"[상태 변경 요청] UUID: {uuid}, Alert ID: {alert_id}")
+
+    # 1. 사용자 조회
+    user = User.query.filter_by(uuid=uuid).first()
+    if not user:
+        current_app.logger.warning(f"[상태 변경 실패] 존재하지 않는 UUID: {uuid}")
+        abort(404)
+
+    # 2. Alert 조회
+    alert = db.session.get(Alert, alert_id)
+    if not alert:
+        current_app.logger.warning(
+            f"[상태 변경 실패] 존재하지 않는 Alert ID: {alert_id} - 사용자: {user.email}"
+        )
+        abort(404)
+
+    # 3. 소유권 검증
+    if alert.user_id != user.id:
+        current_app.logger.warning(
+            f"[상태 변경 실패] 권한 없음 - Alert ID: {alert_id}, "
+            f"요청자: {user.email}, 소유자 ID: {alert.user_id}"
+        )
+        abort(403)
+
+    # 4. 상태 변경
+    new_status = request.form.get("status", "active")
+    if new_status not in ["active", "inactive"]:
+        new_status = "active"
+
+    old_status = alert.status
+    alert.status = new_status
+    db.session.commit()
+
+    status_label = "활성화" if new_status == "active" else "비활성화"
+    current_app.logger.info(
+        f"[상태 변경 성공] 사용자: {user.email}, "
+        f"종목: {alert.stock_name}({alert.stock_code}), "
+        f"{old_status} → {new_status}"
+    )
+    flash(f"{alert.stock_name} 알림이 {status_label}되었습니다.", "success")
+    return redirect(url_for("settings.settings_page", uuid=uuid))
+
+
 @settings_bp.route("/settings/<uuid>/alerts/<int:alert_id>/delete", methods=["POST"])
 def delete_alert(uuid, alert_id):
     """종목 삭제"""
@@ -204,3 +358,31 @@ def delete_alert(uuid, alert_id):
     )
     flash(f"{stock_name} ({stock_code}) 종목이 삭제되었습니다.", "success")
     return redirect(url_for("settings.settings_page", uuid=uuid))
+
+
+@settings_bp.route("/settings/<uuid>/history")
+def history_page(uuid):
+    """알림 히스토리 페이지"""
+    user = User.query.filter_by(uuid=uuid).first()
+    if not user:
+        current_app.logger.warning(f"[히스토리 페이지] 존재하지 않는 UUID: {uuid}")
+        abort(404)
+
+    current_app.logger.info(f"[히스토리 페이지] 접근 성공 - 사용자: {user.email}")
+
+    # 페이지네이션
+    page = request.args.get("page", 1, type=int)
+    per_page = 20
+
+    # AlertLog 조회 (최신순)
+    logs_query = AlertLog.query.filter_by(user_id=user.id).order_by(
+        AlertLog.sent_at.desc()
+    )
+    logs_pagination = logs_query.paginate(page=page, per_page=per_page, error_out=False)
+
+    return render_template(
+        "history.html",
+        user=user,
+        logs=logs_pagination.items,
+        pagination=logs_pagination,
+    )
