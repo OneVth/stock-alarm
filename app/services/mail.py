@@ -3,6 +3,7 @@
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.utils import formataddr
 
 from flask import current_app
 
@@ -23,6 +24,8 @@ def send_welcome_email(email: str, settings_url: str) -> bool:
     """
     gmail_address = current_app.config.get("GMAIL_ADDRESS")
     gmail_password = current_app.config.get("GMAIL_APP_PASSWORD")
+    mail_from_address = current_app.config.get("MAIL_FROM_ADDRESS") or gmail_address
+    mail_from_name = current_app.config.get("MAIL_FROM_NAME", "Stock Alarm")
 
     if not gmail_address or not gmail_password:
         current_app.logger.error("Gmail 설정이 없습니다.")
@@ -43,14 +46,14 @@ Stock Alarm 서비스
 
     try:
         msg = MIMEMultipart()
-        msg["From"] = gmail_address
+        msg["From"] = formataddr((mail_from_name, mail_from_address))
         msg["To"] = email
         msg["Subject"] = subject
         msg.attach(MIMEText(body, "plain", "utf-8"))
 
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
             server.login(gmail_address, gmail_password)
-            server.sendmail(gmail_address, email, msg.as_string())
+            server.sendmail(mail_from_address, email, msg.as_string())
 
         current_app.logger.info(f"환영 이메일 발송 완료: {email}")
         return True
@@ -94,6 +97,8 @@ def send_alert_email(
     """
     gmail_address = current_app.config.get("GMAIL_ADDRESS")
     gmail_password = current_app.config.get("GMAIL_APP_PASSWORD")
+    mail_from_address = current_app.config.get("MAIL_FROM_ADDRESS") or gmail_address
+    mail_from_name = current_app.config.get("MAIL_FROM_NAME", "Stock Alarm")
 
     if not gmail_address or not gmail_password:
         current_app.logger.error("[알림 이메일] Gmail 설정이 없습니다.")
@@ -136,14 +141,14 @@ def send_alert_email(
 
     try:
         msg = MIMEMultipart()
-        msg["From"] = gmail_address
+        msg["From"] = formataddr((mail_from_name, mail_from_address))
         msg["To"] = email
         msg["Subject"] = subject
         msg.attach(MIMEText(body, "plain", "utf-8"))
 
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
             server.login(gmail_address, gmail_password)
-            server.sendmail(gmail_address, email, msg.as_string())
+            server.sendmail(mail_from_address, email, msg.as_string())
 
         current_app.logger.info(
             f"[알림 이메일] 발송 성공: {email}, 종목: {stock_name}({stock_code})"

@@ -27,6 +27,8 @@ class Config:
     # Gmail SMTP
     GMAIL_ADDRESS = os.environ.get("GMAIL_ADDRESS")
     GMAIL_APP_PASSWORD = os.environ.get("GMAIL_APP_PASSWORD")
+    MAIL_FROM_ADDRESS = os.environ.get("MAIL_FROM_ADDRESS")  # 발신자 표시 주소
+    MAIL_FROM_NAME = os.environ.get("MAIL_FROM_NAME", "Stock Alarm")  # 발신자 이름
 
     # OpenAI
     OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
