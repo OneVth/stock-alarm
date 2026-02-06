@@ -69,3 +69,43 @@ def register():
 
     # 5. 홈페이지로 리다이렉트
     return redirect(url_for("main.home"))
+
+
+@main_bp.route("/api/stocks/search")
+def search_stocks():
+    """
+    종목 검색 API (자동완성용)
+
+    Query Parameters:
+        q: 검색어 (종목코드 또는 종목명)
+        limit: 최대 결과 수 (기본값: 10, 최대: 20)
+
+    Returns:
+        JSON: 검색 결과 목록
+            [{"code": "005930", "name": "삼성전자", "market": "KOSPI"}, ...]
+    """
+    from flask import jsonify
+    from app.services.stock import search_stock
+
+    query = request.args.get("q", "").strip()
+    limit = request.args.get("limit", 10, type=int)
+
+    # 검색어 유효성 검증
+    if not query:
+        return jsonify({"error": "검색어를 입력해주세요.", "code": "EMPTY_QUERY"}), 400
+
+    # 최대 limit 제한
+    limit = min(limit, 20)
+
+    try:
+        # 종목 검색 (기존 서비스 함수 활용)
+        results = search_stock(query, limit=limit)
+        current_app.logger.debug(f"종목 검색: '{query}' -> {len(results)}개 결과")
+        return jsonify(results)
+
+    except Exception as e:
+        current_app.logger.error(f"종목 검색 오류: {e}")
+        return (
+            jsonify({"error": "종목 정보를 불러올 수 없습니다.", "code": "STOCK_LIST_ERROR"}),
+            500,
+        )
