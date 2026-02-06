@@ -68,24 +68,6 @@
                     </div>
                     <span class="text-xl font-bold text-slate-800 group-hover:text-blue-600 transition-colors">Stock Alarm</span>
                 </a>
-
-                <!-- Navigation -->
-                <nav class="flex items-center gap-1">
-                    <a href="{{ url_for('main.home') }}"
-                       class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        홈
-                    </a>
-                    {% if user is defined and user %}
-                    <a href="{{ url_for('settings.settings_page', uuid=user.uuid) }}"
-                       class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        내 설정
-                    </a>
-                    <a href="{{ url_for('settings.history_page', uuid=user.uuid) }}"
-                       class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        알림 히스토리
-                    </a>
-                    {% endif %}
-                </nav>
             </div>
         </div>
     </header>
