@@ -1,0 +1,5 @@
+# Stock Alarm Cron Jobs
+# 설치: crontab -e 로 편집 후 아래 내용 추가
+
+# 매일 평일 11:35 알림 체크 (장중)
+35 11 * * 1-5 cd /home/onev/stock-alarm && /home/onev/.local/bin/uv run python scripts/check_alert.py >> /home/onev/stock-alarm/logs/cron.log 2>&1
