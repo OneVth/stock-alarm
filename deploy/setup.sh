@@ -8,7 +8,7 @@ echo "=========================================="
 echo "Stock Alarm 배포 스크립트"
 echo "=========================================="
 
-PROJECT_DIR="/home/onev/stock-alarm"
+PROJECT_DIR="/home/onev/_projects/stock-alarm"
 SERVICE_NAME="stock-alarm"
 
 # 1. 프로젝트 디렉토리 확인
