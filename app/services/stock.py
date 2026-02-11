@@ -51,12 +51,18 @@ def _get_stock_list_cached(cache_date: str) -> pd.DataFrame:
     try:
         kospi = fdr.StockListing("KOSPI")
         kosdaq = fdr.StockListing("KOSDAQ")
+        etf = fdr.StockListing("ETF/KR")
 
         kospi["Market"] = "KOSPI"
         kosdaq["Market"] = "KOSDAQ"
+        etf["Market"] = "ETF"
 
-        combined = pd.concat([kospi, kosdaq], ignore_index=True)
-        current_app.logger.info(f"종목 리스트 로드 완료: {len(combined)}개")
+        combined = pd.concat([kospi, kosdaq, etf], ignore_index=True)
+        combined = combined.drop_duplicates(subset="Code")
+        current_app.logger.info(
+            f"종목 리스트 로드 완료: {len(combined)}개 "
+            f"(KOSPI: {len(kospi)}, KOSDAQ: {len(kosdaq)}, ETF: {len(etf)})"
+        )
         return combined
     except Exception as e:
         current_app.logger.error(f"종목 리스트 로드 실패: {e}")
