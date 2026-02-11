@@ -52,6 +52,7 @@ def _get_stock_list_cached(cache_date: str) -> pd.DataFrame:
         kospi = fdr.StockListing("KOSPI")
         kosdaq = fdr.StockListing("KOSDAQ")
         etf = fdr.StockListing("ETF/KR")
+        etf = etf.rename(columns={"Symbol": "Code"})
 
         kospi["Market"] = "KOSPI"
         kosdaq["Market"] = "KOSDAQ"
