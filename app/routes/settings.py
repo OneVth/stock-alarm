@@ -10,7 +10,6 @@ from flask import (
     flash,
     abort,
     request,
-    jsonify,
     current_app,
 )
 
@@ -26,12 +25,6 @@ from app.services.stock import (
 # 알림 기준 기본값
 DEFAULT_THRESHOLD_UPPER = 10.0  # +10%
 DEFAULT_THRESHOLD_LOWER = -10.0  # -10%
-
-
-def _is_ajax():
-    """AJAX 요청 여부 판별"""
-    return request.headers.get("X-Requested-With") == "XMLHttpRequest"
-
 
 settings_bp = Blueprint("settings", __name__)
 
@@ -90,13 +83,6 @@ def settings_page(uuid):
 @settings_bp.route("/settings/<uuid>/alerts", methods=["POST"])
 def add_alert(uuid):
     """종목 추가"""
-
-    def _error(message, status_code=400):
-        if _is_ajax():
-            return jsonify({"success": False, "message": message}), status_code
-        flash(message, "error")
-        return redirect(url_for("settings.settings_page", uuid=uuid))
-
     # 1. 사용자 조회
     user = User.query.filter_by(uuid=uuid).first()
     if not user:
@@ -118,15 +104,17 @@ def add_alert(uuid):
         current_app.logger.warning(
             f"[종목 추가 실패] 종목코드 미입력 - 사용자: {user.email}"
         )
-        return _error("종목코드를 입력해주세요.")
+        flash("종목코드를 입력해주세요.", "error")
+        return redirect(url_for("settings.settings_page", uuid=uuid))
 
     if not is_valid_stock_code_format(stock_code):
         current_app.logger.warning(
             f"[종목 추가 실패] 종목코드 형식 오류: {stock_code} - 사용자: {user.email}"
         )
-        return _error("종목코드는 6자리 숫자여야 합니다.")
+        flash("종목코드는 6자리 숫자여야 합니다.", "error")
+        return redirect(url_for("settings.settings_page", uuid=uuid))
 
-    # 4. 알림 기준 검증
+    # 4. 알림 기준 검증 (최소 하나는 필수)
     upper_value = None
     lower_value = None
 
@@ -137,7 +125,8 @@ def add_alert(uuid):
             current_app.logger.warning(
                 f"[종목 추가 실패] 상승 기준 형식 오류: {threshold_upper} - 사용자: {user.email}"
             )
-            return _error("상승 기준은 숫자여야 합니다.")
+            flash("상승 기준은 숫자여야 합니다.", "error")
+            return redirect(url_for("settings.settings_page", uuid=uuid))
 
     if threshold_lower:
         try:
@@ -149,7 +138,8 @@ def add_alert(uuid):
             current_app.logger.warning(
                 f"[종목 추가 실패] 하락 기준 형식 오류: {threshold_lower} - 사용자: {user.email}"
             )
-            return _error("하락 기준은 숫자여야 합니다.")
+            flash("하락 기준은 숫자여야 합니다.", "error")
+            return redirect(url_for("settings.settings_page", uuid=uuid))
 
     # 둘 다 비어있으면 기본값 적용
     if upper_value is None and lower_value is None:
@@ -166,7 +156,8 @@ def add_alert(uuid):
         current_app.logger.warning(
             f"[종목 추가 실패] 유효하지 않은 종목코드: {stock_code} - 사용자: {user.email}"
         )
-        return _error("유효하지 않은 종목코드입니다. 종목코드를 확인해주세요.")
+        flash("유효하지 않은 종목코드입니다. 종목코드를 확인해주세요.", "error")
+        return redirect(url_for("settings.settings_page", uuid=uuid))
 
     # 6. 중복 등록 검증
     existing_alert = Alert.query.filter_by(
@@ -177,7 +168,8 @@ def add_alert(uuid):
         current_app.logger.warning(
             f"[종목 추가 실패] 중복 등록: {stock_code} - 사용자: {user.email}"
         )
-        return _error("이미 등록된 종목입니다.")
+        flash("이미 등록된 종목입니다.", "error")
+        return redirect(url_for("settings.settings_page", uuid=uuid))
 
     # 7. 종목명 조회 (FDR 캐시)
     current_app.logger.debug(f"[종목명 조회] FDR 캐시: {stock_code}")
@@ -186,7 +178,8 @@ def add_alert(uuid):
         current_app.logger.error(
             f"[종목 추가 실패] 종목명 조회 실패: {stock_code} - 사용자: {user.email}"
         )
-        return _error("종목 정보를 조회할 수 없습니다. 잠시 후 다시 시도해주세요.", 500)
+        flash("종목 정보를 조회할 수 없습니다. 잠시 후 다시 시도해주세요.", "error")
+        return redirect(url_for("settings.settings_page", uuid=uuid))
 
     # 8. 현재가 조회 (네이버 API)
     current_app.logger.debug(f"[현재가 조회] 네이버 API: {stock_code}")
@@ -195,7 +188,8 @@ def add_alert(uuid):
         current_app.logger.error(
             f"[종목 추가 실패] 현재가 조회 실패: {stock_code} - 사용자: {user.email}"
         )
-        return _error("주식 정보를 조회할 수 없습니다. 잠시 후 다시 시도해주세요.", 500)
+        flash("주식 정보를 조회할 수 없습니다. 잠시 후 다시 시도해주세요.", "error")
+        return redirect(url_for("settings.settings_page", uuid=uuid))
 
     # 9. Alert 레코드 생성
     alert = Alert(
@@ -216,26 +210,6 @@ def add_alert(uuid):
         f"종목: {stock_name}({stock_code}), 기준가: {current_price:,.0f}원, "
         f"상승: {upper_value}%, 하락: {lower_value}%"
     )
-
-    if _is_ajax():
-        return jsonify(
-            {
-                "success": True,
-                "message": f"{stock_name} ({stock_code}) 종목이 추가되었습니다.",
-                "alert": {
-                    "id": alert.id,
-                    "stock_code": alert.stock_code,
-                    "stock_name": alert.stock_name,
-                    "base_price": alert.base_price,
-                    "current_price": current_price,
-                    "change_rate": 0,
-                    "threshold_upper": upper_value,
-                    "threshold_lower": lower_value,
-                    "status": "active",
-                },
-            }
-        )
-
     flash(f"{stock_name} ({stock_code}) 종목이 추가되었습니다.", "success")
     return redirect(url_for("settings.settings_page", uuid=uuid))
 
@@ -243,13 +217,6 @@ def add_alert(uuid):
 @settings_bp.route("/settings/<uuid>/alerts/<int:alert_id>/update", methods=["POST"])
 def update_alert(uuid, alert_id):
     """알림 기준 수정"""
-
-    def _error(message, status_code=400):
-        if _is_ajax():
-            return jsonify({"success": False, "message": message}), status_code
-        flash(message, "error")
-        return redirect(url_for("settings.settings_page", uuid=uuid))
-
     current_app.logger.info(f"[알림 수정 요청] UUID: {uuid}, Alert ID: {alert_id}")
 
     # 1. 사용자 조회
@@ -286,7 +253,8 @@ def update_alert(uuid, alert_id):
         try:
             upper_value = float(threshold_upper)
         except ValueError:
-            return _error("상승 기준은 숫자여야 합니다.")
+            flash("상승 기준은 숫자여야 합니다.", "error")
+            return redirect(url_for("settings.settings_page", uuid=uuid))
 
     if threshold_lower:
         try:
@@ -295,7 +263,8 @@ def update_alert(uuid, alert_id):
             if lower_value > 0:
                 lower_value = -lower_value
         except ValueError:
-            return _error("하락 기준은 숫자여야 합니다.")
+            flash("하락 기준은 숫자여야 합니다.", "error")
+            return redirect(url_for("settings.settings_page", uuid=uuid))
 
     # 둘 다 비어있으면 기본값 적용
     if upper_value is None and lower_value is None:
@@ -312,20 +281,6 @@ def update_alert(uuid, alert_id):
         f"종목: {alert.stock_name}({alert.stock_code}), "
         f"상승: {upper_value}%, 하락: {lower_value}%"
     )
-
-    if _is_ajax():
-        return jsonify(
-            {
-                "success": True,
-                "message": f"{alert.stock_name} 알림 기준이 수정되었습니다.",
-                "alert": {
-                    "id": alert.id,
-                    "threshold_upper": upper_value,
-                    "threshold_lower": lower_value,
-                },
-            }
-        )
-
     flash(f"{alert.stock_name} 알림 기준이 수정되었습니다.", "success")
     return redirect(url_for("settings.settings_page", uuid=uuid))
 
@@ -372,19 +327,6 @@ def toggle_alert_status(uuid, alert_id):
         f"종목: {alert.stock_name}({alert.stock_code}), "
         f"{old_status} → {new_status}"
     )
-
-    if _is_ajax():
-        return jsonify(
-            {
-                "success": True,
-                "message": f"{alert.stock_name} 알림이 {status_label}되었습니다.",
-                "alert": {
-                    "id": alert.id,
-                    "status": new_status,
-                },
-            }
-        )
-
     flash(f"{alert.stock_name} 알림이 {status_label}되었습니다.", "success")
     return redirect(url_for("settings.settings_page", uuid=uuid))
 
@@ -427,15 +369,6 @@ def delete_alert(uuid, alert_id):
     current_app.logger.info(
         f"[종목 삭제 성공] 사용자: {user.email}, 종목: {stock_name}({stock_code})"
     )
-
-    if _is_ajax():
-        return jsonify(
-            {
-                "success": True,
-                "message": f"{stock_name} ({stock_code}) 종목이 삭제되었습니다.",
-            }
-        )
-
     flash(f"{stock_name} ({stock_code}) 종목이 삭제되었습니다.", "success")
     return redirect(url_for("settings.settings_page", uuid=uuid))
 

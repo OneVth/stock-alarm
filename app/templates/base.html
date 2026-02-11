@@ -86,11 +86,6 @@
                 });
             {% endif %}
         {% endwith %}
-    "
-    @show-toast.window="
-        const msg = { category: $event.detail.category, text: $event.detail.text, show: true };
-        messages.push(msg);
-        setTimeout(() => { msg.show = false; }, 5000);
     ">
         <template x-for="(msg, index) in messages" :key="index">
             <div x-show="msg.show"
@@ -148,13 +143,6 @@
         </div>
     </footer>
 
-    <script>
-        function showToast(message, category = 'success') {
-            window.dispatchEvent(new CustomEvent('show-toast', {
-                detail: { text: message, category: category }
-            }));
-        }
-    </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>
