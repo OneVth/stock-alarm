@@ -22,6 +22,10 @@ from app.services.stock import (
     get_stock_price,
 )
 
+# 알림 기준 기본값
+DEFAULT_THRESHOLD_UPPER = 10.0  # +10%
+DEFAULT_THRESHOLD_LOWER = -10.0  # -10%
+
 settings_bp = Blueprint("settings", __name__)
 
 
@@ -127,6 +131,9 @@ def add_alert(uuid):
     if threshold_lower:
         try:
             lower_value = float(threshold_lower)
+            # 양수 입력 시 음수로 자동 변환 (예: 10 → -10)
+            if lower_value > 0:
+                lower_value = -lower_value
         except ValueError:
             current_app.logger.warning(
                 f"[종목 추가 실패] 하락 기준 형식 오류: {threshold_lower} - 사용자: {user.email}"
@@ -134,12 +141,14 @@ def add_alert(uuid):
             flash("하락 기준은 숫자여야 합니다.", "error")
             return redirect(url_for("settings.settings_page", uuid=uuid))
 
+    # 둘 다 비어있으면 기본값 적용
     if upper_value is None and lower_value is None:
-        current_app.logger.warning(
-            f"[종목 추가 실패] 기준 미입력 - 사용자: {user.email}, 종목: {stock_code}"
+        upper_value = DEFAULT_THRESHOLD_UPPER
+        lower_value = DEFAULT_THRESHOLD_LOWER
+        current_app.logger.info(
+            f"[종목 추가] 기본값 적용 - 사용자: {user.email}, "
+            f"상승: {upper_value}%, 하락: {lower_value}%"
         )
-        flash("상승 또는 하락 기준 중 하나 이상을 입력해주세요.", "error")
-        return redirect(url_for("settings.settings_page", uuid=uuid))
 
     # 5. 종목코드 실제 존재 여부 검증 (FDR 캐시)
     current_app.logger.debug(f"[종목 검증] FDR 캐시 조회: {stock_code}")
@@ -250,13 +259,17 @@ def update_alert(uuid, alert_id):
     if threshold_lower:
         try:
             lower_value = float(threshold_lower)
+            # 양수 입력 시 음수로 자동 변환
+            if lower_value > 0:
+                lower_value = -lower_value
         except ValueError:
             flash("하락 기준은 숫자여야 합니다.", "error")
             return redirect(url_for("settings.settings_page", uuid=uuid))
 
+    # 둘 다 비어있으면 기본값 적용
     if upper_value is None and lower_value is None:
-        flash("상승 또는 하락 기준 중 하나 이상을 입력해주세요.", "error")
-        return redirect(url_for("settings.settings_page", uuid=uuid))
+        upper_value = DEFAULT_THRESHOLD_UPPER
+        lower_value = DEFAULT_THRESHOLD_LOWER
 
     # 6. Alert 업데이트
     alert.threshold_upper = upper_value

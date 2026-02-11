@@ -49,9 +49,9 @@ def is_threshold_reached(alert: Alert, current_price: float) -> tuple[bool, str 
         if change_rate >= alert.threshold_upper:
             return True, "upper"
 
-    # 하락 기준 체크
+    # 하락 기준 체크 (threshold_lower는 음수로 저장됨)
     if alert.threshold_lower is not None:
-        if change_rate <= -alert.threshold_lower:  # 하락은 음수
+        if change_rate <= alert.threshold_lower:
             return True, "lower"
 
     return False, None
