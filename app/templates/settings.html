@@ -272,6 +272,7 @@
                     {% set current_price = item.current_price %}
                     {% set change_rate = item.change_rate %}
                     <tr class="hover:bg-blue-50/50 transition-colors group cursor-pointer"
+                        x-data
                         @click="$dispatch('open-edit-modal', { alertId: {{ alert.id }}, stockName: '{{ alert.stock_name|e }}', stockCode: '{{ alert.stock_code }}', thresholdUpper: {{ alert.threshold_upper if alert.threshold_upper else 'null' }}, thresholdLower: {{ alert.threshold_lower if alert.threshold_lower else 'null' }} })">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
@@ -453,7 +454,8 @@
          x-transition:leave="transition ease-in duration-150"
          x-transition:leave-start="opacity-100 scale-100"
          x-transition:leave-end="opacity-0 scale-95"
-         class="fixed inset-0 z-50 flex items-center justify-center p-4">
+         class="fixed inset-0 z-50 flex items-center justify-center p-4"
+         @click="open = false">
         <div class="bg-white rounded-xl shadow-2xl max-w-md w-full p-6" @click.stop>
             <!-- Header -->
             <div class="flex items-center justify-between mb-6">
@@ -485,7 +487,7 @@
                                x-model="thresholdLower"
                                class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-slate-900
                                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                               placeholder="10 (자동으로 -10%로 변환)">
+                               placeholder="10">
                     </div>
                 </div>
 
