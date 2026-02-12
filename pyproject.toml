@@ -20,6 +20,7 @@ dev = [
     "black>=26.1.0",
     "pytest>=9.0.2",
     "pytest-cov>=7.0.0",
+    "pytest-playwright>=0.7.0",
 ]
 
 [tool.black]
@@ -31,3 +32,6 @@ testpaths = ["tests"]
 python_files = "test_*.py"
 python_functions = "test_*"
 addopts = "-v"
+markers = [
+    "e2e: End-to-end tests using Playwright",
+]
