@@ -5,11 +5,11 @@
 - 네이버 금융 API: 실시간 현재가/시장 지수 조회
 """
 
+import json
 import re
 from datetime import date
-from functools import lru_cache
+from pathlib import Path
 
-import pandas as pd
 import requests
 from flask import current_app
 
@@ -35,49 +35,79 @@ def is_valid_stock_code_format(stock_code: str) -> bool:
     return bool(re.match(STOCK_CODE_REGEX, stock_code.strip()))
 
 
-@lru_cache(maxsize=1)
-def _get_stock_list_cached(cache_date: str) -> pd.DataFrame:
-    """
-    종목 리스트 캐싱 (하루 1회 갱신)
+# 종목 리스트 메모리 캐시
+_stock_list_cache: list[dict] | None = None
+_stock_list_cache_date: str | None = None
 
-    Args:
-        cache_date: 캐시 키 (날짜 문자열)
+
+def _get_stock_list() -> list[dict]:
+    """
+    캐시된 종목 리스트 반환 (JSON 파일 → 메모리 캐시)
+
+    우선순위:
+        1. 메모리 캐시 (같은 날짜)
+        2. JSON 파일 (data/stock_list.json)
+        3. FinanceDataReader 실시간 로드 (fallback)
 
     Returns:
-        pd.DataFrame: KOSPI + KOSDAQ 전체 종목 DataFrame
+        list[dict]: 종목 리스트 [{"code": "005930", "name": "삼성전자", "market": "KOSPI"}, ...]
     """
-    import FinanceDataReader as fdr
+    global _stock_list_cache, _stock_list_cache_date
 
+    today = str(date.today())
+    if _stock_list_cache is not None and _stock_list_cache_date == today:
+        return _stock_list_cache
+
+    # 1순위: JSON 파일에서 로드
+    cache_path = Path(current_app.root_path).parent / "data" / "stock_list.json"
+    if cache_path.exists():
+        try:
+            with open(cache_path, "r", encoding="utf-8") as f:
+                _stock_list_cache = json.load(f)
+            _stock_list_cache_date = today
+            current_app.logger.info(
+                f"종목 리스트 로드 완료 (JSON 파일): {len(_stock_list_cache)}개"
+            )
+            return _stock_list_cache
+        except Exception as e:
+            current_app.logger.error(f"종목 리스트 JSON 파일 로드 실패: {e}")
+
+    # 2순위 (fallback): FinanceDataReader에서 실시간 로드
+    current_app.logger.info("종목 리스트 JSON 파일 없음, FinanceDataReader로 로드 시작")
     try:
+        import FinanceDataReader as fdr
+
+        import pandas as pd
+
         kospi = fdr.StockListing("KOSPI")
         kosdaq = fdr.StockListing("KOSDAQ")
         etf = fdr.StockListing("ETF/KR")
         etf = etf.rename(columns={"Symbol": "Code"})
 
-        kospi["Market"] = "KOSPI"
-        kosdaq["Market"] = "KOSDAQ"
-        etf["Market"] = "ETF"
+        stocks = []
+        seen_codes = set()
+        for df, market in [(kospi, "KOSPI"), (kosdaq, "KOSDAQ"), (etf, "ETF")]:
+            for _, row in df.iterrows():
+                code = str(row["Code"]).strip()
+                if code and code not in seen_codes:
+                    seen_codes.add(code)
+                    stocks.append(
+                        {
+                            "code": code,
+                            "name": str(row["Name"]).strip(),
+                            "market": market,
+                        }
+                    )
 
-        combined = pd.concat([kospi, kosdaq, etf], ignore_index=True)
-        combined = combined.drop_duplicates(subset="Code")
+        _stock_list_cache = stocks
+        _stock_list_cache_date = today
         current_app.logger.info(
-            f"종목 리스트 로드 완료: {len(combined)}개 "
-            f"(KOSPI: {len(kospi)}, KOSDAQ: {len(kosdaq)}, ETF: {len(etf)})"
+            f"종목 리스트 로드 완료 (FinanceDataReader): {len(stocks)}개"
         )
-        return combined
+        return _stock_list_cache
     except Exception as e:
         current_app.logger.error(f"종목 리스트 로드 실패: {e}")
-        return pd.DataFrame()
-
-
-def _get_stock_list() -> pd.DataFrame:
-    """
-    캐시된 종목 리스트 반환
-
-    Returns:
-        pd.DataFrame: 종목 리스트 (Code, Name, Market 등)
-    """
-    return _get_stock_list_cached(str(date.today()))
+        return []
 
 
 def validate_stock_code(stock_code: str) -> bool:
@@ -94,13 +124,15 @@ def validate_stock_code(stock_code: str) -> bool:
         current_app.logger.debug(f"종목코드 형식 오류: {stock_code}")
         return False
 
-    df = _get_stock_list()
-    if df.empty:
+    stocks = _get_stock_list()
+    if not stocks:
         current_app.logger.warning("종목 리스트가 비어있음")
         return False
 
-    is_valid = stock_code.strip() in df["Code"].values
-    current_app.logger.debug(f"종목코드 검증: {stock_code} -> {'유효' if is_valid else '무효'}")
+    is_valid = any(s["code"] == stock_code.strip() for s in stocks)
+    current_app.logger.debug(
+        f"종목코드 검증: {stock_code} -> {'유효' if is_valid else '무효'}"
+    )
     return is_valid
 
 
@@ -119,23 +151,17 @@ def search_stock(query: str, limit: int = 10) -> list[dict]:
     if not query:
         return []
 
-    df = _get_stock_list()
-    if df.empty:
+    stocks = _get_stock_list()
+    if not stocks:
         return []
 
-    query = query.strip()
+    query = query.strip().lower()
 
-    # 종목코드 또는 종목명으로 검색
-    mask = df["Code"].str.contains(query, case=False, na=False) | df[
-        "Name"
-    ].str.contains(query, case=False, na=False)
+    results = [
+        s for s in stocks if query in s["code"].lower() or query in s["name"].lower()
+    ][:limit]
 
-    results = df[mask].head(limit)
-
-    return [
-        {"code": row["Code"], "name": row["Name"], "market": row["Market"]}
-        for _, row in results.iterrows()
-    ]
+    return results
 
 
 def get_stock_name(stock_code: str) -> str | None:
@@ -148,15 +174,16 @@ def get_stock_name(stock_code: str) -> str | None:
     Returns:
         str | None: 종목명 또는 None
     """
-    df = _get_stock_list()
-    if df.empty:
+    stocks = _get_stock_list()
+    if not stocks:
         return None
 
-    stock_row = df[df["Code"] == stock_code.strip()]
-    if stock_row.empty:
-        return None
+    code = stock_code.strip()
+    for s in stocks:
+        if s["code"] == code:
+            return s["name"]
 
-    return stock_row.iloc[0]["Name"]
+    return None
 
 
 def get_stock_price(stock_code: str) -> float | None:
@@ -185,7 +212,9 @@ def get_stock_price(stock_code: str) -> float | None:
             if isinstance(close_price, str):
                 close_price = close_price.replace(",", "")
             price = float(close_price)
-            current_app.logger.debug(f"[네이버 API] 현재가 조회 성공: {stock_code} -> {price:,.0f}원")
+            current_app.logger.debug(
+                f"[네이버 API] 현재가 조회 성공: {stock_code} -> {price:,.0f}원"
+            )
             return price
 
         current_app.logger.warning(f"현재가 없음: {stock_code}, 응답: {data}")
@@ -216,16 +245,19 @@ def get_stock_info(stock_code: str) -> dict | None:
             }
     """
     # 1. 종목명, 시장 조회 (캐시된 리스트)
-    df = _get_stock_list()
-    if df.empty:
+    stocks = _get_stock_list()
+    if not stocks:
         return None
 
-    stock_row = df[df["Code"] == stock_code.strip()]
-    if stock_row.empty:
-        return None
+    code = stock_code.strip()
+    stock_data = None
+    for s in stocks:
+        if s["code"] == code:
+            stock_data = s
+            break
 
-    stock_name = stock_row.iloc[0]["Name"]
-    market = stock_row.iloc[0]["Market"]
+    if stock_data is None:
+        return None
 
     # 2. 현재가 조회 (네이버 API)
     price = get_stock_price(stock_code)
@@ -233,10 +265,10 @@ def get_stock_info(stock_code: str) -> dict | None:
         return None
 
     return {
-        "code": stock_code.strip(),
-        "name": stock_name,
+        "code": code,
+        "name": stock_data["name"],
         "price": price,
-        "market": market,
+        "market": stock_data["market"],
     }
 
 
@@ -283,7 +315,9 @@ def get_market_summary() -> dict | None:
             "kospi": _parse_price(kospi_data.get("closePrice")),
             "kosdaq": _parse_price(kosdaq_data.get("closePrice")),
             "kospi_change": _parse_price(kospi_data.get("compareToPreviousClosePrice")),
-            "kosdaq_change": _parse_price(kosdaq_data.get("compareToPreviousClosePrice")),
+            "kosdaq_change": _parse_price(
+                kosdaq_data.get("compareToPreviousClosePrice")
+            ),
             "kospi_change_rate": _parse_price(kospi_data.get("fluctuationsRatio")),
             "kosdaq_change_rate": _parse_price(kosdaq_data.get("fluctuationsRatio")),
         }

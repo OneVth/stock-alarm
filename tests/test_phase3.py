@@ -3,7 +3,6 @@
 import uuid
 from unittest.mock import patch, MagicMock
 
-import pandas as pd
 import pytest
 
 from app import db
@@ -56,13 +55,11 @@ class TestStockCodeFormat:
 @pytest.fixture
 def mock_stock_list():
     """Mock 종목 리스트"""
-    return pd.DataFrame(
-        {
-            "Code": ["005930", "000660", "035720"],
-            "Name": ["삼성전자", "SK하이닉스", "카카오"],
-            "Market": ["KOSPI", "KOSPI", "KOSPI"],
-        }
-    )
+    return [
+        {"code": "005930", "name": "삼성전자", "market": "KOSPI"},
+        {"code": "000660", "name": "SK하이닉스", "market": "KOSPI"},
+        {"code": "035720", "name": "카카오", "market": "KOSPI"},
+    ]
 
 
 class TestValidateStockCode:
