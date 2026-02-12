@@ -294,8 +294,17 @@ class TestAddAlert:
         assert response.status_code == 200
         assert "종목코드는 6자리 숫자여야 합니다".encode("utf-8") in response.data
 
-    def test_add_alert_no_threshold(self, app, client):
-        """알림 기준 없이 추가 시 에러"""
+    @patch("app.routes.settings.get_stock_price")
+    @patch("app.routes.settings.get_stock_name")
+    @patch("app.routes.settings.validate_stock_code")
+    def test_add_alert_no_threshold(
+        self, mock_validate, mock_name, mock_price, app, client
+    ):
+        """알림 기준 없이 추가 시 기본값 ±10% 적용"""
+        mock_validate.return_value = True
+        mock_name.return_value = "삼성전자"
+        mock_price.return_value = 70000
+
         with app.app_context():
             user = User(email="test@example.com", uuid=str(uuid.uuid4()))
             db.session.add(user)
@@ -308,10 +317,14 @@ class TestAddAlert:
             follow_redirects=True,
         )
         assert response.status_code == 200
-        assert (
-            "상승 또는 하락 기준 중 하나 이상을 입력해주세요".encode("utf-8")
-            in response.data
-        )
+        assert "종목이 추가되었습니다".encode("utf-8") in response.data
+
+        # 기본값 ±10% 적용 확인
+        with app.app_context():
+            alert = Alert.query.filter_by(stock_code="005930").first()
+            assert alert is not None
+            assert alert.threshold_upper == 10.0
+            assert alert.threshold_lower == -10.0
 
     @patch("app.routes.settings.validate_stock_code")
     def test_add_alert_invalid_stock_code(self, mock_validate, app, client):

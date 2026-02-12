@@ -63,7 +63,7 @@ class TestIsThresholdReached:
                 stock_name="삼성전자",
                 base_price=70000,
                 threshold_upper=None,
-                threshold_lower=3.0,
+                threshold_lower=-3.0,
                 status="active",
             )
             # -3.0% 하락 (70000 -> 67900)
@@ -80,7 +80,7 @@ class TestIsThresholdReached:
                 stock_name="삼성전자",
                 base_price=70000,
                 threshold_upper=None,
-                threshold_lower=3.0,
+                threshold_lower=-3.0,
                 status="active",
             )
             # -2.0% 하락 (70000 -> 68600)
@@ -97,7 +97,7 @@ class TestIsThresholdReached:
                 stock_name="삼성전자",
                 base_price=70000,
                 threshold_upper=5.0,
-                threshold_lower=3.0,
+                threshold_lower=-3.0,
                 status="active",
             )
             # 5.0% 상승 (70000 -> 73500)
@@ -114,7 +114,7 @@ class TestIsThresholdReached:
                 stock_name="삼성전자",
                 base_price=70000,
                 threshold_upper=5.0,
-                threshold_lower=3.0,
+                threshold_lower=-3.0,
                 status="active",
             )
             # -3.0% 하락 (70000 -> 67900)
@@ -554,7 +554,7 @@ class TestIntegration:
                 stock_code="005930",
                 stock_name="삼성전자",
                 base_price=70000,
-                threshold_lower=3.0,
+                threshold_lower=-3.0,
                 status="active",
             )
             db.session.add(alert)
