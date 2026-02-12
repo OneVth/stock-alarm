@@ -60,15 +60,23 @@ sudo systemctl status $SERVICE_NAME --no-pager
 
 # 8. cron 작업 등록
 echo "[6/7] Cron 작업 설정..."
-CRON_JOB="35 11 * * 1-5 cd $PROJECT_DIR && /home/onev/.local/bin/uv run python scripts/check_alert.py >> $PROJECT_DIR/logs/cron.log 2>&1"
+CRON_ALERT="35 11 * * 1-5 cd $PROJECT_DIR && /home/onev/.local/bin/uv run python scripts/check_alert.py >> $PROJECT_DIR/logs/cron.log 2>&1"
+CRON_STOCK_LIST="0 8 * * 1-5 cd $PROJECT_DIR && /home/onev/.local/bin/uv run python scripts/update_stock_list.py >> $PROJECT_DIR/logs/cron.log 2>&1"
 
-# 이미 등록되어 있는지 확인
+# 알림 체크 cron
 if crontab -l 2>/dev/null | grep -q "check_alert.py"; then
-    echo "Cron 작업이 이미 등록되어 있습니다."
+    echo "알림 체크 Cron 작업이 이미 등록되어 있습니다."
 else
-    # 기존 crontab에 추가
-    (crontab -l 2>/dev/null; echo "$CRON_JOB") | crontab -
-    echo "Cron 작업 등록 완료: 매일 평일 11:35"
+    (crontab -l 2>/dev/null; echo "$CRON_ALERT") | crontab -
+    echo "알림 체크 Cron 등록 완료: 매일 평일 11:35"
+fi
+
+# 종목 리스트 갱신 cron
+if crontab -l 2>/dev/null | grep -q "update_stock_list.py"; then
+    echo "종목 리스트 갱신 Cron 작업이 이미 등록되어 있습니다."
+else
+    (crontab -l 2>/dev/null; echo "$CRON_STOCK_LIST") | crontab -
+    echo "종목 리스트 갱신 Cron 등록 완료: 매일 평일 08:00"
 fi
 
 # 9. Cloudflare Tunnel 안내
