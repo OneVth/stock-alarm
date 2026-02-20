@@ -180,9 +180,8 @@ def process_alert(alert: Alert, app) -> dict:
     )
     db.session.add(alert_log)
 
-    # 8. Alert 상태 업데이트
-    alert.status = "triggered"
-    alert.triggered_at = datetime.utcnow()
+    # 8. Alert 업데이트: base_price를 현재가로 갱신, status는 active 유지
+    alert.base_price = current_price
 
     db.session.commit()
 
