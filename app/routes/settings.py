@@ -282,6 +282,12 @@ def update_alert(uuid, alert_id):
         f"상승: {upper_value}%, 하락: {lower_value}%"
     )
     flash(f"{alert.stock_name} 알림 기준이 수정되었습니다.", "success")
+
+    # 상세 페이지에서 수정한 경우 상세 페이지로 돌아가기
+    if request.form.get("redirect_to") == "stock_detail":
+        return redirect(
+            url_for("settings.stock_detail", uuid=uuid, alert_id=alert_id)
+        )
     return redirect(url_for("settings.settings_page", uuid=uuid))
 
 
@@ -371,6 +377,58 @@ def delete_alert(uuid, alert_id):
     )
     flash(f"{stock_name} ({stock_code}) 종목이 삭제되었습니다.", "success")
     return redirect(url_for("settings.settings_page", uuid=uuid))
+
+
+@settings_bp.route("/settings/<uuid>/stock/<int:alert_id>")
+def stock_detail(uuid, alert_id):
+    """종목 상세 페이지"""
+    user = User.query.filter_by(uuid=uuid).first()
+    if not user:
+        current_app.logger.warning(f"[종목 상세] 존재하지 않는 UUID: {uuid}")
+        abort(404)
+
+    alert = db.session.get(Alert, alert_id)
+    if not alert or alert.user_id != user.id:
+        current_app.logger.warning(
+            f"[종목 상세] 접근 실패 - Alert ID: {alert_id}, UUID: {uuid}"
+        )
+        abort(404)
+
+    current_app.logger.info(
+        f"[종목 상세] 접근 성공 - {alert.stock_name}({alert.stock_code}), "
+        f"사용자: {user.email}"
+    )
+
+    # 현재가 조회
+    try:
+        current_price = get_stock_price(alert.stock_code)
+        if current_price is not None:
+            change_rate = (
+                (current_price - alert.base_price) / alert.base_price
+            ) * 100
+        else:
+            current_price = alert.base_price
+            change_rate = 0
+    except Exception as e:
+        current_app.logger.warning(f"현재가 조회 실패: {alert.stock_code}, {e}")
+        current_price = alert.base_price
+        change_rate = 0
+
+    # 알림 히스토리 (해당 종목만)
+    logs = (
+        AlertLog.query.filter_by(alert_id=alert.id)
+        .order_by(AlertLog.sent_at.desc())
+        .all()
+    )
+
+    return render_template(
+        "stock_detail.html",
+        user=user,
+        alert=alert,
+        current_price=current_price,
+        change_rate=change_rate,
+        logs=logs,
+    )
 
 
 @settings_bp.route("/settings/<uuid>/history")

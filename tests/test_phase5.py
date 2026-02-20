@@ -290,10 +290,10 @@ class TestProcessAlert:
             assert result["status"] == "triggered"
             assert result["email_sent"] is True
 
-            # Alert 상태 확인
+            # Alert 상태 확인: active 유지, base_price 갱신
             updated_alert = Alert.query.get(alert.id)
-            assert updated_alert.status == "triggered"
-            assert updated_alert.triggered_at is not None
+            assert updated_alert.status == "active"
+            assert updated_alert.base_price == 73500
 
             # AlertLog 확인
             log = AlertLog.query.filter_by(alert_id=alert.id).first()
@@ -332,9 +332,10 @@ class TestProcessAlert:
             log = AlertLog.query.filter_by(alert_id=alert.id).first()
             assert log.email_sent is False
 
-            # Alert 상태는 triggered로 변경 (재발송은 별도 처리)
+            # Alert 상태는 active 유지, base_price 갱신
             updated_alert = Alert.query.get(alert.id)
-            assert updated_alert.status == "triggered"
+            assert updated_alert.status == "active"
+            assert updated_alert.base_price == 73500
 
     @patch("scripts.check_alert.send_alert_email")
     @patch("scripts.check_alert.get_fallback_comment")
@@ -516,9 +517,10 @@ class TestIntegration:
         assert result["email_sent"] == 1
 
         with app.app_context():
-            # Alert 상태 확인
+            # Alert 상태 확인: active 유지, base_price 갱신
             alert = Alert.query.get(alert_id)
-            assert alert.status == "triggered"
+            assert alert.status == "active"
+            assert alert.base_price == 73500
 
             # AlertLog 확인
             log = AlertLog.query.filter_by(alert_id=alert_id).first()
