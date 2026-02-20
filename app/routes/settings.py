@@ -10,6 +10,7 @@ from flask import (
     flash,
     abort,
     request,
+    jsonify,
     current_app,
 )
 
@@ -20,6 +21,7 @@ from app.services.stock import (
     validate_stock_code,
     get_stock_name,
     get_stock_price,
+    get_stock_history,
 )
 
 # 알림 기준 기본값
@@ -428,6 +430,49 @@ def stock_detail(uuid, alert_id):
         current_price=current_price,
         change_rate=change_rate,
         logs=logs,
+    )
+
+
+@settings_bp.route("/settings/<uuid>/stock/<int:alert_id>/chart-data")
+def chart_data(uuid, alert_id):
+    """차트 데이터 API (JSON)"""
+    user = User.query.filter_by(uuid=uuid).first()
+    if not user:
+        abort(404)
+
+    alert = db.session.get(Alert, alert_id)
+    if not alert or alert.user_id != user.id:
+        abort(404)
+
+    # 과거 가격 데이터 (3개월)
+    prices = get_stock_history(alert.stock_code, days=90)
+    if prices is None:
+        return jsonify({"error": "가격 데이터 조회 실패"}), 500
+
+    # 알림 발송 이력 (오름차순)
+    logs = (
+        AlertLog.query.filter_by(alert_id=alert.id)
+        .order_by(AlertLog.sent_at.asc())
+        .all()
+    )
+
+    alerts_data = [
+        {
+            "date": log.sent_at.strftime("%Y-%m-%d"),
+            "price": log.current_price,
+            "type": log.threshold_type,
+        }
+        for log in logs
+    ]
+
+    return jsonify(
+        {
+            "prices": prices,
+            "base_price": alert.base_price,
+            "threshold_upper": alert.threshold_upper,
+            "threshold_lower": alert.threshold_lower,
+            "alerts": alerts_data,
+        }
     )
 
 

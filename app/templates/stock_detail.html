@@ -2,6 +2,10 @@
 
 {% block title %}{{ alert.stock_name }} - Stock Alarm{% endblock %}
 
+{% block head %}
+<script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+{% endblock %}
+
 {% block content %}
 <div class="space-y-6">
     <!-- Header -->
@@ -142,20 +146,25 @@
         </div>
     </div>
 
-    <!-- 차트 영역 (03에서 구현) -->
+    <!-- 가격 차트 -->
     <div class="glass-card rounded-xl p-6">
         <h2 class="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
             <svg class="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
             </svg>
             가격 차트
+            <span class="text-xs font-normal text-slate-400">최근 3개월</span>
         </h2>
-        <div id="chart-container" class="flex items-center justify-center py-12 text-slate-400">
-            <div class="text-center">
-                <svg class="w-12 h-12 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                </svg>
-                <p class="text-sm">차트 기능 준비 중</p>
+        <div id="chart-container" style="height: 400px;">
+            <!-- 로딩 스피너 -->
+            <div id="chart-loading" class="flex items-center justify-center h-full text-slate-400">
+                <div class="text-center">
+                    <svg class="w-8 h-8 mx-auto mb-3 animate-spin text-blue-500" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p class="text-sm">차트 데이터를 불러오는 중...</p>
+                </div>
             </div>
         </div>
     </div>
@@ -264,4 +273,127 @@
         {% endif %}
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+    const container = document.getElementById('chart-container');
+    const loading = document.getElementById('chart-loading');
+    const chartDataUrl = '{{ url_for("settings.chart_data", uuid=user.uuid, alert_id=alert.id) }}';
+
+    // 1. 데이터 조회
+    let data;
+    try {
+        const res = await fetch(chartDataUrl);
+        if (!res.ok) throw new Error('API 응답 오류');
+        data = await res.json();
+        if (data.error) throw new Error(data.error);
+    } catch (e) {
+        loading.innerHTML = `
+            <div class="text-center">
+                <svg class="w-12 h-12 mx-auto mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                </svg>
+                <p class="text-sm text-slate-400">차트 데이터를 불러올 수 없습니다.</p>
+            </div>`;
+        return;
+    }
+
+    // 로딩 제거
+    loading.remove();
+
+    // 2. 차트 생성
+    const chart = LightweightCharts.createChart(container, {
+        layout: {
+            textColor: '#64748b',
+            background: { type: 'solid', color: 'transparent' },
+        },
+        grid: {
+            vertLines: { color: '#f1f5f9' },
+            horzLines: { color: '#f1f5f9' },
+        },
+        width: container.clientWidth,
+        height: 400,
+        timeScale: {
+            borderColor: '#e2e8f0',
+        },
+        rightPriceScale: {
+            borderColor: '#e2e8f0',
+        },
+        crosshair: {
+            mode: LightweightCharts.CrosshairMode.Normal,
+        },
+    });
+
+    // 반응형
+    new ResizeObserver(() => {
+        chart.applyOptions({ width: container.clientWidth });
+    }).observe(container);
+
+    // 3. 라인 시리즈 (종가 기준, Lightweight Charts v5 API)
+    const lineSeries = chart.addSeries(LightweightCharts.LineSeries, {
+        color: '#3b82f6',
+        lineWidth: 2,
+        crosshairMarkerVisible: true,
+        crosshairMarkerRadius: 4,
+    });
+
+    lineSeries.setData(data.prices.map(p => ({
+        time: p.date,
+        value: p.close,
+    })));
+
+    // 4. 기준가 수평선 (점선, 보라색)
+    lineSeries.createPriceLine({
+        price: data.base_price,
+        color: '#6366f1',
+        lineWidth: 1,
+        lineStyle: LightweightCharts.LineStyle.Dashed,
+        axisLabelVisible: true,
+        title: '기준가',
+    });
+
+    // 5. 상승 도달선
+    if (data.threshold_upper) {
+        const upperPrice = data.base_price * (1 + data.threshold_upper / 100);
+        lineSeries.createPriceLine({
+            price: upperPrice,
+            color: '#ef4444',
+            lineWidth: 1,
+            lineStyle: LightweightCharts.LineStyle.Dotted,
+            axisLabelVisible: true,
+            title: '+' + data.threshold_upper + '%',
+        });
+    }
+
+    // 6. 하락 도달선
+    if (data.threshold_lower) {
+        const lowerPrice = data.base_price * (1 + data.threshold_lower / 100);
+        lineSeries.createPriceLine({
+            price: lowerPrice,
+            color: '#3b82f6',
+            lineWidth: 1,
+            lineStyle: LightweightCharts.LineStyle.Dotted,
+            axisLabelVisible: true,
+            title: data.threshold_lower + '%',
+        });
+    }
+
+    // 7. 알림 발송 시점 마커 (Lightweight Charts v5 API)
+    if (data.alerts && data.alerts.length > 0) {
+        const markers = data.alerts.map(a => ({
+            time: a.date,
+            position: 'inBar',
+            color: a.type === 'upper' ? '#ef4444' : '#22c55e',
+            shape: 'circle',
+            text: a.type === 'upper' ? '상승 알림' : '하락 알림',
+            size: 1,
+        }));
+        LightweightCharts.createSeriesMarkers(lineSeries, markers);
+    }
+
+    chart.timeScale().fitContent();
+});
+</script>
 {% endblock %}

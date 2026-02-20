@@ -7,7 +7,7 @@
 
 import json
 import re
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 import requests
@@ -270,6 +270,55 @@ def get_stock_info(stock_code: str) -> dict | None:
         "price": price,
         "market": stock_data["market"],
     }
+
+
+def get_stock_history(stock_code: str, days: int = 90) -> list[dict] | None:
+    """
+    종목 과거 가격 데이터 조회 (FinanceDataReader)
+
+    Args:
+        stock_code: 종목코드 (예: "005930")
+        days: 조회 기간 (일, 기본 90일)
+
+    Returns:
+        list[dict] | None: OHLCV 데이터 리스트 또는 None (조회 실패 시)
+            [{"date": "2026-01-02", "open": 158000, "high": 160000,
+              "low": 157500, "close": 159000, "volume": 12345678}, ...]
+    """
+    import FinanceDataReader as fdr
+
+    start_date = (date.today() - timedelta(days=days)).strftime("%Y-%m-%d")
+
+    current_app.logger.debug(
+        f"[FDR] 과거 가격 조회: {stock_code}, 시작일: {start_date}"
+    )
+
+    try:
+        df = fdr.DataReader(stock_code, start_date)
+        if df is None or df.empty:
+            current_app.logger.warning(f"[FDR] 데이터 없음: {stock_code}")
+            return None
+
+        result = []
+        for idx, row in df.iterrows():
+            result.append(
+                {
+                    "date": idx.strftime("%Y-%m-%d"),
+                    "open": float(row["Open"]),
+                    "high": float(row["High"]),
+                    "low": float(row["Low"]),
+                    "close": float(row["Close"]),
+                    "volume": int(row["Volume"]),
+                }
+            )
+
+        current_app.logger.info(
+            f"[FDR] 과거 가격 조회 성공: {stock_code}, {len(result)}건"
+        )
+        return result
+    except Exception as e:
+        current_app.logger.error(f"[FDR] 과거 가격 조회 실패: {stock_code}, {e}")
+        return None
 
 
 def _parse_price(value) -> float:
