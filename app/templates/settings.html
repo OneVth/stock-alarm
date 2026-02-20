@@ -257,6 +257,7 @@
                 <thead class="bg-slate-50/50">
                     <tr>
                         <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">종목</th>
+                        <th class="px-4 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider ">추이</th>
                         <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">등록가</th>
                         <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">현재가</th>
                         <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">변동률</th>
@@ -276,11 +277,19 @@
                         @click="window.location.href='{{ url_for('settings.stock_detail', uuid=user.uuid, alert_id=alert.id) }}'">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
-                                
+
                                 <div>
                                     <div class="font-medium text-slate-900">{{ alert.stock_name }}</div>
                                     <div class="text-sm text-slate-500">{{ alert.stock_code }}</div>
                                 </div>
+                            </div>
+                        </td>
+                        <td class="px-4 py-4 ">
+                            <div class="sparkline-container"
+                                 data-alert-id="{{ alert.id }}"
+                                 data-uuid="{{ user.uuid }}"
+                                 style="width: 100px; height: 36px;">
+                                <div class="sparkline-loading w-full h-full bg-slate-100 rounded animate-pulse"></div>
                             </div>
                         </td>
                         <td class="px-6 py-4 text-right font-medium text-slate-900">
@@ -531,4 +540,57 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const containers = document.querySelectorAll('.sparkline-container');
+    if (containers.length === 0) return;
+
+    function renderSparkline(container, prices) {
+        const width = 100, height = 36;
+        const values = prices.map(p => p.close);
+        if (values.length < 2) {
+            container.innerHTML = '';
+            return;
+        }
+
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+        const range = max - min || 1;
+
+        const points = values.map((v, i) => {
+            const x = (i / (values.length - 1)) * width;
+            const y = height - 2 - ((v - min) / range) * (height - 4);
+            return x.toFixed(1) + ',' + y.toFixed(1);
+        }).join(' ');
+
+        const first = values[0];
+        const last = values[values.length - 1];
+        const color = last > first ? '#ef4444' : last < first ? '#3b82f6' : '#94a3b8';
+
+        container.innerHTML =
+            '<svg width="' + width + '" height="' + height + '" viewBox="0 0 ' + width + ' ' + height + '">' +
+            '<polyline points="' + points + '" fill="none" stroke="' + color + '" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+            '</svg>';
+    }
+
+    containers.forEach(async (container) => {
+        const alertId = container.dataset.alertId;
+        const uuid = container.dataset.uuid;
+        const url = '/settings/' + uuid + '/stock/' + alertId + '/chart-data';
+
+        try {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('fetch failed');
+            const data = await res.json();
+            if (data.error || !data.prices) throw new Error('no data');
+            renderSparkline(container, data.prices);
+        } catch (e) {
+            container.innerHTML = '';
+        }
+    });
+});
+</script>
 {% endblock %}
