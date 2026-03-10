@@ -130,16 +130,46 @@
 
 ### 1.6 배포
 
+#### 컨테이너화
+
+| 항목 | 선택 | 대안 | 선정 이유 |
+|------|------|------|----------|
+| 컨테이너 | **Docker** | 직접 설치 | 환경 일관성, 설치 간소화, 멀티 환경 지원 |
+| 오케스트레이션 | **Docker Compose** | Kubernetes | 소규모 서비스에 적합, 단순함 |
+
+**Docker 선정 이유:**
+- Windows (개발) → 라즈베리파이 (현재) → AWS (이전 시) 동일 환경
+- PostgreSQL, Node.js 등 개별 설치 불필요
+- docker-compose.yml로 버전 고정 및 재현 가능
+- 라즈베리파이 5 + Docker 공식 지원 (ARM 이미지 호환)
+
+#### 컨테이너 구성
+
+| 서비스 | 이미지 | 용도 |
+|--------|--------|------|
+| db | postgres:16-alpine | PostgreSQL 데이터베이스 |
+| app | 커스텀 빌드 | Next.js 애플리케이션 (프로덕션만) |
+
+**개발 환경:**
+- DB만 Docker로 실행
+- Next.js는 로컬에서 `pnpm dev` 실행 (HMR 활용)
+
+**프로덕션 환경:**
+- 전체 Docker Compose로 실행
+- Next.js standalone 빌드
+
+#### 배포 환경
+
 | 항목 | 선택 | 대안 | 선정 이유 |
 |------|------|------|----------|
 | 현재 배포 | **라즈베리파이** | - | 무료, 기존 인프라, 시스템 cron |
 | 이전 옵션 | **AWS Lightsail** | Vercel, EC2 | 시스템 cron 사용, 비용 합리적 ($5/월) |
-| 프로세스 관리 | **PM2** | systemd | Node.js 표준, 재시작 자동화 |
+| 프로세스 관리 | **PM2** (비Docker) / **Docker** (컨테이너) | systemd | Node.js 표준, 재시작 자동화 |
 | 리버스 프록시 | **Nginx** | Caddy | 기존 경험, 안정적 |
 
 **양방향 이전 가능:**
-- 동일 구성 (Next.js + PM2 + PostgreSQL + Nginx + 시스템 cron)
-- 환경변수만 변경하면 이전 완료
+- Docker Compose로 동일 환경 구성
+- 환경변수(.env)만 변경하면 이전 완료
 
 ---
 
@@ -886,6 +916,43 @@ crontab:
 | - | nickname | 기존 email 또는 Google name |
 | - | image | Google 프로필 이미지 |
 
+#### Google OAuth 연동 시나리오
+
+기존 v1 사용자(이메일만 있는 사용자)가 v2에서 Google 로그인을 했을 때의 처리 방법.
+
+**시나리오별 처리:**
+
+| 시나리오 | 조건 | 처리 |
+|----------|------|------|
+| A. 기존 사용자 연동 | Google 이메일과 동일한 이메일이 DB에 존재 | 기존 User 레코드에 googleId 연동, 기존 데이터 유지 |
+| B. 신규 사용자 | Google 이메일이 DB에 없음 | 신규 User 생성 |
+| C. 이미 연동된 사용자 | googleId가 이미 설정되어 있음 | 정상 로그인 진행 |
+
+**연동 흐름 (시나리오 A):**
+
+| 단계 | 동작 |
+|------|------|
+| 1 | 사용자가 Google 로그인 시도 |
+| 2 | NextAuth signIn 콜백에서 Google 이메일로 기존 User 조회 |
+| 3 | User 존재 + googleId 없음 → googleId 필드 업데이트 |
+| 4 | 기존 Alert, AlertLog 등 모든 관계 데이터 자동 유지 (userId 변경 없음) |
+| 5 | nickname, image는 기존 값 유지 또는 Google 정보로 업데이트 (사용자 선택 가능) |
+
+**데이터 무결성 보장:**
+
+| 항목 | 방법 |
+|------|------|
+| 이메일 고유성 | email 필드에 unique 제약 유지 |
+| 중복 연동 방지 | 하나의 Google 계정은 하나의 User에만 연동 |
+| 기존 데이터 보존 | userId(FK) 변경 없이 googleId만 추가 |
+
+**예외 처리:**
+
+| 상황 | 처리 |
+|------|------|
+| Google 이메일 ≠ 기존 이메일 | 신규 User로 생성 (기존 데이터 접근 불가) |
+| 이메일 변경 필요 시 | 관리자가 수동으로 이메일 매핑 후 연동 |
+
 #### Alert 마이그레이션
 
 | 기존 필드 | 신규 필드 | 처리 |
@@ -919,23 +986,50 @@ crontab:
 
 ### 8.3 배포 설정
 
-#### 라즈베리파이 배포
+#### 컨테이너 구성
 
-```
-1. Node.js 20+ 설치
-2. PostgreSQL 설치 및 설정
-3. pnpm install
-4. prisma migrate deploy
-5. pnpm build
-6. PM2로 실행
-7. Nginx 리버스 프록시
-8. Cloudflare Tunnel 연결
-9. 시스템 cron 등록
-```
+| 서비스 | 이미지 | 용도 | 환경 |
+|--------|--------|------|------|
+| db | postgres:16-alpine | PostgreSQL 데이터베이스 | 개발 + 프로덕션 |
+| app | 커스텀 빌드 (Next.js standalone) | 애플리케이션 | 프로덕션만 |
+
+#### 개발 환경
+
+| 구성 요소 | 실행 방식 |
+|----------|----------|
+| PostgreSQL | Docker 컨테이너 |
+| Next.js | 로컬 (pnpm dev) |
+
+#### 프로덕션 환경
+
+| 구성 요소 | 실행 방식 |
+|----------|----------|
+| PostgreSQL | Docker 컨테이너 |
+| Next.js | Docker 컨테이너 (standalone) |
+| Nginx | 호스트 |
+
+#### 배포 단계
+
+| 단계 | 작업 |
+|------|------|
+| 1 | Docker, Docker Compose 설치 |
+| 2 | 환경변수 파일(.env) 설정 |
+| 3 | docker compose up -d |
+| 4 | Prisma 마이그레이션 실행 |
+| 5 | Nginx 리버스 프록시 설정 |
+| 6 | Cloudflare Tunnel 연결 |
+| 7 | 시스템 cron 등록 |
+
+---
 
 #### AWS Lightsail 이전 시
 
-동일 구성, 환경변수만 변경
+| 항목 | 내용 |
+|------|------|
+| 구성 | Docker 방식과 동일 |
+| 변경 사항 | 환경변수(.env)만 수정 |
+| 데이터 이전 | PostgreSQL 덤프 → 복원 |
+| DNS | Cloudflare에서 A 레코드 변경 |
 
 ---
 
