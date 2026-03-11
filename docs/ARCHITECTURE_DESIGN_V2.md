@@ -69,11 +69,13 @@
 |------|------|------|----------|
 | DBMS | **PostgreSQL** | SQLite, MongoDB | 비동기 병렬 처리 시 동시 쓰기 안정성 |
 | ORM | **Prisma** | Drizzle, TypeORM | Next.js 생태계 표준, 타입 안전성, 마이그레이션 내장 |
+| 어댑터 | **@prisma/adapter-pg** | - | Prisma v7 필수, PostgreSQL 연결 |
 
 **상세 근거:**
 - SQLite 제외: 동시 쓰기 1개 제한, cron 비동기 처리 시 충돌 가능
 - MongoDB 제외: 관계형 데이터 구조, ORM 재작성 비용
 - Prisma 선택: 스키마 기반 타입 자동 생성, 직관적 문법
+- Prisma v7: `prisma-client` generator는 PrismaPg 어댑터 사용 필수
 
 ---
 
