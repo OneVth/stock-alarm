@@ -554,6 +554,19 @@ Node.js 스크립트 (scripts/check-alerts.ts)
 │ url             │
 │ createdAt       │
 └─────────────────┘
+
+
+┌─────────────────┐
+│   SystemLog     │  ← 시스템 로그 (에러, 경고, 정보)
+├─────────────────┤
+│ id              │
+│ level           │  ← ERROR, WARN, INFO
+│ category        │  ← auth, alert, cron, api, system
+│ message         │
+│ metadata (JSON) │
+│ userId (FK?)    │  ← nullable (User N:1)
+│ createdAt       │
+└─────────────────┘
 ```
 
 ### 3.2 테이블 상세
@@ -661,6 +674,46 @@ Node.js 스크립트 (scripts/check-alerts.ts)
 **비고:**
 - 현재 미구현, 향후 확장 대비 스키마만 정의
 - 스토리지 서비스: S3, Cloudflare R2, MinIO 중 선택 예정
+
+#### SystemLog
+
+| 필드 | 타입 | 제약조건 | 설명 |
+|------|------|---------|------|
+| id | String | PK, cuid | 고유 식별자 |
+| level | Enum | NOT NULL | ERROR, WARN, INFO |
+| category | String | NOT NULL | 로그 분류 (auth, alert, cron, api, system) |
+| message | String | NOT NULL | 로그 메시지 |
+| metadata | JSON | NULL | 추가 정보 (에러 스택, 요청 정보 등) |
+| userId | String | FK(User.id), NULL | 관련 사용자 (선택적) |
+| createdAt | DateTime | NOT NULL, DEFAULT now | 발생 시간 |
+
+**Level (Enum):**
+
+| 값 | 용도 | 예시 |
+|-----|------|------|
+| ERROR | 에러 | 이메일 발송 실패, API 호출 실패, DB 연결 실패 |
+| WARN | 경고 | Rate limit 근접, 재시도 발생 |
+| INFO | 정보 | Cron 실행 완료, 사용자 로그인, 종목 추가 |
+
+**Category 예시:**
+
+| 값 | 설명 |
+|-----|------|
+| auth | 인증 관련 (로그인, 로그아웃) |
+| alert | 알림 관련 (생성, 수정, 삭제, 트리거) |
+| cron | Cron 스크립트 실행 |
+| api | 외부 API 호출 (Naver, OpenAI, Gmail) |
+| system | 시스템 이벤트 (DB, 서버) |
+
+**인덱스:**
+- (level) - 레벨별 필터링
+- (category) - 카테고리별 필터링
+- (createdAt) - 시간순 정렬, 보관 정책 적용
+- (userId) - 사용자별 로그 조회
+
+**보관 정책:**
+- 보관 기간: 90일
+- 정리 방식: Cron으로 주기적 삭제
 
 ---
 
