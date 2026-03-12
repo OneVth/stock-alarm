@@ -365,12 +365,11 @@ stock-alarm/
 │   │   ├── (auth)/                   # 로그인 필수 (레이아웃 공유)
 │   │   │   ├── layout.tsx
 │   │   │   ├── dashboard/
-│   │   │   │   ├── page.tsx
-│   │   │   │   ├── stock/
-│   │   │   │   │   └── [id]/
-│   │   │   │   │       └── page.tsx
-│   │   │   │   └── history/
-│   │   │   │       └── page.tsx
+│   │   │   │   ├── page.tsx          # 대시보드 메인
+│   │   │   │   └── [id]/
+│   │   │   │       └── page.tsx      # 종목 상세 (차트, 이력, 메모)
+│   │   │   ├── history/
+│   │   │   │   └── page.tsx          # 알림 이력
 │   │   │   └── settings/
 │   │   │       └── page.tsx
 │   │   │
@@ -401,13 +400,21 @@ stock-alarm/
 │   │   │   ├── alerts/
 │   │   │   │   ├── route.ts          # GET (목록), POST (생성)
 │   │   │   │   └── [id]/
-│   │   │   │       └── route.ts      # GET, PUT, DELETE
+│   │   │   │       ├── route.ts      # GET, PUT, DELETE
+│   │   │   │       ├── toggle/
+│   │   │   │       │   └── route.ts  # PATCH (상태 토글)
+│   │   │   │       └── history/
+│   │   │   │           └── route.ts  # GET (알림 이력)
 │   │   │   ├── stocks/
 │   │   │   │   ├── search/
-│   │   │   │   │   └── route.ts
+│   │   │   │   │   └── route.ts      # GET (종목 검색)
+│   │   │   │   ├── prices/
+│   │   │   │   │   └── route.ts      # POST (배치 현재가)
 │   │   │   │   └── [code]/
-│   │   │   │       └── price/
-│   │   │   │           └── route.ts
+│   │   │   │       ├── price/
+│   │   │   │       │   └── route.ts  # GET (단일 현재가)
+│   │   │   │       └── ohlcv/
+│   │   │   │           └── route.ts  # GET (차트 데이터)
 │   │   │   └── admin/
 │   │   │       ├── users/
 │   │   │       └── logs/
@@ -418,12 +425,17 @@ stock-alarm/
 │   ├── components/
 │   │   ├── ui/                       # shadcn/ui 컴포넌트
 │   │   ├── icons/                    # 커스텀 아이콘 (브랜드 등)
+│   │   │   └── google.tsx
 │   │   ├── layout/                   # 레이아웃 컴포넌트
 │   │   │   ├── header.tsx
+│   │   │   ├── auth-header.tsx       # 인증 영역 헤더
+│   │   │   ├── profile-dropdown.tsx  # 프로필 드롭다운
 │   │   │   ├── sidebar.tsx
 │   │   │   └── footer.tsx
 │   │   ├── dashboard/                # 대시보드 관련
 │   │   ├── stock/                    # 종목 관련
+│   │   │   ├── price-chart.tsx       # Lightweight Charts 차트
+│   │   │   └── alert-history.tsx     # 알림 이력 테이블
 │   │   └── admin/                    # 관리자 관련
 │   │
 │   ├── lib/
@@ -432,6 +444,8 @@ stock-alarm/
 │   │   ├── auth.config.ts            # NextAuth 기본 설정 (Edge Runtime)
 │   │   ├── auth-callbacks.ts         # 인증 콜백 로직 (테스트 가능)
 │   │   ├── auth-middleware.ts        # 미들웨어 로직 (테스트 가능)
+│   │   ├── alert-trigger.ts          # 알림 트리거 로직 (테스트 가능)
+│   │   ├── memo-utils.ts             # 메모 유틸리티
 │   │   ├── utils.ts                  # 유틸리티
 │   │   └── validations.ts            # Zod 스키마
 │   │
@@ -459,7 +473,7 @@ stock-alarm/
 │   │   ├── auth.test.ts              # 인증 로직
 │   │   ├── middleware.test.ts        # 미들웨어 로직
 │   │   ├── stock-service.test.ts     # 주식 서비스 로직
-│   │   ├── alert-trigger.test.ts     # 알림 트리거 (예정)
+│   │   ├── alert-trigger.test.ts     # 알림 트리거 로직
 │   │   └── price.test.ts             # 가격 계산 (예정)
 │   ├── integration/                  # 통합 테스트 (Vitest)
 │   │   └── api/
@@ -474,7 +488,8 @@ stock-alarm/
 │
 ├── scripts/
 │   ├── check-alerts.ts               # Cron 스크립트 (알림 체크)
-│   └── update-stock-list.py          # Cron 스크립트 (종목 리스트 갱신)
+│   ├── update-stock-list.py          # Cron 스크립트 (종목 리스트 갱신)
+│   └── requirements.txt              # Python 의존성
 │
 ├── public/
 │   ├── favicon.ico
