@@ -438,6 +438,22 @@ stock-alarm/
 │   ├── schema.prisma                 # DB 스키마
 │   └── seed.ts                       # 초기 데이터
 │
+├── tests/
+│   ├── unit/                         # 단위 테스트 (Vitest)
+│   │   ├── auth.test.ts              # 인증 로직
+│   │   ├── alert-trigger.test.ts     # 알림 트리거
+│   │   └── price.test.ts             # 가격 계산
+│   ├── integration/                  # 통합 테스트 (Vitest)
+│   │   └── api/
+│   │       ├── alerts.test.ts
+│   │       └── users.test.ts
+│   ├── e2e/                          # E2E 테스트 (Playwright)
+│   │   ├── login.spec.ts
+│   │   └── dashboard.spec.ts
+│   ├── mocks/                        # Mock 데이터 및 설정
+│   │   └── prisma.ts
+│   └── setup.ts                      # 테스트 설정
+│
 ├── scripts/
 │   └── check-alerts.ts               # Cron 스크립트
 │
