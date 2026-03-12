@@ -9,6 +9,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { GoogleIcon } from "@/components/icons/google";
 
 export default async function LoginPage() {
   const session = await auth();
@@ -36,7 +37,8 @@ export default async function LoginPage() {
               await signIn("google", { redirectTo: "/dashboard" });
             }}
           >
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full gap-2">
+              <GoogleIcon className="h-5 w-5" />
               Google로 로그인
             </Button>
           </form>
