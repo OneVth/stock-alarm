@@ -8,6 +8,7 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 
 export default async function LoginPage() {
   const session = await auth();
@@ -17,7 +18,10 @@ export default async function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <div className="relative flex min-h-screen items-center justify-center">
+      <div className="absolute top-4 right-4">
+        <ThemeSwitcher />
+      </div>
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Stock Alarm</CardTitle>
