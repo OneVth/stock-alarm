@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
@@ -46,6 +46,7 @@ import {
   Trash2Icon,
   PlusIcon,
 } from "lucide-react";
+import { useStockPrices } from "@/hooks/use-stock-prices";
 
 interface AlertTableProps {
   alerts: AlertWithCount[];
@@ -60,6 +61,12 @@ export function AlertTable({ alerts }: AlertTableProps) {
   const router = useRouter();
   const [deleteTarget, setDeleteTarget] = useState<AlertWithCount | null>(null);
   const [deleting, setDeleting] = useState(false);
+
+  const stockCodes = useMemo(
+    () => [...new Set(alerts.map((a) => a.stockCode))],
+    [alerts]
+  );
+  const { prices, isLoading: pricesLoading } = useStockPrices(stockCodes);
 
   async function handleToggle(alert: AlertWithCount) {
     try {
@@ -148,11 +155,32 @@ export function AlertTable({ alerts }: AlertTableProps) {
                 <TableCell className="text-right">
                   {alert.basePrice.toLocaleString()}
                 </TableCell>
-                <TableCell className="text-right text-muted-foreground">
-                  --
+                <TableCell className="text-right">
+                  {pricesLoading ? (
+                    <span className="text-muted-foreground">--</span>
+                  ) : prices[alert.stockCode] ? (
+                    prices[alert.stockCode].price.toLocaleString()
+                  ) : (
+                    <span className="text-muted-foreground">--</span>
+                  )}
                 </TableCell>
-                <TableCell className="text-right text-muted-foreground">
-                  --
+                <TableCell className="text-right">
+                  {(() => {
+                    const stockPrice = prices[alert.stockCode];
+                    if (pricesLoading || !stockPrice) {
+                      return <span className="text-muted-foreground">--</span>;
+                    }
+                    const rate =
+                      ((stockPrice.price - alert.basePrice) / alert.basePrice) * 100;
+                    const formatted = `${rate >= 0 ? "+" : ""}${rate.toFixed(2)}%`;
+                    if (rate > 0) {
+                      return <span className="text-red-500">{formatted}</span>;
+                    }
+                    if (rate < 0) {
+                      return <span className="text-blue-500">{formatted}</span>;
+                    }
+                    return <span className="text-muted-foreground">{formatted}</span>;
+                  })()}
                 </TableCell>
                 <TableCell className="text-right">
                   {alert.thresholdUpper != null

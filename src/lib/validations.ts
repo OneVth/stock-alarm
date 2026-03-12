@@ -68,3 +68,24 @@ export const updateAlertSchema = z
 export const stockSearchSchema = z.object({
   q: z.string().min(1, "검색어를 입력해주세요").max(20, "검색어가 너무 깁니다"),
 });
+
+/**
+ * 종목 코드 스키마 (6자리 숫자)
+ */
+export const stockCodeSchema = z.object({
+  code: z.string().regex(/^\d{6}$/, "유효한 종목 코드가 아닙니다"),
+});
+
+/**
+ * OHLCV 조회 쿼리 스키마
+ */
+export const ohlcvQuerySchema = z.object({
+  days: z.coerce.number().int().min(1).max(365).default(90),
+});
+
+/**
+ * 배치 가격 조회 스키마
+ */
+export const batchPriceSchema = z.object({
+  codes: z.array(z.string().regex(/^\d{6}$/)).min(1).max(50),
+});
