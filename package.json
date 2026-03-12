@@ -13,7 +13,8 @@
     "postinstall": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "check-alerts": "tsx scripts/check-alerts.ts"
   },
   "dependencies": {
     "@auth/core": "0.41.0",
@@ -35,6 +36,8 @@
     "next": "16.1.6",
     "next-auth": "5.0.0-beta.30",
     "next-themes": "^0.4.6",
+    "nodemailer": "^8.0.2",
+    "openai": "^6.27.0",
     "react": "19.2.3",
     "react-day-picker": "^9.14.0",
     "react-dom": "19.2.3",
@@ -55,6 +58,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/nodemailer": "^7.0.11",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitest/coverage-v8": "^4.0.18",
