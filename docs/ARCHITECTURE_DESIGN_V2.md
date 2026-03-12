@@ -421,8 +421,10 @@ stock-alarm/
 │   │
 │   ├── lib/
 │   │   ├── prisma.ts                 # Prisma 클라이언트
-│   │   ├── auth.ts                   # NextAuth 설정
+│   │   ├── auth.ts                   # NextAuth 설정 (Node.js Runtime)
+│   │   ├── auth.config.ts            # NextAuth 기본 설정 (Edge Runtime)
 │   │   ├── auth-callbacks.ts         # 인증 콜백 로직 (테스트 가능)
+│   │   ├── auth-middleware.ts        # 미들웨어 로직 (테스트 가능)
 │   │   ├── utils.ts                  # 유틸리티
 │   │   └── validations.ts            # Zod 스키마
 │   │

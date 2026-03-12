@@ -1,7 +1,7 @@
 import NextAuth, { type DefaultSession } from "next-auth";
-import Google from "next-auth/providers/google";
 import { prisma } from "@/lib/prisma";
 import { handleSignIn } from "@/lib/auth-callbacks";
+import { authConfig } from "@/lib/auth.config";
 
 /**
  * NextAuth.js 타입 확장
@@ -27,11 +27,7 @@ declare module "@auth/core/jwt" {
 export { handleSignIn } from "@/lib/auth-callbacks";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  providers: [Google],
-  session: { strategy: "jwt" },
-  pages: {
-    signIn: "/login",
-  },
+  ...authConfig,
   callbacks: {
     signIn: handleSignIn,
 
