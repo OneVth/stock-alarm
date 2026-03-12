@@ -31,18 +31,14 @@ export function AlertFormDialog({ alert, trigger }: AlertFormDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger
-        render={
-          trigger ? (
-            <>{trigger}</>
-          ) : (
-            <Button size="sm">
-              <PlusIcon />
-              새 알림 추가
-            </Button>
-          )
-        }
-      />
+      {trigger ? (
+        <DialogTrigger nativeButton={false} render={trigger as React.ReactElement} />
+      ) : (
+        <DialogTrigger render={<Button size="sm" />}>
+          <PlusIcon />
+          새 알림 추가
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>{isEdit ? "알림 수정" : "새 알림 추가"}</DialogTitle>

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "sonner";
 import {
   Table,
@@ -145,12 +146,17 @@ export function AlertTable({ alerts }: AlertTableProps) {
             return (
               <TableRow key={alert.id}>
                 <TableCell className="font-medium">
-                  <div>
-                    <div>{alert.stockName}</div>
+                  <Link
+                    href={`/dashboard/${alert.id}`}
+                    className="group block"
+                  >
+                    <div className="group-hover:underline">
+                      {alert.stockName}
+                    </div>
                     <div className="text-xs text-muted-foreground">
                       {alert.stockCode}
                     </div>
-                  </div>
+                  </Link>
                 </TableCell>
                 <TableCell className="text-right">
                   {alert.basePrice.toLocaleString()}

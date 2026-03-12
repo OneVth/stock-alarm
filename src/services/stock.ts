@@ -1,7 +1,7 @@
 import type { StockPrice, MarketIndex, OHLCVData } from "@/types/stock";
 
 const NAVER_STOCK_API = "https://m.stock.naver.com/api";
-const NAVER_CHART_API = "https://api.stock.naver.com/chart/domestic/item";
+const NAVER_FCHART_API = "https://fchart.stock.naver.com/sise.nhn";
 const FETCH_TIMEOUT = 5000;
 const BATCH_CONCURRENCY = 5;
 const BATCH_DELAY_MS = 100;
@@ -221,21 +221,11 @@ export async function getMarketIndex(market: string): Promise<MarketIndex> {
 }
 
 /**
- * 네이버 차트 API 응답 타입
- */
-interface NaverChartResponse {
-  priceInfos?: Array<{
-    localDate?: string;
-    openPrice?: string;
-    highPrice?: string;
-    lowPrice?: string;
-    closePrice?: string;
-    accumulatedTradingVolume?: string;
-  }>;
-}
-
-/**
  * 종목의 OHLCV 차트 데이터를 조회합니다.
+ *
+ * fchart.stock.naver.com XML API를 사용합니다.
+ * 응답 형식: `<item data="20260313|72300|73000|71500|72800|15000000" />`
+ * 필드 순서: date|open|high|low|close|volume
  *
  * @param code - 종목 코드 (6자리)
  * @param days - 조회 일수 (기본값: 90)
@@ -245,17 +235,61 @@ export async function getOHLCV(
   code: string,
   days: number = 90
 ): Promise<OHLCVData[]> {
-  const endDate = new Date();
-  const startDate = new Date();
-  startDate.setDate(startDate.getDate() - days);
+  const url = `${NAVER_FCHART_API}?symbol=${code}&timeframe=day&count=${days}&requestType=0`;
 
-  const formatDate = (d: Date) =>
-    d.toISOString().slice(0, 10).replace(/-/g, "");
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
 
-  const url = `${NAVER_CHART_API}/${code}?periodType=daily&startDateTime=${formatDate(startDate)}&endDateTime=${formatDate(endDate)}`;
-  const data = await naverFetch<NaverChartResponse>(url);
+  let text: string;
+  try {
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+      },
+    });
 
-  if (!data.priceInfos || data.priceInfos.length === 0) {
+    if (!res.ok) {
+      throw new StockServiceError(
+        `네이버 차트 API 응답 오류: ${res.status}`,
+        "NAVER_API_ERROR",
+        res.status
+      );
+    }
+
+    text = await res.text();
+  } catch (error) {
+    if (error instanceof StockServiceError) throw error;
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new StockServiceError("네이버 차트 API 요청 타임아웃", "TIMEOUT", 408);
+    }
+    throw new StockServiceError("네이버 차트 API 요청 실패", "FETCH_ERROR", 500);
+  } finally {
+    clearTimeout(timeout);
+  }
+
+  // XML에서 item data 속성 파싱
+  const itemRegex = /<item\s+data="([^"]+)"\s*\/>/g;
+  const results: OHLCVData[] = [];
+  let match;
+
+  while ((match = itemRegex.exec(text)) !== null) {
+    const parts = match[1].split("|");
+    if (parts.length < 6) continue;
+
+    const [dateStr, open, high, low, close, volume] = parts;
+    results.push({
+      date: `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}`,
+      open: Number(open) || 0,
+      high: Number(high) || 0,
+      low: Number(low) || 0,
+      close: Number(close) || 0,
+      volume: Number(volume) || 0,
+    });
+  }
+
+  if (results.length === 0) {
     throw new StockServiceError(
       `종목 ${code}의 차트 데이터를 찾을 수 없습니다`,
       "NOT_FOUND",
@@ -263,15 +297,5 @@ export async function getOHLCV(
     );
   }
 
-  return data.priceInfos.map((item) => {
-    const localDate = item.localDate ?? "";
-    return {
-      date: `${localDate.slice(0, 4)}-${localDate.slice(4, 6)}-${localDate.slice(6, 8)}`,
-      open: parseNaverNumber(item.openPrice ?? "0"),
-      high: parseNaverNumber(item.highPrice ?? "0"),
-      low: parseNaverNumber(item.lowPrice ?? "0"),
-      close: parseNaverNumber(item.closePrice ?? "0"),
-      volume: parseNaverNumber(item.accumulatedTradingVolume ?? "0"),
-    };
-  });
+  return results;
 }
