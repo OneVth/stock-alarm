@@ -411,6 +411,7 @@ stock-alarm/
 │   │
 │   ├── components/
 │   │   ├── ui/                       # shadcn/ui 컴포넌트
+│   │   ├── icons/                    # 커스텀 아이콘 (브랜드 등)
 │   │   ├── layout/                   # 레이아웃 컴포넌트
 │   │   │   ├── header.tsx
 │   │   │   ├── sidebar.tsx
