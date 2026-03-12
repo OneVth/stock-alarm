@@ -16,7 +16,7 @@ export async function handleSignIn({
   account,
 }: {
   user: { email?: string | null; name?: string | null; image?: string | null };
-  account: { provider: string; providerAccountId: string } | null;
+  account?: { provider: string; providerAccountId: string } | null;
 }): Promise<boolean> {
   // Google 프로바이더만 허용
   if (account?.provider !== "google") return false;
