@@ -1,6 +1,7 @@
 import NextAuth, { type DefaultSession } from "next-auth";
 import Google from "next-auth/providers/google";
 import { prisma } from "@/lib/prisma";
+import { handleSignIn } from "@/lib/auth-callbacks";
 
 /**
  * NextAuth.js 타입 확장
@@ -23,6 +24,8 @@ declare module "@auth/core/jwt" {
   }
 }
 
+export { handleSignIn } from "@/lib/auth-callbacks";
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [Google],
   session: { strategy: "jwt" },
@@ -30,69 +33,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   //   signIn: "/login",
   // },
   callbacks: {
-    async signIn({ user, account }) {
-      // Google 프로바이더만 허용
-      if (account?.provider !== "google") return false;
-
-      const email = user.email;
-      const googleId = account.providerAccountId;
-      if (!email || !googleId) return false;
-
-      // 1. googleId로 기존 사용자 확인
-      const existingByGoogleId = await prisma.user.findUnique({
-        where: { googleId },
-      });
-      if (existingByGoogleId) return true;
-
-      // 2. 이메일로 기존 사용자 확인 (googleId 미연동)
-      const existingByEmail = await prisma.user.findUnique({
-        where: { email },
-      });
-      if (existingByEmail) {
-        await prisma.user.update({
-          where: { email },
-          data: { googleId },
-        });
-        return true;
-      }
-
-      // 3. 신규 사용자: User 생성 + 역할 부여
-      const userRole = await prisma.role.findUnique({
-        where: { name: "user" },
-      });
-      if (!userRole) return false;
-
-      const adminEmails = (process.env.ADMIN_EMAILS ?? "")
-        .split(",")
-        .map((e) => e.trim())
-        .filter(Boolean);
-      const isAdmin = adminEmails.includes(email);
-
-      const roleConnections: { roleId: string }[] = [{ roleId: userRole.id }];
-
-      if (isAdmin) {
-        const adminRole = await prisma.role.findUnique({
-          where: { name: "admin" },
-        });
-        if (adminRole) {
-          roleConnections.push({ roleId: adminRole.id });
-        }
-      }
-
-      await prisma.user.create({
-        data: {
-          email,
-          nickname: user.name ?? email.split("@")[0],
-          image: user.image,
-          googleId,
-          userRoles: {
-            create: roleConnections,
-          },
-        },
-      });
-
-      return true;
-    },
+    signIn: handleSignIn,
 
     async jwt({ token, user, account }) {
       if (account && user) {
