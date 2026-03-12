@@ -10,6 +10,7 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuItem,
   DropdownMenuSeparator,
@@ -39,15 +40,17 @@ export function ProfileDropdown() {
           <AvatarFallback>{initials}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" sideOffset={8}>
-        <DropdownMenuLabel>
-          <div className="flex flex-col gap-0.5">
-            {user.name && (
-              <span className="text-sm font-medium">{user.name}</span>
-            )}
-            <span className="text-xs text-muted-foreground">{user.email}</span>
-          </div>
-        </DropdownMenuLabel>
+      <DropdownMenuContent align="end" sideOffset={8} className="min-w-[200px]">
+        <DropdownMenuGroup>
+          <DropdownMenuLabel>
+            <div className="flex flex-col gap-0.5">
+              {user.name && (
+                <span className="text-sm font-medium">{user.name}</span>
+              )}
+              <span className="text-xs text-muted-foreground">{user.email}</span>
+            </div>
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           onSelect={() => signOut({ redirectTo: "/login" })}
