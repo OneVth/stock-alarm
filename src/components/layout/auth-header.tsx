@@ -1,24 +1,38 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { ProfileDropdown } from "./profile-dropdown";
 
-/** 인증 영역 네비게이션 링크 */
-const navLinks = [
+/** 기본 네비게이션 링크 */
+const baseNavLinks = [
   { href: "/dashboard", label: "대시보드" },
   { href: "/history", label: "알림 이력" },
-] as const;
+];
 
 /**
  * 인증된 사용자용 앱 헤더
  *
  * 로고, 네비게이션, 프로필 드롭다운, 테마 스위처를 포함합니다.
+ * admin 역할 시 "관리자" 링크를 추가로 표시합니다.
  */
 export function AuthHeader() {
   const pathname = usePathname();
+  const { data: session } = useSession();
+
+  const isAdmin = session?.user?.roles?.includes("admin");
+
+  const navLinks = useMemo(() => {
+    const links = [...baseNavLinks];
+    if (isAdmin) {
+      links.push({ href: "/admin", label: "관리자" });
+    }
+    return links;
+  }, [isAdmin]);
 
   return (
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

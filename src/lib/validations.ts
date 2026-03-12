@@ -89,3 +89,21 @@ export const ohlcvQuerySchema = z.object({
 export const batchPriceSchema = z.object({
   codes: z.array(z.string().regex(/^\d{6}$/)).min(1).max(50),
 });
+
+/**
+ * 역할 변경 스키마
+ */
+export const changeRoleSchema = z.object({
+  action: z.enum(["grant", "revoke"], {
+    message: "action은 grant 또는 revoke여야 합니다",
+  }),
+});
+
+/**
+ * 시스템 로그 필터 스키마
+ */
+export const logFilterSchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  level: z.enum(["ERROR", "WARN", "INFO"]).optional(),
+  category: z.string().optional(),
+});
