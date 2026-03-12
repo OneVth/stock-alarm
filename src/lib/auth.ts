@@ -29,9 +29,9 @@ export { handleSignIn } from "@/lib/auth-callbacks";
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [Google],
   session: { strategy: "jwt" },
-  // pages: {
-  //   signIn: "/login",
-  // },
+  pages: {
+    signIn: "/login",
+  },
   callbacks: {
     signIn: handleSignIn,
 
