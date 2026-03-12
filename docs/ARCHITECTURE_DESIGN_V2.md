@@ -436,13 +436,16 @@ stock-alarm/
 │   │   └── validations.ts            # Zod 스키마
 │   │
 │   ├── services/
-│   │   ├── stock.ts                  # 주가 조회
+│   │   ├── stock.ts                  # 주가 조회 (네이버 금융 API)
 │   │   ├── mail.ts                   # 이메일 발송
 │   │   └── llm.ts                    # LLM 코멘트
 │   │
 │   ├── hooks/                        # 커스텀 훅
+│   │   └── use-stock-prices.ts       # 배치 가격 조회 훅
 │   │
 │   ├── types/                        # 타입 정의
+│   │   ├── alert.ts                  # 알림 관련 타입
+│   │   └── stock.ts                  # 주식 관련 타입
 │   │
 │   └── data/                         # 정적 데이터
 │       └── krx-stocks.json           # 종목 리스트 (KOSPI, KOSDAQ, ETF)
@@ -454,8 +457,10 @@ stock-alarm/
 ├── tests/
 │   ├── unit/                         # 단위 테스트 (Vitest)
 │   │   ├── auth.test.ts              # 인증 로직
-│   │   ├── alert-trigger.test.ts     # 알림 트리거
-│   │   └── price.test.ts             # 가격 계산
+│   │   ├── middleware.test.ts        # 미들웨어 로직
+│   │   ├── stock-service.test.ts     # 주식 서비스 로직
+│   │   ├── alert-trigger.test.ts     # 알림 트리거 (예정)
+│   │   └── price.test.ts             # 가격 계산 (예정)
 │   ├── integration/                  # 통합 테스트 (Vitest)
 │   │   └── api/
 │   │       ├── alerts.test.ts
