@@ -1,4 +1,4 @@
-import type { Alert } from "@/generated/prisma/client";
+import type { Alert, AlertLog } from "@/generated/prisma/client";
 
 /**
  * Alert with alertLogs count
@@ -20,6 +20,16 @@ export interface AlertFormData {
   thresholdLower?: number | null;
   memo?: unknown;
 }
+
+/**
+ * 종목 검색 결과
+ */
+/**
+ * AlertLog with related Alert info (stockName, stockCode)
+ */
+export type AlertLogWithAlert = AlertLog & {
+  alert: Pick<Alert, "stockName" | "stockCode"> | null;
+};
 
 /**
  * 종목 검색 결과
