@@ -262,6 +262,16 @@
 | 포맷터 | Prettier |
 | Git 훅 | Husky + lint-staged |
 | 테스트 | Vitest (단위), Playwright (E2E) |
+| 개발 방식 | TDD (핵심 로직) |
+
+#### 테스트 전략
+
+| 구분 | 대상 | 테스트 유형 |
+|------|------|------------|
+| 핵심 로직 | 인증, 알림 트리거, 이메일 발송, 가격 계산 | TDD (단위 테스트) |
+| API | 라우트 핸들러 | 통합 테스트 |
+| UI | 페이지 흐름 | E2E (주요 시나리오만) |
+| 제외 | UI 컴포넌트, 단순 CRUD, 레이아웃 | 수동 테스트 |
 
 ---
 
@@ -581,7 +591,7 @@ Node.js 스크립트 (scripts/check-alerts.ts)
 | email | String | UNIQUE, NOT NULL | 이메일 (Google 계정) |
 | nickname | String | NOT NULL | 표시 이름 (기본값: Google name) |
 | image | String | NULL | 프로필 이미지 URL (Google) |
-| googleId | String | UNIQUE, NOT NULL | Google 고유 ID |
+| googleId | String | UNIQUE, NULL | Google 고유 ID (첫 로그인 시 설정) |
 | createdAt | DateTime | NOT NULL, DEFAULT now | 가입일 |
 | updatedAt | DateTime | NOT NULL, 자동갱신 | 수정일 |
 
