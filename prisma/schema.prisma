@@ -19,7 +19,7 @@ model User {
   email     String   @unique
   nickname  String
   image     String?
-  googleId  String   @unique
+  googleId  String?  @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
