@@ -99,7 +99,7 @@
 | UI 라이브러리 | **shadcn/ui** | MUI, Chakra UI | 컴포넌트 소유권, 커스터마이징 자유, 44개 컴포넌트 |
 | 스타일링 | **Tailwind CSS v4** | CSS Modules, Styled Components | shadcn/ui 기본, 유틸리티 기반, 빠른 개발 |
 | 테마 | **next-themes** | 직접 구현 | 다크모드 표준 솔루션, 로컬스토리지 자동 관리 |
-| 차트 | **Recharts** | Chart.js, Lightweight Charts | React 네이티브, shadcn/ui 차트 컴포넌트 기반 |
+| 차트 | **Lightweight Charts** | Recharts, Chart.js | TradingView 기반, 주식 차트 특화, v1 사용, 가벼움 |
 | 에디터 | **Tiptap** | Novel, Plate, Quill | Headless, shadcn/ui 호환, 확장성, 종목 메모 기능용 |
 | 폰트 | **Pretendard (한글), JetBrains Mono (코드)** | Noto Sans KR | 가독성, 현대적 디자인 |
 
@@ -114,10 +114,16 @@
 
 | 항목 | 선택 | 용도 |
 |------|------|------|
-| 주가 데이터 | **Naver Finance API** | 실시간 현재가 조회 |
-| 종목 목록 | **KRX 또는 캐시 파일** | 종목 검색 |
+| 주가 데이터 | **Naver Finance API** | 실시간 현재가, OHLCV 조회 |
+| 종목 목록 | **FinanceDataReader (Python cron)** | 종목 검색 (KOSPI, KOSDAQ, ETF) |
 | 이메일 | **Gmail SMTP** 또는 **Resend** | 알림 발송 |
 | LLM | **OpenAI API (gpt-5-nano)** | 시장 코멘트 생성 |
+
+**종목 리스트 갱신:**
+- 대상: KOSPI, KOSDAQ, ETF/KR (3개 시장)
+- 방식: Python cron 스크립트 → JSON 파일 갱신
+- 주기: 월 1회 (종목 변동 적음)
+- 형식: `[{"code": "005930", "name": "삼성전자", "market": "KOSPI"}, ...]`
 
 **이메일 서비스 비교:**
 
@@ -436,7 +442,10 @@ stock-alarm/
 │   │
 │   ├── hooks/                        # 커스텀 훅
 │   │
-│   └── types/                        # 타입 정의
+│   ├── types/                        # 타입 정의
+│   │
+│   └── data/                         # 정적 데이터
+│       └── krx-stocks.json           # 종목 리스트 (KOSPI, KOSDAQ, ETF)
 │
 ├── prisma/
 │   ├── schema.prisma                 # DB 스키마
@@ -459,7 +468,8 @@ stock-alarm/
 │   └── setup.ts                      # 테스트 설정
 │
 ├── scripts/
-│   └── check-alerts.ts               # Cron 스크립트
+│   ├── check-alerts.ts               # Cron 스크립트 (알림 체크)
+│   └── update-stock-list.py          # Cron 스크립트 (종목 리스트 갱신)
 │
 ├── public/
 │   ├── favicon.ico
