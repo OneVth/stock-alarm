@@ -14,7 +14,9 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "db:generate": "prisma generate",
-    "check-alerts": "tsx scripts/check-alerts.ts"
+    "check-alerts": "tsx scripts/check-alerts.ts",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:seed:essential": "tsx prisma/seed-essential.ts"
   },
   "dependencies": {
     "@auth/core": "0.41.0",
