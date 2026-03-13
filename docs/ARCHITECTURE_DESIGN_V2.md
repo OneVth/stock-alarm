@@ -376,13 +376,11 @@ stock-alarm/
 │   │   ├── (admin)/                  # admin 역할 필수
 │   │   │   ├── layout.tsx
 │   │   │   └── admin/
-│   │   │       ├── page.tsx
+│   │   │       ├── page.tsx          # 관리자 메인 (통계)
 │   │   │       ├── users/
-│   │   │       │   ├── page.tsx
-│   │   │       │   └── [id]/
-│   │   │       │       └── page.tsx
+│   │   │       │   └── page.tsx      # 사용자 관리
 │   │   │       └── logs/
-│   │   │           └── page.tsx
+│   │   │           └── page.tsx      # 시스템 로그
 │   │   │
 │   │   ├── showcase/                 # 개발 환경 전용
 │   │   │   ├── page.tsx
@@ -417,7 +415,12 @@ stock-alarm/
 │   │   │   │           └── route.ts  # GET (차트 데이터)
 │   │   │   └── admin/
 │   │   │       ├── users/
+│   │   │       │   ├── route.ts      # GET (사용자 목록)
+│   │   │       │   └── [id]/
+│   │   │       │       └── role/
+│   │   │       │           └── route.ts  # PATCH (역할 변경)
 │   │   │       └── logs/
+│   │   │           └── route.ts      # GET (시스템 로그)
 │   │   │
 │   │   ├── layout.tsx                # 루트 레이아웃
 │   │   └── globals.css
@@ -435,8 +438,16 @@ stock-alarm/
 │   │   ├── dashboard/                # 대시보드 관련
 │   │   ├── stock/                    # 종목 관련
 │   │   │   ├── price-chart.tsx       # Lightweight Charts 차트
-│   │   │   └── alert-history.tsx     # 알림 이력 테이블
+│   │   │   ├── alert-history.tsx     # 알림 이력 테이블
+│   │   │   ├── full-alert-history.tsx # 전체 알림 이력 테이블
+│   │   │   └── history-pagination.tsx # 페이지네이션
 │   │   └── admin/                    # 관리자 관련
+│   │       ├── admin-stat-cards.tsx  # 관리자 통계 카드
+│   │       ├── user-management-table.tsx # 사용자 관리 테이블
+│   │       ├── role-change-dialog.tsx # 역할 변경 다이얼로그
+│   │       ├── log-filter-bar.tsx    # 로그 필터 바
+│   │       ├── system-log-table.tsx  # 시스템 로그 테이블
+│   │       └── admin-pagination.tsx  # 관리자 페이지네이션
 │   │
 │   ├── lib/
 │   │   ├── prisma.ts                 # Prisma 클라이언트
@@ -445,6 +456,7 @@ stock-alarm/
 │   │   ├── auth-callbacks.ts         # 인증 콜백 로직 (테스트 가능)
 │   │   ├── auth-middleware.ts        # 미들웨어 로직 (테스트 가능)
 │   │   ├── alert-trigger.ts          # 알림 트리거 로직 (테스트 가능)
+│   │   ├── admin.ts                  # 관리자 권한 검증 헬퍼
 │   │   ├── memo-utils.ts             # 메모 유틸리티
 │   │   ├── utils.ts                  # 유틸리티
 │   │   └── validations.ts            # Zod 스키마
@@ -459,7 +471,8 @@ stock-alarm/
 │   │
 │   ├── types/                        # 타입 정의
 │   │   ├── alert.ts                  # 알림 관련 타입
-│   │   └── stock.ts                  # 주식 관련 타입
+│   │   ├── stock.ts                  # 주식 관련 타입
+│   │   └── admin.ts                  # 관리자 관련 타입
 │   │
 │   └── data/                         # 정적 데이터
 │       └── krx-stocks.json           # 종목 리스트 (KOSPI, KOSDAQ, ETF)
