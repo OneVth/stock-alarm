@@ -48,3 +48,12 @@ export interface DashboardStats {
   triggered: number;
   inactive: number;
 }
+
+/**
+ * 알림 필터 탭 통계
+ */
+export interface AlertFilterStats {
+  total: number;
+  active: number;
+  inactive: number;
+}
