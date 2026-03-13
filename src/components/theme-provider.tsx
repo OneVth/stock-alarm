@@ -35,7 +35,7 @@ export function useThemeColor() {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [themeColor, setThemeColorState] = React.useState<ThemeColor>("zinc");
+  const [themeColor, setThemeColorState] = React.useState<ThemeColor>("blue");
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
@@ -50,7 +50,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const setThemeColor = React.useCallback((color: ThemeColor) => {
     setThemeColorState(color);
     localStorage.setItem("theme-color", color);
-    if (color === "zinc") {
+    if (color === "blue") {
       document.documentElement.removeAttribute("data-theme");
     } else {
       document.documentElement.setAttribute("data-theme", color);
@@ -59,7 +59,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   // Apply theme on mount
   React.useEffect(() => {
-    if (mounted && themeColor !== "zinc") {
+    if (mounted && themeColor !== "blue") {
       document.documentElement.setAttribute("data-theme", themeColor);
     }
   }, [mounted, themeColor]);

@@ -46,4 +46,5 @@ next-env.d.ts
 
 # personal
 /docs/personal
+/docs/analyze
 /src/generated/prisma
