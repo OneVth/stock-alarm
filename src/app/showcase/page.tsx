@@ -43,6 +43,12 @@ const categories = [
     description: "Dialog, Sheet, Popover, Tooltip, Dropdown Menu, Context Menu, Hover Card",
     count: 7,
   },
+  {
+    href: "/showcase/prototype",
+    title: "Prototype",
+    description: "Alert Card, Skeleton, Empty State",
+    count: 1,
+  },
 ];
 
 export default function ShowcasePage() {
