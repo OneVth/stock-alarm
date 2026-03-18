@@ -89,6 +89,8 @@ const formatChangeRate = (rate: number) =>
 
 // --- 종목명 컴포넌트 (truncate 시에만 Tooltip 표시) ---
 
+// TODO(perf): hover 시마다 scrollWidth 체크 - 카드 100개+ 시 최적화 고려
+// 옵션: 마운트 시 1회 체크 + 캐싱, 또는 debounce 적용
 function StockName({ name }: { name: string }) {
   const textRef = useRef<HTMLParagraphElement>(null);
   const [open, setOpen] = useState(false);
@@ -227,6 +229,106 @@ function AlertCardSkeleton() {
   );
 }
 
+function AlertListSkeleton() {
+  return (
+    <div className="flex items-center justify-between gap-4 px-4 py-3 [&:not(:last-child)]:border-b">
+      {/* 좌측: 그래프 + 종목명 + 가격 */}
+      <div className="flex items-center gap-4">
+        <Skeleton className="h-10 w-20 rounded" />
+        <div className="w-[120px] shrink-0 space-y-2">
+          <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-3 w-14" />
+        </div>
+        <div className="space-y-2">
+          <Skeleton className="h-4 w-24" />
+          <Skeleton className="h-3 w-32" />
+        </div>
+      </div>
+      {/* 우측: 알림조건 + 메뉴 */}
+      <div className="flex items-center gap-4">
+        <div className="space-y-1.5">
+          <Skeleton className="ml-auto h-3 w-12" />
+          <Skeleton className="h-4 w-20" />
+        </div>
+        <Skeleton className="h-8 w-8 rounded" />
+      </div>
+    </div>
+  );
+}
+
+// --- 리스트 행 컴포넌트 ---
+
+function AlertListRow({ item }: { item: AlertItem }) {
+  return (
+    <div
+      className={`flex items-center justify-between gap-4 px-4 py-3 transition-colors hover:bg-muted/50 [&:not(:last-child)]:border-b ${item.active ? "" : "opacity-60"}`}
+    >
+      {/* 좌측: 그래프 + 종목정보 + 가격정보 */}
+      <div className="flex items-center gap-4">
+        <div className="h-10 w-20 rounded bg-muted" />
+        <div className="w-[120px] shrink-0">
+          <StockName name={item.stockName} />
+          <p className="text-xs text-muted-foreground">{item.stockCode}</p>
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="font-medium">{formatPrice(item.currentPrice)}</p>
+          <div className="flex items-center gap-1.5 text-xs">
+            <span
+              className={
+                item.changeRate > 0
+                  ? "text-success"
+                  : item.changeRate < 0
+                    ? "text-destructive"
+                    : "text-muted-foreground"
+              }
+            >
+              {formatChangeRate(item.changeRate)}
+            </span>
+            <span className="text-muted-foreground">
+              기준 {formatPrice(item.basePrice)}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* 우측: 알림조건 + 액션메뉴 */}
+      <div className="flex items-center gap-4">
+        <div className="text-right">
+          <p className="text-xs text-muted-foreground">알림 기준</p>
+          <p className="text-sm">
+            <span className="font-medium text-success">
+              +{item.upperThreshold}%
+            </span>
+            <span className="text-muted-foreground"> / </span>
+            <span className="font-medium text-destructive">
+              -{item.lowerThreshold}%
+            </span>
+          </p>
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button variant="ghost" size="icon" className="h-8 w-8" />
+            }
+          >
+            <MoreHorizontal className="h-4 w-4" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem>
+              <Pencil className="mr-2 h-4 w-4" />
+              <span>수정</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem variant="destructive">
+              <Trash2 className="mr-2 h-4 w-4" />
+              <span>삭제</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    </div>
+  );
+}
+
 // --- 페이지 ---
 
 export default function PrototypeShowcase() {
@@ -251,6 +353,18 @@ export default function PrototypeShowcase() {
         </div>
       </ComponentSection>
 
+      {/* Alert Card - List */}
+      <ComponentSection
+        title="Alert Card - List"
+        description="리스트 행 스타일 - 카드 패딩 없이 border로 구분"
+      >
+        <Card className="gap-0 py-0">
+          {alerts.map((item) => (
+            <AlertListRow key={item.id} item={item} />
+          ))}
+        </Card>
+      </ComponentSection>
+
       {/* Skeleton */}
       <ComponentSection
         title="Alert Card Skeleton"
@@ -260,6 +374,17 @@ export default function PrototypeShowcase() {
           <AlertCardSkeleton />
           <AlertCardSkeleton />
         </div>
+      </ComponentSection>
+
+      {/* List Skeleton */}
+      <ComponentSection
+        title="Alert Card - List Skeleton"
+        description="Loading state for list style"
+      >
+        <Card className="gap-0 py-0">
+          <AlertListSkeleton />
+          <AlertListSkeleton />
+        </Card>
       </ComponentSection>
 
       {/* Empty State */}
