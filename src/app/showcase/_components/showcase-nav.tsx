@@ -12,6 +12,7 @@ const categories = [
   { href: "/showcase/display", label: "Display" },
   { href: "/showcase/feedback", label: "Feedback" },
   { href: "/showcase/overlay", label: "Overlay" },
+  { href: "/showcase/prototype", label: "Prototype" },
 ];
 
 export function ShowcaseNav() {
