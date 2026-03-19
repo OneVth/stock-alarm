@@ -3,8 +3,10 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { AlertFormDialog } from "@/components/dashboard/alert-form-dialog";
-import { AlertTable } from "@/components/dashboard/alert-table";
+import { AlertList } from "@/components/dashboard/alert-list";
 import { AlertFilterTabs } from "@/components/stock/alert-filter-tabs";
+import { AlertSearch } from "@/components/dashboard/alert-search";
+import { AlertPagination } from "@/components/dashboard/alert-pagination";
 import type { AlertFilterStats } from "@/types/alert";
 
 export const metadata: Metadata = {
@@ -14,7 +16,7 @@ export const metadata: Metadata = {
 export default async function DashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ filter?: string }>;
+  searchParams: Promise<{ filter?: string; page?: string; q?: string; size?: string }>;
 }) {
   const session = await auth();
   if (!session?.user?.id) {
@@ -22,15 +24,33 @@ export default async function DashboardPage({
   }
 
   const userId = session.user.id;
-  const { filter } = await searchParams;
+  const { filter, page, q, size } = await searchParams;
 
-  // 카운트: 항상 전체 (필터 무관, 탭 숫자 표시용)
-  const [allAlerts, statusCounts] = await Promise.all([
+  const pageNum = Math.max(1, Number(page) || 1);
+  const pageSize = [10, 20, 50].includes(Number(size)) ? Number(size) : 10;
+
+  const where = {
+    userId,
+    ...(filter === "active" || filter === "inactive" ? { status: filter } : {}),
+    ...(q
+      ? {
+          OR: [
+            { stockName: { contains: q, mode: "insensitive" as const } },
+            { stockCode: { contains: q, mode: "insensitive" as const } },
+          ],
+        }
+      : {}),
+  };
+
+  const [alerts, totalCount, statusCounts] = await Promise.all([
     prisma.alert.findMany({
-      where: { userId },
+      where,
       include: { _count: { select: { alertLogs: true } } },
+      skip: (pageNum - 1) * pageSize,
+      take: pageSize,
       orderBy: { createdAt: "desc" },
     }),
+    prisma.alert.count({ where }),
     prisma.alert.groupBy({
       by: ["status"],
       where: { userId },
@@ -43,16 +63,10 @@ export default async function DashboardPage({
   );
 
   const counts: AlertFilterStats = {
-    total: allAlerts.length,
+    total: Object.values(countMap).reduce((a, b) => a + b, 0),
     active: countMap["active"] ?? 0,
     inactive: countMap["inactive"] ?? 0,
   };
-
-  // 필터 적용
-  const filteredAlerts =
-    filter === "active" || filter === "inactive"
-      ? allAlerts.filter((a) => a.status === filter)
-      : allAlerts;
 
   return (
     <div className="flex flex-col gap-6">
@@ -63,7 +77,11 @@ export default async function DashboardPage({
 
       <AlertFilterTabs counts={counts} />
 
-      <AlertTable alerts={filteredAlerts} />
+      <AlertSearch defaultValue={q} />
+
+      <AlertList alerts={alerts} />
+
+      <AlertPagination totalCount={totalCount} page={pageNum} pageSize={pageSize} />
     </div>
   );
 }

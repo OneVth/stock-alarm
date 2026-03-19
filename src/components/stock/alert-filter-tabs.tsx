@@ -29,6 +29,7 @@ export function AlertFilterTabs({ counts }: AlertFilterTabsProps) {
     } else {
       params.set("filter", filter);
     }
+    params.delete("page");
     const query = params.toString();
     router.push(query ? `/dashboard?${query}` : "/dashboard");
   }

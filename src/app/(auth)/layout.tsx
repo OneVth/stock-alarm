@@ -36,8 +36,10 @@ export default async function AuthLayout({
           <SidebarTrigger />
           <span className="text-lg font-semibold">Stock Alarm</span>
         </header>
-        <div className="flex-1 px-4 py-6 md:px-6">
-          {children}
+        <div className="flex-1 p-2 md:p-3">
+          <div className="h-full rounded-xl bg-background px-4 py-6 md:px-6">
+            {children}
+          </div>
         </div>
       </SidebarInset>
     </SidebarProvider>
