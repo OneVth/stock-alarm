@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { AlertFormDialog } from "@/components/dashboard/alert-form-dialog";
 import { StockName } from "./stock-name";
+import { MiniChart } from "@/components/stock/mini-chart";
 import type { AlertWithCount } from "@/types/alert";
 import {
   MoreHorizontalIcon,
@@ -26,6 +27,8 @@ interface AlertListRowProps {
   alert: AlertWithCount;
   /** 현재가 (없으면 로딩 중 표시) */
   currentPrice?: number;
+  /** 미니차트 종가 배열 (없거나 빈 배열이면 placeholder 표시) */
+  miniChartData?: number[];
   /** 토글 콜백 */
   onToggle: () => void;
   /** 삭제 콜백 */
@@ -48,6 +51,7 @@ const formatPrice = (price: number) => price.toLocaleString("ko-KR") + "원";
 export function AlertListRow({
   alert,
   currentPrice,
+  miniChartData,
   onToggle,
   onDelete,
 }: AlertListRowProps) {
@@ -72,7 +76,7 @@ export function AlertListRow({
         href={`/dashboard/${alert.id}`}
         className="flex min-w-0 flex-1 items-center gap-4 transition-colors hover:opacity-80"
       >
-        <div className="h-10 w-20 shrink-0 rounded bg-muted" />
+        <MiniChart data={miniChartData ?? []} width={80} height={40} />
         <div className="w-[120px] shrink-0">
           <StockName name={alert.stockName} />
           <p className="text-xs text-muted-foreground">{alert.stockCode}</p>

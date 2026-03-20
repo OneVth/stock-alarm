@@ -91,6 +91,14 @@ export const batchPriceSchema = z.object({
 });
 
 /**
+ * 배치 미니차트 조회 스키마
+ */
+export const batchMiniChartSchema = z.object({
+  codes: z.array(z.string().regex(/^\d{6}$/)).min(1).max(50),
+  days: z.coerce.number().int().min(5).max(90).default(30),
+});
+
+/**
  * 역할 변경 스키마
  */
 export const changeRoleSchema = z.object({

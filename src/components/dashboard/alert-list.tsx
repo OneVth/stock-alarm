@@ -18,6 +18,7 @@ import { AlertListRow } from "./alert-list-row";
 import { AlertEmptyState } from "./alert-empty-state";
 import type { AlertWithCount } from "@/types/alert";
 import { useStockPrices } from "@/hooks/use-stock-prices";
+import { useMiniCharts } from "@/hooks/use-mini-charts";
 
 interface AlertListProps {
   /** 알림 목록 */
@@ -42,6 +43,7 @@ export function AlertList({ alerts }: AlertListProps) {
     [alerts]
   );
   const { prices } = useStockPrices(stockCodes);
+  const { charts } = useMiniCharts(stockCodes);
 
   async function handleToggle(alert: AlertWithCount) {
     try {
@@ -98,6 +100,7 @@ export function AlertList({ alerts }: AlertListProps) {
             key={alert.id}
             alert={alert}
             currentPrice={prices[alert.stockCode]?.price}
+            miniChartData={charts[alert.stockCode] ?? []}
             onToggle={() => handleToggle(alert)}
             onDelete={() => setDeleteTarget(alert)}
           />
