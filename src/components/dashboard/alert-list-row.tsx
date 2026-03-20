@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { AlertFormDialog } from "@/components/dashboard/alert-form-dialog";
 import { StockName } from "./stock-name";
 import { MiniChart } from "@/components/stock/mini-chart";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { AlertWithCount } from "@/types/alert";
 import {
   MoreHorizontalIcon,
@@ -76,15 +77,23 @@ export function AlertListRow({
         href={`/dashboard/${alert.id}`}
         className="flex min-w-0 flex-1 items-center gap-4 transition-colors hover:opacity-80"
       >
-        <MiniChart data={miniChartData ?? []} width={80} height={40} />
+        {miniChartData && miniChartData.length > 0 ? (
+          <MiniChart data={miniChartData} width={80} height={40} />
+        ) : (
+          <Skeleton className="h-10 w-20 shrink-0 rounded" />
+        )}
         <div className="w-[120px] shrink-0">
           <StockName name={alert.stockName} />
           <p className="text-xs text-muted-foreground">{alert.stockCode}</p>
         </div>
         <div className="min-w-0 flex-1">
-          <p className="font-medium">
-            {currentPrice != null ? formatPrice(currentPrice) : "--"}
-          </p>
+          <div className="font-medium">
+            {currentPrice != null ? (
+              formatPrice(currentPrice)
+            ) : (
+              <Skeleton className="h-5 w-20" />
+            )}
+          </div>
           <div className="flex items-center gap-1.5 text-xs">
             {changeRate != null ? (
               <span
@@ -99,7 +108,7 @@ export function AlertListRow({
                 {formatChangeRate(changeRate)}
               </span>
             ) : (
-              <span className="text-muted-foreground">--</span>
+              <Skeleton className="h-4 w-16" />
             )}
             <span className="text-muted-foreground">
               기준 {formatPrice(alert.basePrice)}
