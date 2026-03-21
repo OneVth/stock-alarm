@@ -70,7 +70,7 @@ export function AlertListRow({
   return (
     <>
     <div
-      className={`flex items-center justify-between gap-4 px-4 py-3 [&:not(:last-child)]:border-b ${isActive ? "" : "opacity-60"}`}
+      className={`flex min-w-[600px] items-center justify-between gap-4 px-4 py-3 [&:not(:last-child)]:border-b ${isActive ? "" : "opacity-60"}`}
     >
       {/* 좌측: 그래프 + 종목정보 + 가격정보 */}
       <Link

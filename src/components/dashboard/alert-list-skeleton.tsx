@@ -15,11 +15,11 @@ interface AlertListSkeletonProps {
  */
 export function AlertListSkeleton({ count = 5 }: AlertListSkeletonProps) {
   return (
-    <Card className="gap-0 py-0">
+    <Card className="gap-0 overflow-x-auto py-0">
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={i}
-          className="flex items-center justify-between gap-4 px-4 py-3 [&:not(:last-child)]:border-b"
+          className="flex min-w-[600px] items-center justify-between gap-4 px-4 py-3 [&:not(:last-child)]:border-b"
         >
           {/* 좌측: 그래프 + 종목명 + 가격 */}
           <div className="flex items-center gap-4">

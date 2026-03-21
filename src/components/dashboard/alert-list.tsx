@@ -94,7 +94,7 @@ export function AlertList({ alerts }: AlertListProps) {
 
   return (
     <>
-      <Card className="gap-0 py-0">
+      <Card className="gap-0 overflow-x-auto py-0">
         {alerts.map((alert) => (
           <AlertListRow
             key={alert.id}
