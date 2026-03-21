@@ -6,10 +6,8 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { TiptapEditor } from "@/components/editor";
 import { StockSearchCombobox } from "./stock-search-combobox";
 import type { AlertWithCount, StockSearchResult } from "@/types/alert";
-import type { JSONContent } from "@tiptap/react";
 
 interface AlertFormProps {
   /** 수정할 알림 (없으면 생성 모드) */
@@ -38,9 +36,6 @@ export function AlertForm({ alert, onSuccess }: AlertFormProps) {
   );
   const [thresholdLower, setThresholdLower] = useState(
     alert?.thresholdLower != null ? String(Math.abs(alert.thresholdLower)) : ""
-  );
-  const [memo, setMemo] = useState<JSONContent | undefined>(
-    alert?.memo as JSONContent | undefined
   );
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -89,7 +84,6 @@ export function AlertForm({ alert, onSuccess }: AlertFormProps) {
       basePrice: parseInt(basePrice, 10),
       thresholdUpper: upper,
       thresholdLower: lower,
-      memo: memo ?? null,
     };
 
     try {
@@ -141,13 +135,14 @@ export function AlertForm({ alert, onSuccess }: AlertFormProps) {
           placeholder="예: 70000"
           value={basePrice}
           onChange={(e) => setBasePrice(e.target.value)}
+          className="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
         />
         {errors.basePrice && (
           <p className="text-xs text-destructive">{errors.basePrice}</p>
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="grid gap-2">
           <Label htmlFor="thresholdUpper">상승 임계값 (%)</Label>
           <Input
@@ -159,6 +154,7 @@ export function AlertForm({ alert, onSuccess }: AlertFormProps) {
             placeholder="예: 5"
             value={thresholdUpper}
             onChange={(e) => setThresholdUpper(e.target.value)}
+            className="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           />
           {errors.thresholdUpper && (
             <p className="text-xs text-destructive">{errors.thresholdUpper}</p>
@@ -175,20 +171,12 @@ export function AlertForm({ alert, onSuccess }: AlertFormProps) {
             placeholder="예: 3"
             value={thresholdLower}
             onChange={(e) => setThresholdLower(e.target.value)}
+            className="[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           />
           {errors.thresholdLower && (
             <p className="text-xs text-destructive">{errors.thresholdLower}</p>
           )}
         </div>
-      </div>
-
-      <div className="grid gap-2">
-        <Label>메모 (선택)</Label>
-        <TiptapEditor
-          content={memo}
-          onChange={setMemo}
-          placeholder="메모를 작성해보세요..."
-        />
       </div>
 
       <Button type="submit" disabled={submitting} className="w-full">
