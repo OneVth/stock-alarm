@@ -92,13 +92,26 @@ async function seedAlerts() {
     return;
   }
 
+  // 상승/하락 임계값 프리셋 (대칭, 비대칭, 단방향 혼합)
+  const thresholdPresets = [
+    { thresholdUpper: 5,    thresholdLower: -5    },  // 소폭 대칭
+    { thresholdUpper: 10,   thresholdLower: -10   },  // 중폭 대칭
+    { thresholdUpper: 15,   thresholdLower: -15   },  // 대폭 대칭
+    { thresholdUpper: 3,    thresholdLower: -3    },  // 미세 대칭
+    { thresholdUpper: 20,   thresholdLower: -20   },  // 장기 대칭
+    { thresholdUpper: 7,    thresholdLower: -12   },  // 비대칭 (하락 폭 큰)
+    { thresholdUpper: 12,   thresholdLower: -7    },  // 비대칭 (상승 폭 큰)
+    { thresholdUpper: 8,    thresholdLower: null  },  // 상승 단방향
+    { thresholdUpper: null, thresholdLower: -8    },  // 하락 단방향
+    { thresholdUpper: 6,    thresholdLower: -15   },  // 비대칭 (하락 주의)
+  ] as const;
+
   const data = dummyAlerts.map((alert, index) => ({
     userId: user.id,
     stockCode: alert.stockCode,
     stockName: alert.stockName,
     basePrice: alert.basePrice,
-    thresholdUpper: 10,
-    thresholdLower: 10,
+    ...thresholdPresets[index % thresholdPresets.length],
     status: index % 5 === 0 ? "inactive" : "active",
   }));
 

@@ -115,7 +115,7 @@ export function StockDetailClient({
           <InfoItem label="상승 도달" value={`+${alert.thresholdUpper}%`} />
         )}
         {alert.thresholdLower != null && (
-          <InfoItem label="하락 도달" value={`-${alert.thresholdLower}%`} />
+          <InfoItem label="하락 도달" value={`${-Math.abs(alert.thresholdLower)}%`} />
         )}
         <InfoItem
           label="등록일"

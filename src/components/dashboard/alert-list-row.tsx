@@ -127,7 +127,7 @@ export function AlertListRow({
             </span>
             <span className="text-muted-foreground"> / </span>
             <span className="font-medium text-destructive">
-              {alert.thresholdLower != null ? `${alert.thresholdLower}%` : "--"}
+              {alert.thresholdLower != null ? `${-Math.abs(alert.thresholdLower)}%` : "--"}
             </span>
           </p>
         </div>

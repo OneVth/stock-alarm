@@ -134,15 +134,16 @@ export function PriceChart({
     }
 
     // 하락 도달선
-    if (thresholdLower != null && thresholdLower > 0) {
-      const lowerPrice = Math.round(basePrice * (1 - thresholdLower / 100));
+    if (thresholdLower != null) {
+      const absLower = Math.abs(thresholdLower);
+      const lowerPrice = Math.round(basePrice * (1 - absLower / 100));
       lineSeries.createPriceLine({
         price: lowerPrice,
         color: "#3b82f6",
         lineWidth: 1,
         lineStyle: LineStyle.Dotted,
         axisLabelVisible: true,
-        title: `-${thresholdLower}%`,
+        title: `-${absLower}%`,
       });
     }
 
