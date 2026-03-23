@@ -18,7 +18,25 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Pencil, Trash2, Bell, Plus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "@/components/ui/collapsible";
+import { TiptapEditor, TiptapViewer } from "@/components/editor";
+import type { JSONContent } from "@tiptap/react";
+import {
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  Bell,
+  Plus,
+  ArrowLeft,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 
 // --- 더미 데이터 ---
 
@@ -78,6 +96,105 @@ const alerts: AlertItem[] = [
     upperThreshold: 7,
     lowerThreshold: 5,
     active: true,
+  },
+];
+
+// --- 종목 상세 더미 데이터 ---
+
+const dummyAlert = {
+  id: "dummy-1",
+  stockName: "삼성전자",
+  stockCode: "005930",
+  basePrice: 70000,
+  thresholdUpper: 10,
+  thresholdLower: -10,
+  status: "active",
+  createdAt: "2026-01-15T00:00:00Z",
+  memo: {
+    type: "doc",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          {
+            type: "text",
+            text: "반도체 업황 회복 기대. 목표가 85,000원, 손절가 65,000원.",
+          },
+        ],
+      },
+    ],
+  } as JSONContent,
+};
+
+const dummyPrice = {
+  price: 75000,
+  change: 5000,
+  changeRate: 7.14,
+};
+
+const dummyAlertLogs = [
+  {
+    id: "log-1",
+    createdAt: "2026-03-13T05:21:00Z",
+    basePrice: 70000,
+    triggeredPrice: 77000,
+    changeRate: 10.0,
+    thresholdType: "upper",
+    emailSent: true,
+  },
+  {
+    id: "log-2",
+    createdAt: "2026-02-28T14:30:00Z",
+    basePrice: 70000,
+    triggeredPrice: 63000,
+    changeRate: -10.0,
+    thresholdType: "lower",
+    emailSent: true,
+  },
+  {
+    id: "log-3",
+    createdAt: "2026-02-15T09:12:00Z",
+    basePrice: 70000,
+    triggeredPrice: 77500,
+    changeRate: 10.71,
+    thresholdType: "upper",
+    emailSent: false,
+  },
+  {
+    id: "log-4",
+    createdAt: "2026-01-30T11:45:00Z",
+    basePrice: 70000,
+    triggeredPrice: 62500,
+    changeRate: -10.71,
+    thresholdType: "lower",
+    emailSent: true,
+  },
+  {
+    id: "log-5",
+    createdAt: "2026-01-20T16:30:00Z",
+    basePrice: 70000,
+    triggeredPrice: 78000,
+    changeRate: 11.43,
+    thresholdType: "upper",
+    emailSent: true,
+  },
+  {
+    id: "log-6",
+    createdAt: "2026-01-10T08:00:00Z",
+    basePrice: 70000,
+    triggeredPrice: 61000,
+    changeRate: -12.86,
+    thresholdType: "lower",
+    emailSent: true,
+  },
+  {
+    id: "log-7",
+    createdAt: "2025-12-20T13:15:00Z",
+    basePrice: 70000,
+    triggeredPrice: 79000,
+    changeRate: 12.86,
+    thresholdType: "upper",
+    emailSent: true,
   },
 ];
 
@@ -329,6 +446,404 @@ function AlertListRow({ item }: { item: AlertItem }) {
   );
 }
 
+// ============================================================
+// 종목 상세 페이지 프로토타입 컴포넌트
+// ============================================================
+
+// --- 1. DetailHeader ---
+
+function DetailHeader() {
+  return (
+    <div className="flex items-center gap-3">
+      <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+        <ArrowLeft className="h-4 w-4" />
+      </Button>
+      <div>
+        <div className="flex items-center gap-2">
+          <p className="text-xl font-bold">{dummyAlert.stockName}</p>
+          <Badge
+            variant={dummyAlert.status === "active" ? "default" : "secondary"}
+            className="cursor-pointer hover:opacity-80"
+          >
+            {dummyAlert.status === "active" ? "활성" : "비활성"}
+          </Badge>
+        </div>
+        <p className="text-sm text-muted-foreground">{dummyAlert.stockCode}</p>
+      </div>
+    </div>
+  );
+}
+
+// --- 2. StockPriceHero ---
+
+function StockPriceHero() {
+  const [isEditing, setIsEditing] = useState(false);
+  const [basePriceVal, setBasePriceVal] = useState(
+    String(dummyAlert.basePrice),
+  );
+  const [upperVal, setUpperVal] = useState(String(dummyAlert.thresholdUpper));
+  const [lowerVal, setLowerVal] = useState(
+    String(Math.abs(dummyAlert.thresholdLower)),
+  );
+
+  const isPositive = dummyPrice.changeRate > 0;
+  const changeSign = isPositive ? "+" : "";
+
+  const upperPrice = Math.round(
+    dummyAlert.basePrice * (1 + dummyAlert.thresholdUpper / 100),
+  );
+  const lowerPrice = Math.round(
+    dummyAlert.basePrice * (1 + dummyAlert.thresholdLower / 100),
+  );
+  const inputCls =
+    "w-28 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none";
+
+  return (
+    <div>
+      {/* 항상 표시: 현재가 + 변동률 */}
+      <p className="text-3xl font-bold">{formatPrice(dummyPrice.price)}</p>
+      <p
+        className={`mt-1 text-base font-medium ${isPositive ? "text-success" : "text-destructive"}`}
+      >
+        {changeSign}
+        {dummyPrice.changeRate.toFixed(2)}% ({changeSign}
+        {formatPrice(dummyPrice.change)})
+      </p>
+
+      {isEditing ? (
+        /* 편집 모드 */
+        <div className="mt-3 space-y-2">
+          <div className="flex items-center gap-3">
+            <label className="w-20 shrink-0 text-sm text-muted-foreground">
+              기준가 (원)
+            </label>
+            <Input
+              type="number"
+              value={basePriceVal}
+              onChange={(e) => setBasePriceVal(e.target.value)}
+              className={inputCls}
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <label className="w-20 shrink-0 text-sm text-muted-foreground">
+              상승 (%)
+            </label>
+            <Input
+              type="number"
+              value={upperVal}
+              onChange={(e) => setUpperVal(e.target.value)}
+              className={inputCls}
+            />
+          </div>
+          <div className="flex items-center gap-3">
+            <label className="w-20 shrink-0 text-sm text-muted-foreground">
+              하락 (%)
+            </label>
+            <Input
+              type="number"
+              value={lowerVal}
+              onChange={(e) => setLowerVal(e.target.value)}
+              className={inputCls}
+            />
+          </div>
+          <div className="mt-2 flex justify-end gap-2">
+            <Button size="sm" onClick={() => setIsEditing(false)}>
+              저장
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsEditing(false)}
+            >
+              취소
+            </Button>
+          </div>
+        </div>
+      ) : (
+        /* 읽기 모드 */
+        <>
+          <p className="mt-1 text-sm text-muted-foreground">
+            기준 {formatPrice(dummyAlert.basePrice)}
+          </p>
+          <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
+            <span className="text-sm">
+              <span className="font-medium text-success">
+                상승 +{dummyAlert.thresholdUpper}%
+              </span>{" "}
+              <span className="text-muted-foreground">
+                ({formatPrice(upperPrice)})
+              </span>
+            </span>
+            <span className="text-sm text-muted-foreground">·</span>
+            <span className="text-sm">
+              <span className="font-medium text-destructive">
+                하락 -{Math.abs(dummyAlert.thresholdLower)}%
+              </span>{" "}
+              <span className="text-muted-foreground">
+                ({formatPrice(lowerPrice)})
+              </span>
+            </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="ml-auto h-7 w-7"
+              onClick={() => setIsEditing(true)}
+            >
+              <Pencil className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function StockPriceHeroSkeleton() {
+  return (
+    <div className="space-y-2">
+      <Skeleton className="h-9 w-36" />
+      <Skeleton className="h-5 w-48" />
+      <Skeleton className="h-4 w-28" />
+      <Skeleton className="h-4 w-64" />
+    </div>
+  );
+}
+
+// --- 3. ChartPlaceholder ---
+
+function ChartPlaceholder() {
+  const [period, setPeriod] = useState<"30d" | "90d" | "1y">("30d");
+  const [chartType, setChartType] = useState<"line" | "candle">("line");
+
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="font-medium">가격 차트</p>
+        <div className="flex flex-wrap gap-2">
+          {/* 차트 타입 토글 */}
+          <div className="flex rounded-md border">
+            <Button
+              variant={chartType === "line" ? "default" : "ghost"}
+              size="sm"
+              className="rounded-r-none border-0"
+              onClick={() => setChartType("line")}
+            >
+              라인
+            </Button>
+            <Button
+              variant={chartType === "candle" ? "default" : "ghost"}
+              size="sm"
+              className="rounded-l-none border-0 border-l"
+              onClick={() => setChartType("candle")}
+            >
+              캔들
+            </Button>
+          </div>
+          {/* 기간 탭 */}
+          <div className="flex rounded-md border">
+            {(["30d", "90d", "1y"] as const).map((p, i) => (
+              <Button
+                key={p}
+                variant={period === p ? "default" : "ghost"}
+                size="sm"
+                className={`border-0 ${i === 0 ? "rounded-r-none" : i === 2 ? "rounded-l-none" : "rounded-none border-x"}`}
+                onClick={() => setPeriod(p)}
+              >
+                {p === "30d" ? "30일" : p === "90d" ? "90일" : "1년"}
+              </Button>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="flex h-[400px] items-center justify-center rounded-lg border border-dashed">
+        <p className="text-sm text-muted-foreground">
+          차트 영역 ({chartType === "line" ? "라인" : "캔들"} /{" "}
+          {period === "30d" ? "30일" : period === "90d" ? "90일" : "1년"})
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// --- 5. AlertHistorySection ---
+
+function AlertHistorySection() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [showAll, setShowAll] = useState(false);
+
+  const displayedLogs = showAll
+    ? dummyAlertLogs
+    : dummyAlertLogs.slice(0, 5);
+
+  const formatDateTime = (iso: string) => {
+    return new Date(iso).toLocaleString("ko-KR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  return (
+    <div className="border-t pt-4">
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <CollapsibleTrigger className="w-full">
+          <div className="flex cursor-pointer items-center justify-between py-1 hover:opacity-70">
+            <p className="font-medium">
+              알림 이력 ({dummyAlertLogs.length}건)
+            </p>
+            {isOpen ? (
+              <ChevronUp className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            )}
+          </div>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="mt-3">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b text-left text-xs text-muted-foreground">
+                    <th className="py-2 pr-4 font-medium">일시</th>
+                    <th className="py-2 pr-4 font-medium">기준가</th>
+                    <th className="py-2 pr-4 font-medium">발동가</th>
+                    <th className="py-2 pr-4 font-medium">변동률</th>
+                    <th className="py-2 pr-4 font-medium">유형</th>
+                    <th className="py-2 font-medium">이메일</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {displayedLogs.map((log) => (
+                    <tr key={log.id} className="border-b last:border-0">
+                      <td className="py-2 pr-4 text-muted-foreground">
+                        {formatDateTime(log.createdAt)}
+                      </td>
+                      <td className="py-2 pr-4">
+                        {formatPrice(log.basePrice)}
+                      </td>
+                      <td className="py-2 pr-4">
+                        {formatPrice(log.triggeredPrice)}
+                      </td>
+                      <td
+                        className={`py-2 pr-4 font-medium ${log.changeRate > 0 ? "text-success" : "text-destructive"}`}
+                      >
+                        {log.changeRate > 0 ? "+" : ""}
+                        {log.changeRate.toFixed(2)}%
+                      </td>
+                      <td className="py-2 pr-4">
+                        <Badge
+                          variant={
+                            log.thresholdType === "upper"
+                              ? "default"
+                              : "destructive"
+                          }
+                        >
+                          {log.thresholdType === "upper" ? "상승" : "하락"}
+                        </Badge>
+                      </td>
+                      <td className="py-2">
+                        <Badge
+                          variant={log.emailSent ? "outline" : "secondary"}
+                        >
+                          {log.emailSent ? "발송" : "미발송"}
+                        </Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            {!showAll && dummyAlertLogs.length > 5 && (
+              <div className="mt-3 text-center">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowAll(true)}
+                >
+                  더보기 ({dummyAlertLogs.length - 5}건 더)
+                </Button>
+              </div>
+            )}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
+  );
+}
+
+// --- 6. MemoSection ---
+
+function MemoSection({ hasMemo = true }: { hasMemo?: boolean }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState<JSONContent>(
+    dummyAlert.memo,
+  );
+
+  return (
+    <div className="border-t pt-4">
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <CollapsibleTrigger className="w-full">
+          <div className="flex cursor-pointer items-center justify-between py-1 hover:opacity-70">
+            <p className="font-medium">메모</p>
+            {isOpen ? (
+              <ChevronUp className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+            )}
+          </div>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <div className="mt-3">
+            <div className="mb-3 flex items-center justify-between">
+              <span />
+              {isEditing ? (
+                <div className="flex gap-2">
+                  <Button size="sm" onClick={() => setIsEditing(false)}>
+                    저장
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsEditing(false)}
+                  >
+                    취소
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsEditing(true)}
+                >
+                  <Pencil className="mr-1.5 h-3.5 w-3.5" />
+                  수정
+                </Button>
+              )}
+            </div>
+
+            {isEditing ? (
+              <TiptapEditor
+                content={editContent}
+                onChange={(c) => setEditContent(c)}
+                placeholder="메모를 입력하세요..."
+              />
+            ) : hasMemo ? (
+              <TiptapViewer content={dummyAlert.memo} />
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                메모가 없습니다
+              </p>
+            )}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
+  );
+}
+
 // --- 페이지 ---
 
 export default function PrototypeShowcase() {
@@ -406,6 +921,90 @@ export default function PrototypeShowcase() {
             <Plus className="mr-2 h-4 w-4" />
             알림 추가
           </Button>
+        </div>
+      </ComponentSection>
+
+      {/* ===== 종목 상세 페이지 ===== */}
+
+      <div className="border-t pt-8">
+        <h2 className="text-2xl font-bold">종목 상세 페이지</h2>
+        <p className="mt-2 text-muted-foreground">
+          종목 상세 페이지 컴포넌트 프로토타입
+        </p>
+      </div>
+
+      {/* 1. DetailHeader */}
+      <ComponentSection
+        title="DetailHeader"
+        description="종목 식별 영역 — 뒤로가기 + 종목명/코드 + 상태 Badge (hover 효과 확인)"
+      >
+        <DetailHeader />
+      </ComponentSection>
+
+      {/* 2. StockPriceHero */}
+      <ComponentSection
+        title="StockPriceHero"
+        description="현재가/변동률 Hero + 도달 정보 + 인라인 편집 — 로드 버전(좌)과 스켈레톤 버전(우)"
+      >
+        <div className="flex flex-wrap gap-12">
+          <div>
+            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              로드 상태
+            </p>
+            <StockPriceHero />
+          </div>
+          <div>
+            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              스켈레톤 상태
+            </p>
+            <StockPriceHeroSkeleton />
+          </div>
+        </div>
+      </ComponentSection>
+
+      {/* 3. ChartSection */}
+      <ComponentSection
+        title="ChartSection (Placeholder)"
+        description="기간 탭 / 차트 타입 토글 배치 확인 — 실제 차트 대신 placeholder"
+      >
+        <ChartPlaceholder />
+      </ComponentSection>
+
+      {/* 4. AlertHistorySection */}
+      <ComponentSection
+        title="AlertHistorySection"
+        description="기본 접힘 — 클릭 시 펼침, 더보기 버튼으로 나머지 2건 표시"
+      >
+        <AlertHistorySection />
+      </ComponentSection>
+
+      {/* 6. MemoSection (메모 있음) */}
+      <ComponentSection
+        title="MemoSection (메모 있음)"
+        description="기본 접힘 — 펼치면 TiptapViewer, 수정 클릭 시 TiptapEditor"
+      >
+        <MemoSection hasMemo={true} />
+      </ComponentSection>
+
+      {/* 6b. MemoSection (메모 없음) */}
+      <ComponentSection
+        title="MemoSection (메모 없음)"
+        description="메모가 없을 때 placeholder 표시"
+      >
+        <MemoSection hasMemo={false} />
+      </ComponentSection>
+
+      {/* 7. 전체 레이아웃 조합 */}
+      <ComponentSection
+        title="종목 상세 페이지 — 전체 레이아웃"
+        description="계층별 정보 배치 검증. Hero(현재가+도달정보) → 차트 → 이력(접힘) → 메모(접힘)"
+      >
+        <div className="flex flex-col gap-6">
+          <DetailHeader />
+          <StockPriceHero />
+          <ChartPlaceholder />
+          <AlertHistorySection />
+          <MemoSection hasMemo={true} />
         </div>
       </ComponentSection>
     </div>
