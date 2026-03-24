@@ -8,16 +8,13 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogOverlay,
-  AlertDialogPortal,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import type { Alert } from "@/generated/prisma/client";
 
 /**
@@ -108,27 +105,24 @@ export function DetailHeader({ alert }: DetailHeaderProps) {
           >
             {label}
           </Badge>
-          <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <AlertDialogPortal>
-              <AlertDialogOverlay onClick={() => setDialogOpen(false)} />
-              <div className="fixed top-1/2 left-1/2 z-50 grid w-full max-w-xs -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-background p-4 ring-1 ring-foreground/10 outline-none sm:max-w-sm">
-                <AlertDialogHeader>
-                  <AlertDialogTitle>알림 상태 변경</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    {alert.stockName} 알림을 {nextLabel}하시겠습니까?
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel onClick={() => setDialogOpen(false)}>
-                    취소
-                  </AlertDialogCancel>
-                  <AlertDialogAction onClick={handleToggle}>
-                    {nextLabel}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </div>
-            </AlertDialogPortal>
-          </AlertDialog>
+          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>알림 상태 변경</DialogTitle>
+                <DialogDescription>
+                  {alert.stockName} 알림을 {nextLabel}하시겠습니까?
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                  취소
+                </Button>
+                <Button onClick={handleToggle} disabled={toggling}>
+                  {nextLabel}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
         <p className="text-sm text-muted-foreground">{alert.stockCode}</p>
       </div>
