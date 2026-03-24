@@ -207,7 +207,7 @@ export function StockPriceHero({ alert }: StockPriceHeroProps) {
       ) : (
         /* 읽기 모드 */
         <>
-          <div className="mt-1 flex items-center justify-between">
+          <div className="mt-1 flex items-center gap-2">
             <p className="text-sm text-muted-foreground">
               기준 {formatPrice(alert.basePrice)}
             </p>

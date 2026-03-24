@@ -11,10 +11,11 @@ import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
-  AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
+  AlertDialogOverlay,
+  AlertDialogPortal,
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
@@ -114,22 +115,25 @@ export function DetailHeader({ alert }: DetailHeaderProps) {
             >
               {label}
             </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>알림 상태 변경</AlertDialogTitle>
-                <AlertDialogDescription>
-                  {alert.stockName} 알림을 {nextLabel}하시겠습니까?
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel onClick={() => setDialogOpen(false)}>
-                  취소
-                </AlertDialogCancel>
-                <AlertDialogAction onClick={handleToggle}>
-                  {nextLabel}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
+            <AlertDialogPortal>
+              <AlertDialogOverlay onClick={() => setDialogOpen(false)} />
+              <div className="fixed top-1/2 left-1/2 z-50 grid w-full max-w-xs -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-background p-4 ring-1 ring-foreground/10 outline-none sm:max-w-sm">
+                <AlertDialogHeader>
+                  <AlertDialogTitle>알림 상태 변경</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {alert.stockName} 알림을 {nextLabel}하시겠습니까?
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel onClick={() => setDialogOpen(false)}>
+                    취소
+                  </AlertDialogCancel>
+                  <AlertDialogAction onClick={handleToggle}>
+                    {nextLabel}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </div>
+            </AlertDialogPortal>
           </AlertDialog>
         </div>
         <p className="text-sm text-muted-foreground">{alert.stockCode}</p>
