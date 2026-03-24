@@ -7,6 +7,7 @@ import {
   type IChartApi,
   type ISeriesApi,
   LineSeries,
+  CandlestickSeries,
   LineStyle,
   createSeriesMarkers,
 } from "lightweight-charts";
@@ -38,12 +39,16 @@ interface PriceChartProps {
   thresholdLower?: number | null;
   /** 알림 로그 마커 */
   alertLogs?: AlertLogMarker[];
+  /** 차트 유형 ("line" | "candle") */
+  chartType?: "line" | "candle";
+  /** 차트 높이 (px) */
+  height?: number;
 }
 
 /**
  * Lightweight Charts 기반 가격 차트 컴포넌트
  *
- * 종가 라인, 기준가 수평선, 도달선, 알림 마커를 표시합니다.
+ * 종가 라인 또는 캔들스틱, 기준가 수평선, 도달선, 알림 마커를 표시합니다.
  */
 export function PriceChart({
   ohlcvData,
@@ -51,10 +56,12 @@ export function PriceChart({
   thresholdUpper,
   thresholdLower,
   alertLogs,
+  chartType = "line",
+  height = 400,
 }: PriceChartProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
-  const seriesRef = useRef<ISeriesApi<"Line"> | null>(null);
+  const seriesRef = useRef<ISeriesApi<"Line"> | ISeriesApi<"Candlestick"> | null>(null);
   const { resolvedTheme } = useTheme();
 
   const isDark = resolvedTheme === "dark";
@@ -66,7 +73,7 @@ export function PriceChart({
 
     const chart = createChart(container, {
       width: container.clientWidth,
-      height: 400,
+      height,
       layout: {
         background: { color: "transparent" },
         textColor: isDark ? "#a1a1aa" : "#71717a",
@@ -94,24 +101,50 @@ export function PriceChart({
 
     chartRef.current = chart;
 
-    // 종가 라인 시리즈
-    const lineSeries = chart.addSeries(LineSeries, {
-      color: "#3b82f6",
-      lineWidth: 2,
-      priceLineVisible: false,
-    });
+    let mainSeries: ISeriesApi<"Line"> | ISeriesApi<"Candlestick">;
 
-    seriesRef.current = lineSeries;
+    if (chartType === "candle") {
+      // 캔들스틱 시리즈
+      const candleSeries = chart.addSeries(CandlestickSeries, {
+        upColor: "#ef4444",
+        downColor: "#3b82f6",
+        borderUpColor: "#ef4444",
+        borderDownColor: "#3b82f6",
+        wickUpColor: "#ef4444",
+        wickDownColor: "#3b82f6",
+      });
 
-    const lineData = ohlcvData.map((d) => ({
-      time: d.date,
-      value: d.close,
-    }));
+      const candleData = ohlcvData.map((d) => ({
+        time: d.date,
+        open: d.open,
+        high: d.high,
+        low: d.low,
+        close: d.close,
+      }));
 
-    lineSeries.setData(lineData as Parameters<typeof lineSeries.setData>[0]);
+      candleSeries.setData(candleData as Parameters<typeof candleSeries.setData>[0]);
+      mainSeries = candleSeries;
+    } else {
+      // 종가 라인 시리즈
+      const lineSeries = chart.addSeries(LineSeries, {
+        color: "#3b82f6",
+        lineWidth: 2,
+        priceLineVisible: false,
+      });
+
+      const lineData = ohlcvData.map((d) => ({
+        time: d.date,
+        value: d.close,
+      }));
+
+      lineSeries.setData(lineData as Parameters<typeof lineSeries.setData>[0]);
+      mainSeries = lineSeries;
+    }
+
+    seriesRef.current = mainSeries;
 
     // 기준가 수평선
-    lineSeries.createPriceLine({
+    mainSeries.createPriceLine({
       price: basePrice,
       color: "#6366f1",
       lineWidth: 1,
@@ -123,7 +156,7 @@ export function PriceChart({
     // 상승 도달선
     if (thresholdUpper != null && thresholdUpper > 0) {
       const upperPrice = Math.round(basePrice * (1 + thresholdUpper / 100));
-      lineSeries.createPriceLine({
+      mainSeries.createPriceLine({
         price: upperPrice,
         color: "#ef4444",
         lineWidth: 1,
@@ -137,7 +170,7 @@ export function PriceChart({
     if (thresholdLower != null) {
       const absLower = Math.abs(thresholdLower);
       const lowerPrice = Math.round(basePrice * (1 - absLower / 100));
-      lineSeries.createPriceLine({
+      mainSeries.createPriceLine({
         price: lowerPrice,
         color: "#3b82f6",
         lineWidth: 1,
@@ -167,7 +200,7 @@ export function PriceChart({
 
       if (markers.length > 0) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        createSeriesMarkers(lineSeries, markers as any);
+        createSeriesMarkers(mainSeries, markers as any);
       }
     }
 
@@ -188,11 +221,14 @@ export function PriceChart({
       chartRef.current = null;
       seriesRef.current = null;
     };
-  }, [ohlcvData, basePrice, thresholdUpper, thresholdLower, alertLogs, isDark]);
+  }, [ohlcvData, basePrice, thresholdUpper, thresholdLower, alertLogs, isDark, chartType, height]);
 
   if (ohlcvData.length === 0) {
     return (
-      <div className="flex h-[400px] items-center justify-center rounded-lg border border-dashed">
+      <div
+        className="flex items-center justify-center rounded-lg border border-dashed"
+        style={{ height }}
+      >
         <p className="text-sm text-muted-foreground">차트 데이터가 없습니다</p>
       </div>
     );

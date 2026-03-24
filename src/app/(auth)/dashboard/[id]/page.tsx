@@ -21,14 +21,16 @@ export default async function StockDetailPage({
 
   const { id } = await params;
 
-  const [alert, alertLogs] = await Promise.all([
+  const [alert, alertLogs, alertLogCount] = await Promise.all([
     prisma.alert.findFirst({
       where: { id, userId: session.user.id },
     }),
     prisma.alertLog.findMany({
       where: { alertId: id },
       orderBy: { createdAt: "desc" },
+      take: 5,
     }),
+    prisma.alertLog.count({ where: { alertId: id } }),
   ]);
 
   if (!alert) {
@@ -39,6 +41,7 @@ export default async function StockDetailPage({
     <StockDetailClient
       alert={JSON.parse(JSON.stringify(alert))}
       alertLogs={JSON.parse(JSON.stringify(alertLogs))}
+      alertLogCount={alertLogCount}
     />
   );
 }

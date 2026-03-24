@@ -8,7 +8,7 @@ import { prisma } from "@/lib/prisma";
  * 알림 발동 이력을 조회합니다.
  */
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
@@ -31,9 +31,15 @@ export async function GET(
     );
   }
 
+  const { searchParams } = new URL(request.url);
+  const skip = Number(searchParams.get("skip")) || 0;
+  const take = Number(searchParams.get("take")) || 5;
+
   const logs = await prisma.alertLog.findMany({
     where: { alertId: id },
     orderBy: { createdAt: "desc" },
+    skip,
+    take,
   });
 
   return NextResponse.json({ logs });
