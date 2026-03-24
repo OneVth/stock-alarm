@@ -17,7 +17,6 @@ import {
   AlertDialogOverlay,
   AlertDialogPortal,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import type { Alert } from "@/generated/prisma/client";
 
@@ -102,19 +101,14 @@ export function DetailHeader({ alert }: DetailHeaderProps) {
       <div>
         <div className="flex items-center gap-2">
           <p className="text-xl font-bold">{alert.stockName}</p>
+          <Badge
+            variant={variant}
+            className="cursor-pointer hover:opacity-80"
+            onClick={() => !toggling && setDialogOpen(true)}
+          >
+            {label}
+          </Badge>
           <AlertDialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <AlertDialogTrigger
-              nativeButton={false}
-              disabled={toggling}
-              render={
-                <Badge
-                  variant={variant}
-                  className="cursor-pointer hover:opacity-80"
-                />
-              }
-            >
-              {label}
-            </AlertDialogTrigger>
             <AlertDialogPortal>
               <AlertDialogOverlay onClick={() => setDialogOpen(false)} />
               <div className="fixed top-1/2 left-1/2 z-50 grid w-full max-w-xs -translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-background p-4 ring-1 ring-foreground/10 outline-none sm:max-w-sm">

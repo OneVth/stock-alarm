@@ -195,13 +195,16 @@ export function StockPriceHero({ alert }: StockPriceHeroProps) {
               />
             </div>
           )}
-          <div className="mt-2 flex justify-end gap-2">
-            <Button size="sm" onClick={handleSave} disabled={saving}>
-              {saving ? "저장 중..." : "저장"}
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleCancel} disabled={saving}>
-              취소
-            </Button>
+          <div className="mt-2 flex items-center gap-3">
+            <div className="w-20 shrink-0" />
+            <div className="flex gap-2">
+              <Button size="sm" onClick={handleSave} disabled={saving}>
+                {saving ? "저장 중..." : "저장"}
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleCancel} disabled={saving}>
+                취소
+              </Button>
+            </div>
           </div>
         </div>
       ) : (
