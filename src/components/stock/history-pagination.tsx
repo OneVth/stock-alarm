@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Pagination,
   PaginationContent,
@@ -9,6 +10,13 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 /**
  * 알림 이력 페이지네이션 Props
@@ -18,63 +26,112 @@ interface HistoryPaginationProps {
   currentPage: number;
   /** 전체 페이지 수 */
   totalPages: number;
+  /** 페이지당 항목 수 */
+  pageSize: number;
 }
+
+const PAGE_SIZE_OPTIONS = [10, 20, 50];
 
 /**
  * 알림 이력 페이지네이션 컴포넌트
  *
+ * URL `?page=N` 파라미터로 페이지를 이동하고,
+ * 페이지당 항목 수 Select로 `?size=N`을 변경합니다.
+ * type, stock 파라미터는 유지됩니다.
+ *
  * @param currentPage - 현재 페이지 번호
  * @param totalPages - 전체 페이지 수
+ * @param pageSize - 페이지당 항목 수
  */
 export function HistoryPagination({
   currentPage,
   totalPages,
+  pageSize,
 }: HistoryPaginationProps) {
-  if (totalPages <= 1) return null;
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  function buildHref(targetPage: number) {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", String(targetPage));
+    return `/history?${params.toString()}`;
+  }
+
+  function handleSizeChange(value: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("size", value);
+    params.delete("page");
+    const query = params.toString();
+    router.push(query ? `/history?${query}` : "/history");
+  }
 
   const pages = buildPageNumbers(currentPage, totalPages);
 
   return (
-    <Pagination>
-      <PaginationContent>
-        <PaginationItem>
-          <PaginationPrevious
-            href={`/history?page=${currentPage - 1}`}
-            text="이전"
-            aria-disabled={currentPage <= 1}
-            className={currentPage <= 1 ? "pointer-events-none opacity-50" : ""}
-          />
-        </PaginationItem>
+    <div className="flex items-center justify-between gap-4">
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <span>페이지당</span>
+        <Select
+          value={String(pageSize)}
+          onValueChange={handleSizeChange}
+        >
+          <SelectTrigger size="sm" className="w-16">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {PAGE_SIZE_OPTIONS.map((size) => (
+              <SelectItem key={size} value={String(size)}>
+                {size}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <span>개</span>
+      </div>
 
-        {pages.map((p, i) =>
-          p === "ellipsis" ? (
-            <PaginationItem key={`ellipsis-${i}`}>
-              <PaginationEllipsis />
+      {totalPages > 1 && (
+        <Pagination className="w-auto flex-none mx-0 justify-end">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                href={buildHref(currentPage - 1)}
+                text="이전"
+                aria-disabled={currentPage <= 1}
+                className={currentPage <= 1 ? "pointer-events-none opacity-50" : ""}
+              />
             </PaginationItem>
-          ) : (
-            <PaginationItem key={p}>
-              <PaginationLink
-                href={`/history?page=${p}`}
-                isActive={p === currentPage}
-              >
-                {p}
-              </PaginationLink>
-            </PaginationItem>
-          )
-        )}
 
-        <PaginationItem>
-          <PaginationNext
-            href={`/history?page=${currentPage + 1}`}
-            text="다음"
-            aria-disabled={currentPage >= totalPages}
-            className={
-              currentPage >= totalPages ? "pointer-events-none opacity-50" : ""
-            }
-          />
-        </PaginationItem>
-      </PaginationContent>
-    </Pagination>
+            {pages.map((p, i) =>
+              p === "ellipsis" ? (
+                <PaginationItem key={`ellipsis-${i}`}>
+                  <PaginationEllipsis />
+                </PaginationItem>
+              ) : (
+                <PaginationItem key={p}>
+                  <PaginationLink
+                    href={buildHref(p)}
+                    isActive={p === currentPage}
+                  >
+                    {p}
+                  </PaginationLink>
+                </PaginationItem>
+              )
+            )}
+
+            <PaginationItem>
+              <PaginationNext
+                href={buildHref(currentPage + 1)}
+                text="다음"
+                aria-disabled={currentPage >= totalPages}
+                className={
+                  currentPage >= totalPages ? "pointer-events-none opacity-50" : ""
+                }
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      )}
+    </div>
   );
 }
 

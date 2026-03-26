@@ -35,83 +35,87 @@ export function FullAlertHistory({ alertLogs }: FullAlertHistoryProps) {
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>종목명</TableHead>
-          <TableHead className="text-right">기준가</TableHead>
-          <TableHead className="text-right">발동가</TableHead>
-          <TableHead className="text-right">변동률</TableHead>
-          <TableHead>유형</TableHead>
-          <TableHead>이메일</TableHead>
-          <TableHead>발송일시</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {alertLogs.map((log) => {
-          const rateFormatted = `${log.changeRate >= 0 ? "+" : ""}${log.changeRate.toFixed(2)}%`;
-          const stockLabel = log.alert?.stockName ?? log.alertId ?? "-";
+    <div className="overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>종목명</TableHead>
+            <TableHead className="text-right">기준가</TableHead>
+            <TableHead className="text-right">발동가</TableHead>
+            <TableHead className="text-right">변동률</TableHead>
+            <TableHead>유형</TableHead>
+            <TableHead>이메일</TableHead>
+            <TableHead>발송일시</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {alertLogs.map((log) => {
+            const rateFormatted = `${log.changeRate >= 0 ? "+" : ""}${log.changeRate.toFixed(2)}%`;
 
-          return (
-            <TableRow key={log.id}>
-              <TableCell className="text-sm font-medium">
-                {log.alertId ? (
-                  <Link
-                    href={`/dashboard/${log.alertId}`}
-                    className="text-primary hover:underline"
+            return (
+              <TableRow key={log.id}>
+                <TableCell className="text-sm font-medium">
+                  {log.alertId ? (
+                    <Link
+                      href={`/dashboard/${log.alertId}`}
+                      className="text-primary hover:underline"
+                    >
+                      <span>{log.alert?.stockName ?? "-"}</span>
+                      {log.alert?.stockCode && (
+                        <span className="ml-1 text-xs text-muted-foreground">({log.alert.stockCode})</span>
+                      )}
+                    </Link>
+                  ) : (
+                    log.alert?.stockName ?? log.alertId ?? "-"
+                  )}
+                </TableCell>
+                <TableCell className="text-right">
+                  {log.basePrice.toLocaleString()}
+                </TableCell>
+                <TableCell className="text-right">
+                  {log.triggeredPrice.toLocaleString()}
+                </TableCell>
+                <TableCell className="text-right">
+                  <span
+                    className={
+                      log.changeRate > 0
+                        ? "text-success"
+                        : log.changeRate < 0
+                          ? "text-destructive"
+                          : "text-muted-foreground"
+                    }
                   >
-                    {stockLabel}
-                  </Link>
-                ) : (
-                  stockLabel
-                )}
-              </TableCell>
-              <TableCell className="text-right">
-                {log.basePrice.toLocaleString()}
-              </TableCell>
-              <TableCell className="text-right">
-                {log.triggeredPrice.toLocaleString()}
-              </TableCell>
-              <TableCell className="text-right">
-                <span
-                  className={
-                    log.changeRate > 0
-                      ? "text-red-500"
-                      : log.changeRate < 0
-                        ? "text-blue-500"
-                        : "text-muted-foreground"
-                  }
-                >
-                  {rateFormatted}
-                </span>
-              </TableCell>
-              <TableCell>
-                <Badge
-                  variant={
-                    log.thresholdType === "upper" ? "destructive" : "default"
-                  }
-                >
-                  {log.thresholdType === "upper" ? "상승" : "하락"}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <Badge variant={log.emailSent ? "outline" : "secondary"}>
-                  {log.emailSent ? "발송" : "미발송"}
-                </Badge>
-              </TableCell>
-              <TableCell className="text-sm">
-                {new Date(log.createdAt).toLocaleString("ko-KR", {
-                  year: "numeric",
-                  month: "2-digit",
-                  day: "2-digit",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </TableCell>
-            </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
+                    {rateFormatted}
+                  </span>
+                </TableCell>
+                <TableCell>
+                  <Badge
+                    variant={
+                      log.thresholdType === "upper" ? "destructive" : "default"
+                    }
+                  >
+                    {log.thresholdType === "upper" ? "상승" : "하락"}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <Badge variant={log.emailSent ? "outline" : "secondary"}>
+                    {log.emailSent ? "발송" : "미발송"}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-sm">
+                  {new Date(log.createdAt).toLocaleString("ko-KR", {
+                    year: "numeric",
+                    month: "2-digit",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+    </div>
   );
 }
