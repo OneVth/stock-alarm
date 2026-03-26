@@ -190,11 +190,11 @@ export function PriceChart({
         })
         .map((log) => ({
           time: log.date,
-          position: "inBar" as const,
-          shape: "circle" as const,
+          position: log.thresholdType === "upper" ? "belowBar" as const : "aboveBar" as const,
+          shape: log.thresholdType === "upper" ? "arrowUp" as const : "arrowDown" as const,
           color: log.thresholdType === "upper" ? "#ef4444" : "#22c55e",
           size: 1,
-          text: log.thresholdType === "upper" ? "UP" : "DN",
+          text: "",
         }))
         .sort((a, b) => (a.time < b.time ? -1 : a.time > b.time ? 1 : 0));
 

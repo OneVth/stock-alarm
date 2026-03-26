@@ -123,14 +123,28 @@ export function ChartSection({ alert, alertLogs }: ChartSectionProps) {
       {loading ? (
         <Skeleton className="h-[300px] w-full md:h-[400px]" />
       ) : (
-        <PriceChart
-          ohlcvData={ohlcvData}
-          basePrice={alert.basePrice}
-          thresholdUpper={alert.thresholdUpper}
-          thresholdLower={alert.thresholdLower}
-          alertLogs={alertLogs}
-          chartType={chartType}
-        />
+        <>
+          <PriceChart
+            ohlcvData={ohlcvData}
+            basePrice={alert.basePrice}
+            thresholdUpper={alert.thresholdUpper}
+            thresholdLower={alert.thresholdLower}
+            alertLogs={alertLogs}
+            chartType={chartType}
+          />
+          {alertLogs.length > 0 && (
+            <div className="mt-2 flex items-center justify-end gap-4 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <span className="inline-block h-2 w-2 rounded-full bg-[#ef4444]" />
+                상승 알림
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="inline-block h-2 w-2 rounded-full bg-[#22c55e]" />
+                하락 알림
+              </span>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
