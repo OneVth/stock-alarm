@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { UserManagementTable } from "@/components/admin/user-management-table";
 import { AdminPagination } from "@/components/admin/admin-pagination";
+import { AdminUserSearch } from "@/components/admin/admin-user-search";
 
 import type { AdminUser } from "@/types/admin";
 
@@ -17,18 +18,28 @@ const PAGE_SIZE = 20;
 export default async function AdminUsersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; q?: string }>;
 }) {
   const session = await auth();
   if (!session?.user?.id) {
     redirect("/login");
   }
 
-  const { page: pageParam } = await searchParams;
+  const { page: pageParam, q } = await searchParams;
   const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+
+  const where = q
+    ? {
+        OR: [
+          { email: { contains: q, mode: "insensitive" as const } },
+          { nickname: { contains: q, mode: "insensitive" as const } },
+        ],
+      }
+    : {};
 
   const [users, totalCount] = await Promise.all([
     prisma.user.findMany({
+      where,
       include: {
         userRoles: { include: { role: true } },
         _count: { select: { alerts: true } },
@@ -37,7 +48,7 @@ export default async function AdminUsersPage({
       take: PAGE_SIZE,
       skip: (page - 1) * PAGE_SIZE,
     }),
-    prisma.user.count(),
+    prisma.user.count({ where }),
   ]);
 
   const totalPages = Math.ceil(totalCount / PAGE_SIZE);
@@ -59,6 +70,8 @@ export default async function AdminUsersPage({
         <Badge variant="secondary">{totalCount}명</Badge>
       </div>
 
+      <AdminUserSearch defaultValue={q} />
+
       <UserManagementTable
         users={mapped}
         currentUserId={session.user.id}
@@ -68,6 +81,7 @@ export default async function AdminUsersPage({
         currentPage={page}
         totalPages={totalPages}
         basePath="/admin/users"
+        searchParams={q ? { q } : undefined}
       />
     </div>
   );
