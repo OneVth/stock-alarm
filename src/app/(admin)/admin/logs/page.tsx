@@ -14,20 +14,26 @@ export const metadata: Metadata = {
   title: "시스템 로그 | Stock Alarm",
 };
 
-const PAGE_SIZE = 20;
-
 export default async function AdminLogsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; level?: string; category?: string }>;
+  searchParams: Promise<{
+    page?: string;
+    level?: string;
+    category?: string;
+    from?: string;
+    to?: string;
+    size?: string;
+  }>;
 }) {
   const session = await auth();
   if (!session?.user?.id) {
     redirect("/login");
   }
 
-  const { page: pageParam, level, category } = await searchParams;
+  const { page: pageParam, level, category, from, to, size } = await searchParams;
   const page = Math.max(1, parseInt(pageParam ?? "1", 10) || 1);
+  const pageSize = [10, 20, 50].includes(Number(size)) ? Number(size) : 20;
 
   const where: Prisma.SystemLogWhereInput = {};
   if (level && ["ERROR", "WARN", "INFO"].includes(level)) {
@@ -35,6 +41,18 @@ export default async function AdminLogsPage({
   }
   if (category) {
     where.category = category;
+  }
+  if (from) {
+    where.createdAt = {
+      ...(where.createdAt as object ?? {}),
+      gte: new Date(`${from}T00:00:00`),
+    };
+  }
+  if (to) {
+    where.createdAt = {
+      ...(where.createdAt as object ?? {}),
+      lte: new Date(`${to}T23:59:59`),
+    };
   }
 
   const [logs, totalCount, categoryResults] = await Promise.all([
@@ -44,8 +62,8 @@ export default async function AdminLogsPage({
         user: { select: { nickname: true, email: true } },
       },
       orderBy: { createdAt: "desc" },
-      take: PAGE_SIZE,
-      skip: (page - 1) * PAGE_SIZE,
+      take: pageSize,
+      skip: (page - 1) * pageSize,
     }),
     prisma.systemLog.count({ where }),
     prisma.systemLog.findMany({
@@ -55,7 +73,7 @@ export default async function AdminLogsPage({
     }),
   ]);
 
-  const totalPages = Math.ceil(totalCount / PAGE_SIZE);
+  const totalPages = Math.ceil(totalCount / pageSize);
   const categories = categoryResults.map((c) => c.category);
 
   const mapped: AdminSystemLog[] = logs.map((log) => ({
@@ -69,10 +87,12 @@ export default async function AdminLogsPage({
     user: log.user,
   }));
 
-  // 필터 보존을 위한 searchParams
   const filterParams: Record<string, string> = {};
   if (level) filterParams.level = level;
   if (category) filterParams.category = category;
+  if (from) filterParams.from = from;
+  if (to) filterParams.to = to;
+  if (size && [10, 20, 50].includes(Number(size))) filterParams.size = size;
 
   return (
     <div className="flex flex-col gap-6">
@@ -85,6 +105,8 @@ export default async function AdminLogsPage({
         currentLevel={level}
         currentCategory={category}
         categories={categories}
+        currentFrom={from}
+        currentTo={to}
       />
 
       <SystemLogTable logs={mapped} />
@@ -94,6 +116,7 @@ export default async function AdminLogsPage({
         totalPages={totalPages}
         basePath="/admin/logs"
         searchParams={filterParams}
+        pageSize={pageSize}
       />
     </div>
   );

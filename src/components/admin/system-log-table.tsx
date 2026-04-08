@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Table,
   TableHeader,
@@ -27,8 +28,11 @@ const levelVariant = {
  * 시스템 로그 테이블
  *
  * 레벨별 Badge 색상과 함께 로그를 표시합니다.
+ * 메시지 셀을 클릭하면 전체 내용을 펼쳐서 볼 수 있습니다.
  */
 export function SystemLogTable({ logs }: SystemLogTableProps) {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
   return (
     <Table>
       <TableHeader>
@@ -58,7 +62,17 @@ export function SystemLogTable({ logs }: SystemLogTableProps) {
               <TableCell className="text-muted-foreground">
                 {log.category}
               </TableCell>
-              <TableCell className="max-w-xs truncate">
+              <TableCell
+                className={`cursor-pointer ${
+                  expandedId === log.id
+                    ? "whitespace-normal break-all"
+                    : "max-w-xs truncate"
+                }`}
+                title={expandedId !== log.id ? log.message : undefined}
+                onClick={() =>
+                  setExpandedId(expandedId === log.id ? null : log.id)
+                }
+              >
                 {log.message}
               </TableCell>
               <TableCell className="text-muted-foreground">
