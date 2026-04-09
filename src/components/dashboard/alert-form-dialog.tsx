@@ -43,7 +43,7 @@ export function AlertFormDialog({ alert, open: openProp, onOpenChange, trigger }
       {trigger ? (
         <DialogTrigger nativeButton={false} render={trigger as React.ReactElement} />
       ) : !isControlled ? (
-        <DialogTrigger render={<Button size="sm" />}>
+        <DialogTrigger render={<Button size="default" />}>
           <PlusIcon />
           새 알림 추가
         </DialogTrigger>
