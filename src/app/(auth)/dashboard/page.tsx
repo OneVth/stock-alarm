@@ -71,7 +71,7 @@ export default async function DashboardPage({
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">내 알림</h2>
+        <h1 className="text-2xl font-bold">내 알림</h1>
         <AlertFormDialog />
       </div>
 

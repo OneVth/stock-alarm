@@ -108,7 +108,7 @@ export function AppSidebar() {
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                 <BellIcon className="size-4" />
               </div>
-              <span className="font-semibold">Stock Alarm</span>
+              <span className="text-base font-semibold">Stock Alarm</span>
             </SidebarMenuButton>
             {isExpanded && (
               <Button

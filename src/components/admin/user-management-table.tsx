@@ -83,7 +83,7 @@ export function UserManagementTable({
                         <AvatarFallback>{initials}</AvatarFallback>
                       </Avatar>
                       <div className="flex flex-col">
-                        <span className="text-sm font-medium">
+                        <span className="text-base font-medium">
                           {user.nickname}
                         </span>
                         <span className="text-xs text-muted-foreground">

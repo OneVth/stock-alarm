@@ -54,7 +54,7 @@ export function FullAlertHistory({ alertLogs }: FullAlertHistoryProps) {
 
             return (
               <TableRow key={log.id}>
-                <TableCell className="text-sm font-medium">
+                <TableCell className="text-base font-medium">
                   {log.alertId ? (
                     <Link
                       href={`/dashboard/${log.alertId}`}
@@ -102,7 +102,7 @@ export function FullAlertHistory({ alertLogs }: FullAlertHistoryProps) {
                     {log.emailSent ? "발송" : "미발송"}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-sm">
+                <TableCell className="text-base">
                   {new Date(log.createdAt).toLocaleString("ko-KR", {
                     year: "numeric",
                     month: "2-digit",

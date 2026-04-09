@@ -226,7 +226,7 @@ export function StockPriceHero({ alert }: StockPriceHeroProps) {
           {(alert.thresholdUpper != null || alert.thresholdLower != null) && (
             <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
               {alert.thresholdUpper != null && upperPrice != null && (
-                <span className="text-sm">
+                <span className="text-base">
                   <span className="font-medium text-success">
                     상승 +{alert.thresholdUpper}%
                   </span>{" "}
@@ -236,10 +236,10 @@ export function StockPriceHero({ alert }: StockPriceHeroProps) {
                 </span>
               )}
               {alert.thresholdUpper != null && alert.thresholdLower != null && (
-                <span className="text-sm text-muted-foreground">·</span>
+                <span className="text-base text-muted-foreground">·</span>
               )}
               {alert.thresholdLower != null && lowerPrice != null && (
-                <span className="text-sm">
+                <span className="text-base">
                   <span className="font-medium text-destructive">
                     하락 -{Math.abs(alert.thresholdLower)}%
                   </span>{" "}

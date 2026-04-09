@@ -96,7 +96,7 @@ export function SettingsClient({ user }: SettingsClientProps) {
               <span className="w-16 shrink-0 text-sm text-muted-foreground">
                 이메일
               </span>
-              <span className="text-sm">{user.email}</span>
+              <span className="text-base">{user.email}</span>
             </div>
 
             {/* 닉네임 — 읽기/편집 모드 */}
@@ -106,7 +106,7 @@ export function SettingsClient({ user }: SettingsClientProps) {
               </span>
               {!isEditing ? (
                 <>
-                  <span className="text-sm">{nicknameVal}</span>
+                  <span className="text-base">{nicknameVal}</span>
                   <Button
                     variant="outline"
                     size="sm"

@@ -121,7 +121,7 @@ export function AlertListRow({
       <div className="flex shrink-0 items-center gap-4">
         <div className="text-right">
           <p className="text-xs text-muted-foreground">알림 기준</p>
-          <p className="text-sm">
+          <p className="text-base">
             <span className="font-medium text-success">
               {alert.thresholdUpper != null ? `+${alert.thresholdUpper}%` : "--"}
             </span>

@@ -86,7 +86,7 @@ export function AlertHistorySection({
             ) : (
               <>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                  <table className="w-full text-base">
                     <thead>
                       <tr className="border-b text-left text-xs text-muted-foreground">
                         <th className="py-2 pr-4 font-medium">일시</th>
