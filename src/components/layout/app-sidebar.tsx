@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
 import { useThemeColor } from "@/components/theme-provider";
@@ -16,6 +16,7 @@ import {
   PanelLeftCloseIcon,
   PanelLeftOpenIcon,
   PaletteIcon,
+  SettingsIcon,
   SunIcon,
   MoonIcon,
   MonitorIcon,
@@ -64,6 +65,7 @@ import { cn } from "@/lib/utils";
 const baseNavItems = [
   { href: "/dashboard", label: "대시보드", icon: LayoutDashboardIcon },
   { href: "/history", label: "알림 이력", icon: HistoryIcon },
+  { href: "/settings", label: "설정", icon: SettingsIcon },
 ];
 
 /** 관리자 네비게이션 항목 */
@@ -82,6 +84,7 @@ export function AppSidebar() {
   const { data: session } = useSession();
   const { state, toggleSidebar } = useSidebar();
 
+  const router = useRouter();
   const isAdmin = session?.user?.roles?.includes("admin");
   const user = session?.user;
   const isExpanded = state === "expanded";
@@ -215,6 +218,13 @@ export function AppSidebar() {
                 align="end"
                 sideOffset={4}
               >
+                <DropdownMenuGroup>
+                  <DropdownMenuItem onClick={() => router.push("/settings")}>
+                    <SettingsIcon />
+                    설정
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <ThemeSubMenu />
                 </DropdownMenuGroup>

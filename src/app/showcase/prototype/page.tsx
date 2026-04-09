@@ -28,6 +28,19 @@ import {
 import { TiptapEditor, TiptapViewer } from "@/components/editor";
 import type { JSONContent } from "@tiptap/react";
 import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from "@/components/ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import {
   MoreHorizontal,
   Pencil,
   Trash2,
@@ -844,6 +857,124 @@ function MemoSection({ hasMemo = true }: { hasMemo?: boolean }) {
   );
 }
 
+// ============================================================
+// 설정 페이지 프로토타입 컴포넌트
+// ============================================================
+
+const dummyUserNoImage = {
+  email: "okayha1726@gmail.com",
+  nickname: "OneV",
+  image: null as string | null,
+};
+
+const dummyUserWithImage = {
+  email: "user@gmail.com",
+  nickname: "홍길동",
+  image: "https://lh3.googleusercontent.com/a/default-user",
+};
+
+function SettingsPrototype({
+  user,
+}: {
+  user: { email: string; nickname: string; image: string | null };
+}) {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [nicknameVal, setNicknameVal] = useState(user.nickname);
+
+  return (
+    <>
+      {/* 프로필 영역 */}
+      <div className="flex items-start gap-4">
+        <Avatar className="h-16 w-16 text-lg shrink-0">
+          {user.image ? (
+            <AvatarImage src={user.image} alt={user.nickname} />
+          ) : (
+            <AvatarFallback>{user.nickname.charAt(0)}</AvatarFallback>
+          )}
+        </Avatar>
+        <div className="flex-1 space-y-3">
+          <p className="text-sm text-muted-foreground">{user.email}</p>
+          {!isEditing ? (
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium shrink-0">닉네임</span>
+              <span className="text-sm">{nicknameVal}</span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsEditing(true)}
+              >
+                <Pencil className="mr-1.5 h-3.5 w-3.5" />
+                수정
+              </Button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium shrink-0">닉네임</span>
+              <Input
+                value={nicknameVal}
+                onChange={(e) => setNicknameVal(e.target.value)}
+                maxLength={20}
+                className="max-w-48"
+              />
+              <Button size="sm" onClick={() => setIsEditing(false)}>
+                저장
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setNicknameVal(user.nickname);
+                  setIsEditing(false);
+                }}
+              >
+                취소
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 구분선 + 계정 삭제 */}
+      <div className="mt-6 border-t pt-4">
+        <div className="flex justify-end">
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => setDialogOpen(true)}
+          >
+            계정 삭제
+          </Button>
+        </div>
+      </div>
+
+      {/* 삭제 확인 Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>계정 삭제</DialogTitle>
+            <DialogDescription>
+              정말 삭제하시겠습니까? 모든 알림, 이력, 메모가 영구적으로
+              삭제되며 복구할 수 없습니다.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDialogOpen(false)}>
+              취소
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => setDialogOpen(false)}
+            >
+              삭제
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
 // --- 페이지 ---
 
 export default function PrototypeShowcase() {
@@ -992,6 +1123,37 @@ export default function PrototypeShowcase() {
         description="메모가 없을 때 placeholder 표시"
       >
         <MemoSection hasMemo={false} />
+      </ComponentSection>
+
+      {/* ===== 설정 페이지 ===== */}
+
+      <div className="border-t pt-8">
+        <h2 className="text-2xl font-bold">설정 페이지</h2>
+        <p className="mt-2 text-muted-foreground">
+          프로필 확인/수정 + 계정 삭제 UI 검증
+        </p>
+      </div>
+
+      {/* 설정 — 이미지 없음 (Fallback) */}
+      <ComponentSection
+        title="설정 — 이미지 없음 (Fallback)"
+        description="Avatar 이니셜 fallback + 닉네임 수정 + 계정 삭제 Dialog"
+      >
+        <div className="max-w-lg">
+          <h1 className="mb-6 text-2xl font-bold">설정</h1>
+          <SettingsPrototype user={dummyUserNoImage} />
+        </div>
+      </ComponentSection>
+
+      {/* 설정 — 이미지 있음 */}
+      <ComponentSection
+        title="설정 — 이미지 있음"
+        description="Google 프로필 이미지 + 닉네임 수정 + 계정 삭제 Dialog"
+      >
+        <div className="max-w-lg">
+          <h1 className="mb-6 text-2xl font-bold">설정</h1>
+          <SettingsPrototype user={dummyUserWithImage} />
+        </div>
       </ComponentSection>
 
       {/* 7. 전체 레이아웃 조합 */}
