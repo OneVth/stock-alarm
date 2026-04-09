@@ -104,7 +104,7 @@ export function StockSearchCombobox({
             ) : query.trim() && results.length === 0 ? (
               <CommandEmpty>검색 결과가 없습니다</CommandEmpty>
             ) : (
-              <CommandGroup>
+              <CommandGroup className="max-w-xs mx-auto">
                 {results.map((stock) => (
                   <CommandItem
                     key={stock.code}
@@ -116,8 +116,8 @@ export function StockSearchCombobox({
                     }}
                     data-checked={value?.code === stock.code || undefined}
                   >
-                    <span>{stock.name}</span>
-                    <span className="ml-auto text-xs text-muted-foreground">
+                    <span className="flex-1 truncate">{stock.name}</span>
+                    <span className="text-xs text-muted-foreground">
                       {stock.code}
                     </span>
                   </CommandItem>
