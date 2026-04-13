@@ -1,11 +1,10 @@
-"use client";
-
-import { ThemeSwitcher } from "@/components/theme-switcher";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 /**
  * 앱 공통 헤더 컴포넌트
  *
- * 로고/타이틀과 ThemeSwitcher를 포함하며,
+ * 로고/타이틀과 로그인 버튼을 포함하며,
  * 추후 네비게이션, 사용자 메뉴 등으로 확장 가능합니다.
  */
 export function Header() {
@@ -14,7 +13,9 @@ export function Header() {
       <div className="container mx-auto flex h-14 max-w-5xl items-center gap-4 px-4">
         <span className="text-lg font-semibold">Stock Alarm</span>
         <div className="ml-auto">
-          <ThemeSwitcher />
+          <Button variant="outline" size="sm" nativeButton={false} render={<Link href="/login" />}>
+            로그인
+          </Button>
         </div>
       </div>
     </header>
