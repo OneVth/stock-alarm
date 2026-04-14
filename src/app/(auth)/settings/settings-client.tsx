@@ -70,13 +70,13 @@ export function SettingsClient({ user }: SettingsClientProps) {
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-bold">설정</h1>
 
-      <div className="w-full max-w-lg">
+      <div className="w-full max-w-2xl">
         <Card>
-          <CardContent className="pt-4 px-8">
-            <p className="mb-4 text-lg font-semibold">내 프로필</p>
+          <CardContent className="px-12 pt-12 pb-8">
+            <p className="mb-10 text-lg font-semibold">내 프로필</p>
 
             {/* 이미지 */}
-            <div className="mb-4 flex items-start gap-4">
+            <div className="mb-10 flex items-start gap-4">
               <span className="w-16 shrink-0 text-sm text-muted-foreground">
                 이미지
               </span>
@@ -92,7 +92,7 @@ export function SettingsClient({ user }: SettingsClientProps) {
             </div>
 
             {/* 이메일 */}
-            <div className="mb-4 flex items-center gap-4">
+            <div className="mb-10 flex items-center gap-4">
               <span className="w-16 shrink-0 text-sm text-muted-foreground">
                 이메일
               </span>
@@ -150,7 +150,7 @@ export function SettingsClient({ user }: SettingsClientProps) {
             </div>
 
             {/* 구분선 + 계정 삭제 */}
-            <div className="mt-6 border-t pt-4">
+            <div className="mt-16 border-t pt-10">
               <div className="flex justify-end">
                 <Button
                   variant="destructive"

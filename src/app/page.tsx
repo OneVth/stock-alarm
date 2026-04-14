@@ -1,10 +1,10 @@
-import Link from "next/link";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { BellPlus, CalendarCheck, MailCheck } from "lucide-react";
-import { auth } from "@/lib/auth";
+import { auth, signIn } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Header } from "@/components/layout/header";
+import { LandingLoginDialog } from "@/components/landing/landing-login-dialog";
 
 const features = [
   {
@@ -28,9 +28,21 @@ export default async function Home() {
   const session = await auth();
   if (session) redirect("/dashboard");
 
+  async function loginAction() {
+    "use server";
+    await signIn("google", { redirectTo: "/dashboard" });
+  }
+
   return (
     <div className="relative flex min-h-screen flex-col before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:[background-image:linear-gradient(to_right,color-mix(in_srgb,var(--border)_70%,transparent)_1px,transparent_1px),linear-gradient(to_bottom,color-mix(in_srgb,var(--border)_70%,transparent)_1px,transparent_1px)] before:[background-size:240px_240px] before:[mask-image:linear-gradient(to_bottom,black_0%,transparent_80%)]">
-      <Header />
+      <Header
+        loginSlot={
+          <LandingLoginDialog
+            loginAction={loginAction}
+            trigger={<Button variant="outline" size="sm">로그인</Button>}
+          />
+        }
+      />
 
       <main>
         {/* Hero 섹션 */}
@@ -45,9 +57,14 @@ export default async function Home() {
                 종목을 등록하고 알림 조건만 설정하면, 나머지는 Stock Alarm이 알아서
               </p>
               <div>
-                <Button size="lg" className="h-12 px-16" nativeButton={false} render={<Link href="/login" />}>
-                  시작하기
-                </Button>
+                <LandingLoginDialog
+                  loginAction={loginAction}
+                  trigger={
+                    <Button size="lg" className="h-12 px-16">
+                      시작하기
+                    </Button>
+                  }
+                />
               </div>
             </div>
 

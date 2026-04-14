@@ -19,27 +19,27 @@ export default async function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center">
+    <div className="relative flex min-h-screen items-center justify-center bg-muted/50">
       <div className="absolute top-4 right-4">
         <ThemeSwitcher />
       </div>
-      <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle>Stock Alarm</CardTitle>
-          <CardDescription>
+      <Card className="w-full max-w-xl">
+        <CardHeader className="p-8 pb-8">
+          <CardTitle className="text-2xl font-bold">Stock Alarm</CardTitle>
+          <CardDescription className="text-base">
             Google 계정으로 로그인하세요
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-8 pt-4">
           <form
             action={async () => {
               "use server";
               await signIn("google", { redirectTo: "/dashboard" });
             }}
           >
-            <Button type="submit" className="w-full gap-2">
+            <Button type="submit" variant="outline" className="w-full gap-2 h-12">
               <GoogleIcon className="h-5 w-5" />
-              Google로 로그인
+                <div className="text-base">Google로 로그인</div>
             </Button>
           </form>
         </CardContent>
