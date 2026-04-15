@@ -1,0 +1,302 @@
+/* ==========================================================================
+   Coinbase Showcase — Scoped Design Tokens
+   --------------------------------------------------------------------------
+   All overrides are scoped to `[data-style="coinbase"]` so they cascade into
+   descendants only. The wrapper div lives in src/app/showcase/coinbase/layout.tsx.
+   Design source: docs/design/styles/coinbase/DESIGN.md
+   ========================================================================== */
+
+[data-style="coinbase"] {
+  font-family: var(--font-noto-sans-kr), "Noto Sans KR", -apple-system,
+    BlinkMacSystemFont, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Core surfaces — Coinbase white canvas */
+  --background: #ffffff;
+  --foreground: #0a0b0d;
+  --card: #ffffff;
+  --card-foreground: #0a0b0d;
+  --popover: #ffffff;
+  --popover-foreground: #0a0b0d;
+  --secondary: #eef0f3;
+  --secondary-foreground: #0a0b0d;
+  --muted: #eef0f3;
+  --muted-foreground: #5b616e;
+  --accent: #eef0f3;
+  --accent-foreground: #0a0b0d;
+  --border: rgba(91, 97, 110, 0.2);
+  --input: rgba(91, 97, 110, 0.2);
+  --ring: #0052ff;
+
+  /* Brand — Coinbase Blue is functional only, never decorative */
+  --primary: #0052ff;
+  --primary-foreground: #ffffff;
+
+  /* Destructive */
+  --destructive: #b91c1c;
+  --destructive-foreground: #ffffff;
+
+  /* Sidebar */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #0a0b0d;
+  --sidebar-primary: #0052ff;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eef0f3;
+  --sidebar-accent-foreground: #0a0b0d;
+  --sidebar-border: rgba(91, 97, 110, 0.2);
+  --sidebar-ring: #0052ff;
+
+  /* Radius — 8px base; pill CTAs handled separately via .cb-cta */
+  --radius: 0.5rem;
+}
+
+/* Dark-section nested scope (used in prototype alternating sections) */
+[data-style="coinbase"] .cb-dark {
+  --background: #0a0b0d;
+  --foreground: #ffffff;
+  --card: #282b31;
+  --card-foreground: #ffffff;
+  --popover: #282b31;
+  --popover-foreground: #ffffff;
+  --secondary: #282b31;
+  --secondary-foreground: #ffffff;
+  --muted: #1a1c20;
+  --muted-foreground: #8a8f9b;
+  --accent: #282b31;
+  --accent-foreground: #ffffff;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #0052ff;
+  --primary: #0052ff;
+  --primary-foreground: #ffffff;
+
+  --sidebar: #1a1c20;
+  --sidebar-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+
+  background-color: #0a0b0d;
+  color: #ffffff;
+}
+
+/* Defensive: ShowcaseNav's ThemeSwitcher toggles `.dark` on <html>, which
+   would otherwise propagate into Coinbase scope via the global `.dark` variant.
+   Re-apply Coinbase light tokens so Coinbase scope stays Coinbase regardless. */
+.dark [data-style="coinbase"],
+[data-style="coinbase"].dark {
+  --background: #ffffff;
+  --foreground: #0a0b0d;
+  --card: #ffffff;
+  --card-foreground: #0a0b0d;
+  --popover: #ffffff;
+  --popover-foreground: #0a0b0d;
+  --secondary: #eef0f3;
+  --secondary-foreground: #0a0b0d;
+  --muted: #eef0f3;
+  --muted-foreground: #5b616e;
+  --accent: #eef0f3;
+  --accent-foreground: #0a0b0d;
+  --border: rgba(91, 97, 110, 0.2);
+  --input: rgba(91, 97, 110, 0.2);
+  --ring: #0052ff;
+  --primary: #0052ff;
+  --primary-foreground: #ffffff;
+}
+
+/* Card: Coinbase cards have visible border, 16px radius, NO shadow */
+[data-style="coinbase"] [data-slot="card"] {
+  border: 1px solid rgba(91, 97, 110, 0.2);
+  border-radius: 16px;
+  box-shadow: none;
+}
+
+[data-style="coinbase"] .cb-dark [data-slot="card"] {
+  border-color: rgba(255, 255, 255, 0.1);
+  background-color: #282b31;
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   Typography utilities — Noto Sans KR mapped to Coinbase type hierarchy.
+   KEY RULE: Display headings use weight 400 (NOT bold). Weight 600 only for
+   captions, buttons, and feature text. This is opposite to Apple's pattern.
+   ========================================================================== */
+
+/* Display Hero — 80px, weight 400, line-height 1.00 (ultra-tight) */
+[data-style="coinbase"] .cb-hero {
+  font-size: 80px;
+  font-weight: 400;
+  line-height: 1.00;
+  letter-spacing: -0.5px;
+}
+
+/* Display Secondary — 64px, weight 400, line-height 1.00 */
+[data-style="coinbase"] .cb-display {
+  font-size: 64px;
+  font-weight: 400;
+  line-height: 1.00;
+  letter-spacing: -0.3px;
+}
+
+/* Display Third — 52px, weight 400, line-height 1.00 */
+[data-style="coinbase"] .cb-display-sm {
+  font-size: 52px;
+  font-weight: 400;
+  line-height: 1.00;
+  letter-spacing: -0.2px;
+}
+
+/* Section Heading — 36px, weight 400, line-height 1.11 */
+[data-style="coinbase"] .cb-section {
+  font-size: 36px;
+  font-weight: 400;
+  line-height: 1.11;
+}
+
+/* Card Title — 32px, weight 400, line-height 1.13 */
+[data-style="coinbase"] .cb-tile {
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.13;
+}
+
+/* Feature Title — 18px, weight 600, line-height 1.33 */
+[data-style="coinbase"] .cb-feature {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.33;
+}
+
+/* Body — 18px, weight 400, line-height 1.56 */
+[data-style="coinbase"] .cb-body {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.56;
+}
+
+/* Body Small / UI — 16px, weight 400, line-height 1.50 */
+[data-style="coinbase"] .cb-body-sm {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.50;
+}
+
+/* Button label — 16px, weight 600, line-height 1.20, +0.16px tracking */
+[data-style="coinbase"] .cb-btn-label {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.20;
+  letter-spacing: 0.16px;
+}
+
+/* Caption — 14px, weight 600, line-height 1.50 */
+[data-style="coinbase"] .cb-caption {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.50;
+}
+
+/* Small / Tag — 13px, weight 600, line-height 1.23 */
+[data-style="coinbase"] .cb-small {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.23;
+}
+
+/* ==========================================================================
+   CTA Button utilities — 56px border-radius pill shape
+   Hover: all variants go to #578bfa (lighter blue), NOT darker
+   ========================================================================== */
+
+/* Primary Pill — cool gray background */
+[data-style="coinbase"] .cb-cta {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 56px;
+  padding: 0.75rem 1.5rem;
+  background-color: #eef0f3;
+  color: #0a0b0d;
+  border: 1px solid #eef0f3;
+  transition: background-color 150ms ease, border-color 150ms ease,
+    color 150ms ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+[data-style="coinbase"] .cb-cta:hover {
+  background-color: #578bfa;
+  border-color: #578bfa;
+  color: #ffffff;
+}
+
+/* Dark Pill — near-black background */
+[data-style="coinbase"] .cb-cta-dark {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 56px;
+  padding: 0.75rem 1.5rem;
+  background-color: #282b31;
+  color: #ffffff;
+  border: 1px solid #282b31;
+  transition: background-color 150ms ease, border-color 150ms ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+[data-style="coinbase"] .cb-cta-dark:hover {
+  background-color: #578bfa;
+  border-color: #578bfa;
+}
+
+/* Blue Bordered Pill — transparent bg, Coinbase Blue border */
+[data-style="coinbase"] .cb-cta-blue {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 56px;
+  padding: 0.75rem 1.5rem;
+  background-color: transparent;
+  color: #0052ff;
+  border: 1px solid #0052ff;
+  transition: background-color 150ms ease, color 150ms ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+[data-style="coinbase"] .cb-cta-blue:hover {
+  background-color: #0052ff;
+  color: #ffffff;
+}
+
+/* Lowercase modifier — unusual but distinctive Coinbase quirk */
+[data-style="coinbase"] .cb-cta-lower {
+  text-transform: lowercase;
+}
+
+/* ==========================================================================
+   Link + Surface utilities
+   ========================================================================== */
+
+[data-style="coinbase"] .cb-link {
+  color: #0667d0;
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+
+[data-style="coinbase"] .cb-link:hover {
+  color: #0052ff;
+  text-decoration: underline;
+}
+
+[data-style="coinbase"] .cb-dark .cb-link {
+  color: #578bfa;
+}
+
+[data-style="coinbase"] .cb-dark .cb-link:hover {
+  color: #578bfa;
+  text-decoration: underline;
+}
+
+/* Cool gray section surface — used for Section 5 login area */
+[data-style="coinbase"] .cb-surface-gray {
+  background-color: #eef0f3;
+}
