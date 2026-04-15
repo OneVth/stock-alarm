@@ -1,0 +1,159 @@
+/* ==========================================================================
+   Airtable Showcase — Scoped Design Tokens
+   --------------------------------------------------------------------------
+   All overrides are scoped to `[data-style="airtable"]` so they cascade into
+   descendants only. The wrapper div lives in src/app/showcase/airtable/layout.tsx.
+   Design source: docs/design/styles/airtable/DESIGN.md
+   Font replacement: IBM Plex Sans KR (SIL OFL) in place of proprietary Haas.
+   ========================================================================== */
+
+[data-style="airtable"] {
+  font-family: var(--font-ibm-plex-kr), "IBM Plex Sans KR", -apple-system,
+    BlinkMacSystemFont, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Core surfaces — Airtable white canvas */
+  --background: #ffffff;
+  --foreground: #181d26;
+  --card: #ffffff;
+  --card-foreground: #181d26;
+  --popover: #ffffff;
+  --popover-foreground: #181d26;
+  --secondary: #f0f2f5;
+  --secondary-foreground: #181d26;
+  --muted: #f8fafc;
+  --muted-foreground: rgba(4, 14, 32, 0.55);
+  --accent: #f0f2f5;
+  --accent-foreground: #181d26;
+  --border: #e0e2e6;
+  --input: #e0e2e6;
+  --ring: #1b61c9;
+
+  /* Brand — Airtable Blue */
+  --primary: #1b61c9;
+  --primary-foreground: #ffffff;
+
+  /* Destructive */
+  --destructive: #b91c1c;
+  --destructive-foreground: #ffffff;
+
+  /* Sidebar */
+  --sidebar: #f8fafc;
+  --sidebar-foreground: #181d26;
+  --sidebar-primary: #1b61c9;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eef2fb;
+  --sidebar-accent-foreground: #1b61c9;
+  --sidebar-border: #e0e2e6;
+  --sidebar-ring: #1b61c9;
+
+  /* Radius — Airtable buttons use 12px */
+  --radius: 0.75rem;
+}
+
+/* Defensive: ShowcaseNav's ThemeSwitcher toggles `.dark` on <html>, which
+   would otherwise propagate into Airtable scope via the global `.dark` variant.
+   Airtable is always light — re-apply light tokens unconditionally. */
+.dark [data-style="airtable"],
+[data-style="airtable"].dark {
+  --background: #ffffff;
+  --foreground: #181d26;
+  --card: #ffffff;
+  --card-foreground: #181d26;
+  --popover: #ffffff;
+  --popover-foreground: #181d26;
+  --secondary: #f0f2f5;
+  --secondary-foreground: #181d26;
+  --muted: #f8fafc;
+  --muted-foreground: rgba(4, 14, 32, 0.55);
+  --accent: #f0f2f5;
+  --accent-foreground: #181d26;
+  --border: #e0e2e6;
+  --input: #e0e2e6;
+  --ring: #1b61c9;
+  --primary: #1b61c9;
+  --primary-foreground: #ffffff;
+}
+
+/* Card: Airtable surfaces have a visible border and blue-tinted shadow */
+[data-style="airtable"] [data-slot="card"] {
+  border: 1px solid #e0e2e6;
+  border-radius: 16px;
+  box-shadow:
+    rgba(0, 0, 0, 0.32) 0px 0px 1px,
+    rgba(0, 0, 0, 0.08) 0px 0px 2px,
+    rgba(45, 127, 249, 0.28) 0px 1px 3px;
+}
+
+/* Soft ambient shadow variant — for outer wrappers */
+[data-style="airtable"] .at-shadow-soft {
+  box-shadow: rgba(15, 48, 106, 0.05) 0px 0px 20px;
+}
+
+/* Typography helpers — Airtable uses positive letter-spacing throughout.
+   Apply where Airtable's display/section/body scales are needed. */
+[data-style="airtable"] .at-display {
+  font-size: 48px;
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: 0.02px;
+}
+
+[data-style="airtable"] .at-display-bold {
+  font-size: 48px;
+  font-weight: 900;
+  line-height: 1.50;
+  letter-spacing: 0.02px;
+}
+
+[data-style="airtable"] .at-section {
+  font-size: 40px;
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: 0.02px;
+}
+
+[data-style="airtable"] .at-tile {
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: 0.12px;
+}
+
+[data-style="airtable"] .at-body {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: 0.18px;
+}
+
+[data-style="airtable"] .at-body-medium {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.30;
+  letter-spacing: 0.10px;
+}
+
+[data-style="airtable"] .at-caption {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.35;
+  letter-spacing: 0.14px;
+}
+
+/* Primary CTA — 12px radius, Airtable Blue */
+[data-style="airtable"] .at-cta {
+  border-radius: 12px;
+  padding: 0.75rem 1.5rem;
+}
+
+/* Airtable link color */
+[data-style="airtable"] .at-link {
+  color: #1b61c9;
+  text-decoration: none;
+}
+
+[data-style="airtable"] .at-link:hover {
+  text-decoration: underline;
+}
