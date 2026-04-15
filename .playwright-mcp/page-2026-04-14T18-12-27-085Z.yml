@@ -1,0 +1,91 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "UI Showcase" [ref=e5] [cursor=pointer]:
+          - /url: /showcase
+        - navigation [ref=e6]:
+          - link "Layout" [ref=e7] [cursor=pointer]:
+            - /url: /showcase/layout
+          - link "Navigation" [ref=e8] [cursor=pointer]:
+            - /url: /showcase/navigation
+          - link "Forms" [ref=e9] [cursor=pointer]:
+            - /url: /showcase/forms
+          - link "Display" [ref=e10] [cursor=pointer]:
+            - /url: /showcase/display
+          - link "Feedback" [ref=e11] [cursor=pointer]:
+            - /url: /showcase/feedback
+          - link "Overlay" [ref=e12] [cursor=pointer]:
+            - /url: /showcase/overlay
+          - link "Prototype" [ref=e13] [cursor=pointer]:
+            - /url: /showcase/prototype
+        - generic [ref=e14]:
+          - button [disabled]:
+            - img
+    - main [ref=e15]:
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - paragraph [ref=e20]: Apple Style
+          - heading "Showcase." [level=1] [ref=e21]
+          - paragraph [ref=e22]: Apple 디자인 시스템을 적용한 컴포넌트 쇼케이스. 동일한 컴포넌트 데모를 Apple의 색상, 타이포그래피, 간격 체계로 재현합니다.
+          - generic [ref=e23]:
+            - link "Prototype 보기" [ref=e24] [cursor=pointer]:
+              - /url: /showcase/apple/prototype
+            - link "Default 쇼케이스로 돌아가기 →" [ref=e25] [cursor=pointer]:
+              - /url: /showcase
+        - generic [ref=e26]:
+          - heading "Categories" [level=2] [ref=e27]
+          - paragraph [ref=e28]: shadcn/ui 컴포넌트 44종을 6개 카테고리로 구성했습니다.
+          - generic [ref=e29]:
+            - link "Layout & Structure 6 Card, Separator, Aspect Ratio, Scroll Area, Resizable, Collapsible" [ref=e30] [cursor=pointer]:
+              - /url: /showcase/apple/layout
+              - generic [ref=e32]:
+                - generic [ref=e33]:
+                  - generic [ref=e34]: Layout & Structure
+                  - generic [ref=e35]: "6"
+                - generic [ref=e36]: Card, Separator, Aspect Ratio, Scroll Area, Resizable, Collapsible
+            - link "Navigation 5 Breadcrumb, Tabs, Pagination, Menubar, Command" [ref=e37] [cursor=pointer]:
+              - /url: /showcase/apple/navigation
+              - generic [ref=e39]:
+                - generic [ref=e40]:
+                  - generic [ref=e41]: Navigation
+                  - generic [ref=e42]: "5"
+                - generic [ref=e43]: Breadcrumb, Tabs, Pagination, Menubar, Command
+            - link "Data Input / Forms 14 Button, Input, Label, Textarea, Select, Checkbox, Radio Group, Switch, Toggle, Toggle Group, Slider, Calendar, Date Picker, Input OTP" [ref=e44] [cursor=pointer]:
+              - /url: /showcase/apple/forms
+              - generic [ref=e46]:
+                - generic [ref=e47]:
+                  - generic [ref=e48]: Data Input / Forms
+                  - generic [ref=e49]: "14"
+                - generic [ref=e50]: Button, Input, Label, Textarea, Select, Checkbox, Radio Group, Switch, Toggle, Toggle Group, Slider, Calendar, Date Picker, Input OTP
+            - link "Data Display 6 Table, Avatar, Badge, Accordion, Carousel, Chart" [ref=e51] [cursor=pointer]:
+              - /url: /showcase/apple/display
+              - generic [ref=e53]:
+                - generic [ref=e54]:
+                  - generic [ref=e55]: Data Display
+                  - generic [ref=e56]: "6"
+                - generic [ref=e57]: Table, Avatar, Badge, Accordion, Carousel, Chart
+            - link "Feedback & Status 6 Alert, Alert Dialog, Toast (Sonner), Progress, Spinner, Skeleton" [ref=e58] [cursor=pointer]:
+              - /url: /showcase/apple/feedback
+              - generic [ref=e60]:
+                - generic [ref=e61]:
+                  - generic [ref=e62]: Feedback & Status
+                  - generic [ref=e63]: "6"
+                - generic [ref=e64]: Alert, Alert Dialog, Toast (Sonner), Progress, Spinner, Skeleton
+            - link "Overlay & Popup 7 Dialog, Sheet, Popover, Tooltip, Dropdown Menu, Context Menu, Hover Card" [ref=e65] [cursor=pointer]:
+              - /url: /showcase/apple/overlay
+              - generic [ref=e67]:
+                - generic [ref=e68]:
+                  - generic [ref=e69]: Overlay & Popup
+                  - generic [ref=e70]: "7"
+                - generic [ref=e71]: Dialog, Sheet, Popover, Tooltip, Dropdown Menu, Context Menu, Hover Card
+            - link "Prototype 5 페이지 구성 예시 — 대시보드, 종목 상세, 설정, 테이블, 로그인" [ref=e72] [cursor=pointer]:
+              - /url: /showcase/apple/prototype
+              - generic [ref=e74]:
+                - generic [ref=e75]:
+                  - generic [ref=e76]: Prototype
+                  - generic [ref=e77]: "5"
+                - generic [ref=e78]: 페이지 구성 예시 — 대시보드, 종목 상세, 설정, 테이블, 로그인
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e84] [cursor=pointer]:
+    - img [ref=e85]

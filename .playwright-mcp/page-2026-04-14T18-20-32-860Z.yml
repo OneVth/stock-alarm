@@ -1,0 +1,470 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "UI Showcase" [ref=e5] [cursor=pointer]:
+          - /url: /showcase
+        - navigation [ref=e6]:
+          - link "Layout" [ref=e7] [cursor=pointer]:
+            - /url: /showcase/layout
+          - link "Navigation" [ref=e8] [cursor=pointer]:
+            - /url: /showcase/navigation
+          - link "Forms" [ref=e9] [cursor=pointer]:
+            - /url: /showcase/forms
+          - link "Display" [ref=e10] [cursor=pointer]:
+            - /url: /showcase/display
+          - link "Feedback" [ref=e11] [cursor=pointer]:
+            - /url: /showcase/feedback
+          - link "Overlay" [ref=e12] [cursor=pointer]:
+            - /url: /showcase/overlay
+          - link "Prototype" [ref=e13] [cursor=pointer]:
+            - /url: /showcase/prototype
+        - generic [ref=e14]:
+          - button [disabled]:
+            - img
+    - main [ref=e15]:
+      - generic [ref=e17]:
+        - generic [ref=e18]:
+          - paragraph [ref=e19]: Prototype
+          - heading "Designed at every layer." [level=1] [ref=e20]
+          - paragraph [ref=e21]: 대시보드 · 종목 상세 · 설정 · 데이터 테이블 · 로그인 — 실제 구현 전 UI 검증을 위한 페이지 구성 예시.
+        - generic [ref=e22]:
+          - generic [ref=e23]:
+            - heading "대시보드" [level=2] [ref=e24]
+            - paragraph [ref=e25]: 알림 카드 — 변동 상태, 리스트, 스켈레톤, 빈 상태
+          - generic [ref=e26]:
+            - generic [ref=e27]:
+              - generic [ref=e28]: Alert Card
+              - generic [ref=e29]: 알림 카드 - 상승(초록), 하락(빨강), 비활성 상태
+            - generic [ref=e31]:
+              - generic [ref=e33]:
+                - generic [ref=e34]:
+                  - generic [ref=e36]:
+                    - paragraph [ref=e37]: SK하이닉스
+                    - paragraph [ref=e38]: "000660"
+                  - generic [ref=e39]:
+                    - paragraph [ref=e40]: 182,000원
+                    - generic [ref=e41]:
+                      - generic [ref=e42]: +506.67%
+                      - generic [ref=e43]: 기준 30,000원
+                - generic [ref=e44]:
+                  - generic [ref=e45]:
+                    - paragraph [ref=e46]: 알림 기준
+                    - paragraph [ref=e47]:
+                      - generic [ref=e48]: +5%
+                      - text: /
+                      - generic [ref=e49]: "-3%"
+                  - button [ref=e50]:
+                    - img
+              - generic [ref=e52]:
+                - generic [ref=e53]:
+                  - generic [ref=e55]:
+                    - paragraph [ref=e56]: 삼성전자
+                    - paragraph [ref=e57]: "005930"
+                  - generic [ref=e58]:
+                    - paragraph [ref=e59]: 71,200원
+                    - generic [ref=e60]:
+                      - generic [ref=e61]: "-11.25%"
+                      - generic [ref=e62]: 기준 80,250원
+                - generic [ref=e63]:
+                  - generic [ref=e64]:
+                    - paragraph [ref=e65]: 알림 기준
+                    - paragraph [ref=e66]:
+                      - generic [ref=e67]: +10%
+                      - text: /
+                      - generic [ref=e68]: "-5%"
+                  - button [ref=e69]:
+                    - img
+              - generic [ref=e71]:
+                - generic [ref=e72]:
+                  - generic [ref=e74]:
+                    - paragraph [ref=e75]: 카카오
+                    - paragraph [ref=e76]: "035720"
+                  - generic [ref=e77]:
+                    - paragraph [ref=e78]: 45,000원
+                    - generic [ref=e79]:
+                      - generic [ref=e80]: "-10.00%"
+                      - generic [ref=e81]: 기준 50,000원
+                - generic [ref=e82]:
+                  - generic [ref=e83]:
+                    - paragraph [ref=e84]: 알림 기준
+                    - paragraph [ref=e85]:
+                      - generic [ref=e86]: +8%
+                      - text: /
+                      - generic [ref=e87]: "-4%"
+                  - button [ref=e88]:
+                    - img
+              - generic [ref=e90]:
+                - generic [ref=e91]:
+                  - generic [ref=e93]:
+                    - paragraph [ref=e94]: KODEX 2차전지산업Fn
+                    - paragraph [ref=e95]: "305720"
+                  - generic [ref=e96]:
+                    - paragraph [ref=e97]: 6,200원
+                    - generic [ref=e98]:
+                      - generic [ref=e99]: +5.08%
+                      - generic [ref=e100]: 기준 5,900원
+                - generic [ref=e101]:
+                  - generic [ref=e102]:
+                    - paragraph [ref=e103]: 알림 기준
+                    - paragraph [ref=e104]:
+                      - generic [ref=e105]: +7%
+                      - text: /
+                      - generic [ref=e106]: "-5%"
+                  - button [ref=e107]:
+                    - img
+          - generic [ref=e108]:
+            - generic [ref=e109]:
+              - generic [ref=e110]: Alert Card - List
+              - generic [ref=e111]: 리스트 행 스타일 - 카드 패딩 없이 border로 구분
+            - generic [ref=e113]:
+              - generic [ref=e114]:
+                - generic [ref=e115]:
+                  - generic [ref=e117]:
+                    - paragraph [ref=e118]: SK하이닉스
+                    - paragraph [ref=e119]: "000660"
+                  - generic [ref=e120]:
+                    - paragraph [ref=e121]: 182,000원
+                    - generic [ref=e122]:
+                      - generic [ref=e123]: +506.67%
+                      - generic [ref=e124]: 기준 30,000원
+                - generic [ref=e125]:
+                  - generic [ref=e126]:
+                    - paragraph [ref=e127]: 알림 기준
+                    - paragraph [ref=e128]:
+                      - generic [ref=e129]: +5%
+                      - text: /
+                      - generic [ref=e130]: "-3%"
+                  - button [ref=e131]:
+                    - img
+              - generic [ref=e132]:
+                - generic [ref=e133]:
+                  - generic [ref=e135]:
+                    - paragraph [ref=e136]: 삼성전자
+                    - paragraph [ref=e137]: "005930"
+                  - generic [ref=e138]:
+                    - paragraph [ref=e139]: 71,200원
+                    - generic [ref=e140]:
+                      - generic [ref=e141]: "-11.25%"
+                      - generic [ref=e142]: 기준 80,250원
+                - generic [ref=e143]:
+                  - generic [ref=e144]:
+                    - paragraph [ref=e145]: 알림 기준
+                    - paragraph [ref=e146]:
+                      - generic [ref=e147]: +10%
+                      - text: /
+                      - generic [ref=e148]: "-5%"
+                  - button [ref=e149]:
+                    - img
+              - generic [ref=e150]:
+                - generic [ref=e151]:
+                  - generic [ref=e153]:
+                    - paragraph [ref=e154]: 카카오
+                    - paragraph [ref=e155]: "035720"
+                  - generic [ref=e156]:
+                    - paragraph [ref=e157]: 45,000원
+                    - generic [ref=e158]:
+                      - generic [ref=e159]: "-10.00%"
+                      - generic [ref=e160]: 기준 50,000원
+                - generic [ref=e161]:
+                  - generic [ref=e162]:
+                    - paragraph [ref=e163]: 알림 기준
+                    - paragraph [ref=e164]:
+                      - generic [ref=e165]: +8%
+                      - text: /
+                      - generic [ref=e166]: "-4%"
+                  - button [ref=e167]:
+                    - img
+              - generic [ref=e168]:
+                - generic [ref=e169]:
+                  - generic [ref=e171]:
+                    - paragraph [ref=e172]: KODEX 2차전지산업Fn
+                    - paragraph [ref=e173]: "305720"
+                  - generic [ref=e174]:
+                    - paragraph [ref=e175]: 6,200원
+                    - generic [ref=e176]:
+                      - generic [ref=e177]: +5.08%
+                      - generic [ref=e178]: 기준 5,900원
+                - generic [ref=e179]:
+                  - generic [ref=e180]:
+                    - paragraph [ref=e181]: 알림 기준
+                    - paragraph [ref=e182]:
+                      - generic [ref=e183]: +7%
+                      - text: /
+                      - generic [ref=e184]: "-5%"
+                  - button [ref=e185]:
+                    - img
+          - generic [ref=e187]:
+            - generic [ref=e188]: Alert Card Skeleton
+            - generic [ref=e189]: 데이터 로딩 중 스켈레톤 상태
+          - generic [ref=e223]:
+            - generic [ref=e224]: Alert Card - List Skeleton
+            - generic [ref=e225]: Loading state for list style
+          - generic [ref=e256]:
+            - generic [ref=e257]:
+              - generic [ref=e258]: Empty State
+              - generic [ref=e259]: 등록된 알림이 없는 경우
+            - generic [ref=e261]:
+              - img [ref=e263]
+              - generic [ref=e266]:
+                - paragraph [ref=e267]: 등록된 알림이 없습니다
+                - paragraph [ref=e268]: 종목을 추가하고 가격 알림을 설정해보세요
+              - button "알림 추가" [ref=e269]:
+                - img
+                - text: 알림 추가
+        - generic [ref=e270]:
+          - generic [ref=e271]:
+            - heading "종목 상세." [level=2] [ref=e272]
+            - paragraph [ref=e273]: 종목 상세 페이지 컴포넌트 프로토타입
+          - generic [ref=e274]:
+            - generic [ref=e275]:
+              - generic [ref=e276]: DetailHeader
+              - generic [ref=e277]: 종목 식별 영역 — 뒤로가기 + 종목명/코드 + 상태 Badge (hover 효과 확인)
+            - generic [ref=e279]:
+              - button [ref=e280]:
+                - img
+              - generic [ref=e281]:
+                - generic [ref=e282]:
+                  - paragraph [ref=e283]: 삼성전자
+                  - generic [ref=e284] [cursor=pointer]: 활성
+                - paragraph [ref=e285]: "005930"
+          - generic [ref=e286]:
+            - generic [ref=e287]:
+              - generic [ref=e288]: StockPriceHero
+              - generic [ref=e289]: 현재가/변동률 Hero + 도달 정보 + 인라인 편집 — 로드 버전(좌)과 스켈레톤 버전(우)
+            - generic [ref=e291]:
+              - generic [ref=e292]:
+                - paragraph [ref=e293]: 로드 상태
+                - generic [ref=e294]:
+                  - paragraph [ref=e295]: 75,000원
+                  - paragraph [ref=e296]: +7.14% (+5,000원)
+                  - paragraph [ref=e297]: 기준 70,000원
+                  - generic [ref=e298]:
+                    - generic [ref=e299]:
+                      - generic [ref=e300]: 상승 +10%
+                      - generic [ref=e301]: (77,000원)
+                    - generic [ref=e302]: ·
+                    - generic [ref=e303]:
+                      - generic [ref=e304]: 하락 -10%
+                      - generic [ref=e305]: (63,000원)
+                    - button [ref=e306]:
+                      - img
+              - paragraph [ref=e308]: 스켈레톤 상태
+          - generic [ref=e314]:
+            - generic [ref=e315]:
+              - generic [ref=e316]: ChartSection (Placeholder)
+              - generic [ref=e317]: 기간 탭 / 차트 타입 토글 배치 확인 — 실제 차트 대신 placeholder
+            - generic [ref=e319]:
+              - generic [ref=e320]:
+                - paragraph [ref=e321]: 가격 차트
+                - generic [ref=e322]:
+                  - generic [ref=e323]:
+                    - button "라인" [ref=e324]
+                    - button "캔들" [ref=e325]
+                  - generic [ref=e326]:
+                    - button "30일" [ref=e327]
+                    - button "90일" [ref=e328]
+                    - button "1년" [ref=e329]
+              - paragraph [ref=e331]: 차트 영역 (라인 / 30일)
+          - generic [ref=e332]:
+            - generic [ref=e333]:
+              - generic [ref=e334]: AlertHistorySection
+              - generic [ref=e335]: 기본 접힘 — 클릭 시 펼침, 더보기 버튼으로 나머지 2건 표시
+            - button "알림 이력 (7건)" [ref=e339]:
+              - generic [ref=e340] [cursor=pointer]:
+                - paragraph [ref=e341]: 알림 이력 (7건)
+                - img [ref=e342]
+          - generic [ref=e344]:
+            - generic [ref=e345]:
+              - generic [ref=e346]: MemoSection (메모 있음)
+              - generic [ref=e347]: 기본 접힘 — 펼치면 TiptapViewer, 수정 클릭 시 TiptapEditor
+            - button "메모" [ref=e351]:
+              - generic [ref=e352] [cursor=pointer]:
+                - paragraph [ref=e353]: 메모
+                - img [ref=e354]
+          - generic [ref=e356]:
+            - generic [ref=e357]:
+              - generic [ref=e358]: MemoSection (메모 없음)
+              - generic [ref=e359]: 메모가 없을 때 placeholder 표시
+            - button "메모" [ref=e363]:
+              - generic [ref=e364] [cursor=pointer]:
+                - paragraph [ref=e365]: 메모
+                - img [ref=e366]
+        - generic [ref=e368]:
+          - generic [ref=e369]:
+            - heading "설정." [level=2] [ref=e370]
+            - paragraph [ref=e371]: 프로필 확인/수정 + 계정 삭제 UI 검증
+          - generic [ref=e372]:
+            - generic [ref=e373]:
+              - generic [ref=e374]: 설정 — 이미지 없음 (Fallback)
+              - generic [ref=e375]: Avatar 이니셜 fallback + 닉네임 수정 + 계정 삭제 Dialog
+            - generic [ref=e377]:
+              - heading "설정" [level=1] [ref=e378]
+              - generic [ref=e379]:
+                - generic [ref=e381]: O
+                - generic [ref=e382]:
+                  - paragraph [ref=e383]: okayha1726@gmail.com
+                  - generic [ref=e384]:
+                    - generic [ref=e385]: 닉네임
+                    - generic [ref=e386]: OneV
+                    - button "수정" [ref=e387]:
+                      - img
+                      - text: 수정
+              - button "계정 삭제" [ref=e390]
+          - generic [ref=e391]:
+            - generic [ref=e392]:
+              - generic [ref=e393]: 설정 — 이미지 있음
+              - generic [ref=e394]: Google 프로필 이미지 + 닉네임 수정 + 계정 삭제 Dialog
+            - generic [ref=e396]:
+              - heading "설정" [level=1] [ref=e397]
+              - generic [ref=e400]:
+                - paragraph [ref=e401]: user@gmail.com
+                - generic [ref=e402]:
+                  - generic [ref=e403]: 닉네임
+                  - generic [ref=e404]: 홍길동
+                  - button "수정" [ref=e405]:
+                    - img
+                    - text: 수정
+              - button "계정 삭제" [ref=e408]
+          - generic [ref=e409]:
+            - generic [ref=e410]:
+              - generic [ref=e411]: 종목 상세 페이지 — 전체 레이아웃
+              - generic [ref=e412]: 계층별 정보 배치 검증. Hero(현재가+도달정보) → 차트 → 이력(접힘) → 메모(접힘)
+            - generic [ref=e414]:
+              - generic [ref=e415]:
+                - button [ref=e416]:
+                  - img
+                - generic [ref=e417]:
+                  - generic [ref=e418]:
+                    - paragraph [ref=e419]: 삼성전자
+                    - generic [ref=e420] [cursor=pointer]: 활성
+                  - paragraph [ref=e421]: "005930"
+              - generic [ref=e422]:
+                - paragraph [ref=e423]: 75,000원
+                - paragraph [ref=e424]: +7.14% (+5,000원)
+                - paragraph [ref=e425]: 기준 70,000원
+                - generic [ref=e426]:
+                  - generic [ref=e427]:
+                    - generic [ref=e428]: 상승 +10%
+                    - generic [ref=e429]: (77,000원)
+                  - generic [ref=e430]: ·
+                  - generic [ref=e431]:
+                    - generic [ref=e432]: 하락 -10%
+                    - generic [ref=e433]: (63,000원)
+                  - button [ref=e434]:
+                    - img
+              - generic [ref=e435]:
+                - generic [ref=e436]:
+                  - paragraph [ref=e437]: 가격 차트
+                  - generic [ref=e438]:
+                    - generic [ref=e439]:
+                      - button "라인" [ref=e440]
+                      - button "캔들" [ref=e441]
+                    - generic [ref=e442]:
+                      - button "30일" [ref=e443]
+                      - button "90일" [ref=e444]
+                      - button "1년" [ref=e445]
+                - paragraph [ref=e447]: 차트 영역 (라인 / 30일)
+              - button "알림 이력 (7건)" [ref=e450]:
+                - generic [ref=e451] [cursor=pointer]:
+                  - paragraph [ref=e452]: 알림 이력 (7건)
+                  - img [ref=e453]
+              - button "메모" [ref=e457]:
+                - generic [ref=e458] [cursor=pointer]:
+                  - paragraph [ref=e459]: 메모
+                  - img [ref=e460]
+        - generic [ref=e462]:
+          - generic [ref=e463]:
+            - heading "데이터 테이블." [level=2] [ref=e464]
+            - paragraph [ref=e465]: 필터 + Table + 페이지네이션 조합 검증
+          - generic [ref=e466]:
+            - generic [ref=e467]:
+              - generic [ref=e468]: 데이터 테이블 — 알림 이력
+              - generic [ref=e469]: 필터 탭 + Table + 페이지네이션 조합
+            - generic [ref=e471]:
+              - generic [ref=e472]:
+                - heading "알림 이력" [level=3] [ref=e473]
+                - generic [ref=e474]: 5건
+              - tablist [ref=e476]:
+                - tab "전체" [selected] [ref=e477]
+                - tab "상승" [ref=e478]
+                - tab "하락" [ref=e479]
+              - table [ref=e482]:
+                - rowgroup [ref=e483]:
+                  - row "종목명 기준가 발동가 변동률 일시" [ref=e484]:
+                    - columnheader "종목명" [ref=e485]
+                    - columnheader "기준가" [ref=e486]
+                    - columnheader "발동가" [ref=e487]
+                    - columnheader "변동률" [ref=e488]
+                    - columnheader "일시" [ref=e489]
+                - rowgroup [ref=e490]:
+                  - row "삼성전자(005930) 70,000 77,000 +10.0% 04. 10. 오전 11:35" [ref=e491]:
+                    - cell "삼성전자(005930)" [ref=e492]:
+                      - text: 삼성전자
+                      - generic [ref=e493]: (005930)
+                    - cell "70,000" [ref=e494]
+                    - cell "77,000" [ref=e495]
+                    - cell "+10.0%" [ref=e496]
+                    - cell "04. 10. 오전 11:35" [ref=e497]
+                  - row "카카오(035720) 50,000 45,000 -10.0% 04. 09. 오전 11:35" [ref=e498]:
+                    - cell "카카오(035720)" [ref=e499]:
+                      - text: 카카오
+                      - generic [ref=e500]: (035720)
+                    - cell "50,000" [ref=e501]
+                    - cell "45,000" [ref=e502]
+                    - cell "-10.0%" [ref=e503]
+                    - cell "04. 09. 오전 11:35" [ref=e504]
+                  - row "NAVER(035420) 200,000 214,000 +7.0% 04. 08. 오전 11:35" [ref=e505]:
+                    - cell "NAVER(035420)" [ref=e506]:
+                      - text: NAVER
+                      - generic [ref=e507]: (035420)
+                    - cell "200,000" [ref=e508]
+                    - cell "214,000" [ref=e509]
+                    - cell "+7.0%" [ref=e510]
+                    - cell "04. 08. 오전 11:35" [ref=e511]
+                  - row "현대차(005380) 180,000 162,000 -10.0% 04. 07. 오전 11:35" [ref=e512]:
+                    - cell "현대차(005380)" [ref=e513]:
+                      - text: 현대차
+                      - generic [ref=e514]: (005380)
+                    - cell "180,000" [ref=e515]
+                    - cell "162,000" [ref=e516]
+                    - cell "-10.0%" [ref=e517]
+                    - cell "04. 07. 오전 11:35" [ref=e518]
+                  - row "SK하이닉스(000660) 150,000 165,000 +10.0% 04. 04. 오전 11:35" [ref=e519]:
+                    - cell "SK하이닉스(000660)" [ref=e520]:
+                      - text: SK하이닉스
+                      - generic [ref=e521]: (000660)
+                    - cell "150,000" [ref=e522]
+                    - cell "165,000" [ref=e523]
+                    - cell "+10.0%" [ref=e524]
+                    - cell "04. 04. 오전 11:35" [ref=e525]
+              - navigation "pagination" [ref=e526]:
+                - list [ref=e527]:
+                  - listitem [ref=e528]:
+                    - button "Go to previous page" [ref=e529] [cursor=pointer]:
+                      - img
+                      - generic [ref=e530]: 이전
+                  - listitem [ref=e531]:
+                    - button "1" [ref=e532] [cursor=pointer]
+                  - listitem [ref=e533]:
+                    - button "Go to next page" [ref=e534] [cursor=pointer]:
+                      - generic [ref=e535]: 다음
+                      - img
+        - generic [ref=e536]:
+          - generic [ref=e537]:
+            - heading "로그인." [level=2] [ref=e538]
+            - paragraph [ref=e539]: Card + OAuth 버튼 구성 검증
+          - generic [ref=e540]:
+            - generic [ref=e541]:
+              - generic [ref=e542]: 로그인 카드
+              - generic [ref=e543]: Card + Google OAuth 버튼 조합
+            - generic [ref=e546]:
+              - generic [ref=e547]:
+                - generic [ref=e548]: Stock Alarm
+                - generic [ref=e549]: Google 계정으로 로그인하세요
+              - button "Google로 로그인" [ref=e551]:
+                - img
+                - generic [ref=e552]: Google로 로그인
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e558] [cursor=pointer]:
+    - img [ref=e559]

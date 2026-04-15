@@ -1,0 +1,83 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "UI Showcase" [ref=e5] [cursor=pointer]:
+          - /url: /showcase
+        - navigation [ref=e6]:
+          - link "Layout" [ref=e7] [cursor=pointer]:
+            - /url: /showcase/layout
+          - link "Navigation" [ref=e8] [cursor=pointer]:
+            - /url: /showcase/navigation
+          - link "Forms" [ref=e9] [cursor=pointer]:
+            - /url: /showcase/forms
+          - link "Display" [ref=e10] [cursor=pointer]:
+            - /url: /showcase/display
+          - link "Feedback" [ref=e11] [cursor=pointer]:
+            - /url: /showcase/feedback
+          - link "Overlay" [ref=e12] [cursor=pointer]:
+            - /url: /showcase/overlay
+          - link "Prototype" [ref=e13] [cursor=pointer]:
+            - /url: /showcase/prototype
+        - button "Toggle theme" [ref=e15]:
+          - img
+          - generic [ref=e16]: Toggle theme
+    - main [ref=e17]:
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - heading "UI Component Showcase" [level=1] [ref=e20]
+          - paragraph [ref=e21]: shadcn/ui 44 components across 6 categories
+        - generic [ref=e22]:
+          - link "Layout & Structure 6 Card, Separator, Aspect Ratio, Scroll Area, Resizable, Collapsible" [ref=e23] [cursor=pointer]:
+            - /url: /showcase/layout
+            - generic [ref=e25]:
+              - generic [ref=e26]:
+                - generic [ref=e27]: Layout & Structure
+                - generic [ref=e28]: "6"
+              - generic [ref=e29]: Card, Separator, Aspect Ratio, Scroll Area, Resizable, Collapsible
+          - link "Navigation 5 Breadcrumb, Tabs, Pagination, Menubar, Command" [ref=e30] [cursor=pointer]:
+            - /url: /showcase/navigation
+            - generic [ref=e32]:
+              - generic [ref=e33]:
+                - generic [ref=e34]: Navigation
+                - generic [ref=e35]: "5"
+              - generic [ref=e36]: Breadcrumb, Tabs, Pagination, Menubar, Command
+          - link "Data Input / Forms 14 Button, Input, Label, Textarea, Select, Checkbox, Radio Group, Switch, Toggle, Toggle Group, Slider, Calendar, Date Picker, Input OTP" [ref=e37] [cursor=pointer]:
+            - /url: /showcase/forms
+            - generic [ref=e39]:
+              - generic [ref=e40]:
+                - generic [ref=e41]: Data Input / Forms
+                - generic [ref=e42]: "14"
+              - generic [ref=e43]: Button, Input, Label, Textarea, Select, Checkbox, Radio Group, Switch, Toggle, Toggle Group, Slider, Calendar, Date Picker, Input OTP
+          - link "Data Display 6 Table, Avatar, Badge, Accordion, Carousel, Chart" [ref=e44] [cursor=pointer]:
+            - /url: /showcase/display
+            - generic [ref=e46]:
+              - generic [ref=e47]:
+                - generic [ref=e48]: Data Display
+                - generic [ref=e49]: "6"
+              - generic [ref=e50]: Table, Avatar, Badge, Accordion, Carousel, Chart
+          - link "Feedback & Status 6 Alert, Alert Dialog, Toast (Sonner), Progress, Spinner, Skeleton" [ref=e51] [cursor=pointer]:
+            - /url: /showcase/feedback
+            - generic [ref=e53]:
+              - generic [ref=e54]:
+                - generic [ref=e55]: Feedback & Status
+                - generic [ref=e56]: "6"
+              - generic [ref=e57]: Alert, Alert Dialog, Toast (Sonner), Progress, Spinner, Skeleton
+          - link "Overlay & Popup 7 Dialog, Sheet, Popover, Tooltip, Dropdown Menu, Context Menu, Hover Card" [ref=e58] [cursor=pointer]:
+            - /url: /showcase/overlay
+            - generic [ref=e60]:
+              - generic [ref=e61]:
+                - generic [ref=e62]: Overlay & Popup
+                - generic [ref=e63]: "7"
+              - generic [ref=e64]: Dialog, Sheet, Popover, Tooltip, Dropdown Menu, Context Menu, Hover Card
+          - link "Prototype 1 Alert Card, Skeleton, Empty State" [ref=e65] [cursor=pointer]:
+            - /url: /showcase/prototype
+            - generic [ref=e67]:
+              - generic [ref=e68]:
+                - generic [ref=e69]: Prototype
+                - generic [ref=e70]: "1"
+              - generic [ref=e71]: Alert Card, Skeleton, Empty State
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e77] [cursor=pointer]:
+    - img [ref=e78]
+  - alert [ref=e81]

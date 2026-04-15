@@ -1,0 +1,169 @@
+/* ==========================================================================
+   Apple Showcase — Scoped Design Tokens
+   --------------------------------------------------------------------------
+   All overrides are scoped to `[data-style="apple"]` so they cascade into
+   descendants only. The wrapper div lives in src/app/showcase/apple/layout.tsx.
+   Design source: docs/design/styles/apple/DESIGN.md
+   ========================================================================== */
+
+[data-style="apple"] {
+  font-family: "Pretendard Variable", Pretendard, -apple-system,
+    BlinkMacSystemFont, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Core surfaces — Apple light base */
+  --background: #f5f5f7;
+  --foreground: #1d1d1f;
+  --card: #ffffff;
+  --card-foreground: #1d1d1f;
+  --popover: #ffffff;
+  --popover-foreground: #1d1d1f;
+  --secondary: #e8e8ed;
+  --secondary-foreground: #1d1d1f;
+  --muted: #f5f5f7;
+  --muted-foreground: #6e6e73;
+  --accent: #e8e8ed;
+  --accent-foreground: #1d1d1f;
+  --border: #d2d2d7;
+  --input: #d2d2d7;
+  --ring: #0071e3;
+
+  /* Brand — Apple Blue is the sole accent */
+  --primary: #0071e3;
+  --primary-foreground: #ffffff;
+
+  /* Sidebar */
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1d1d1f;
+  --sidebar-primary: #0071e3;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #e8e8ed;
+  --sidebar-accent-foreground: #1d1d1f;
+  --sidebar-border: #d2d2d7;
+  --sidebar-ring: #0071e3;
+
+  /* Radius — Apple buttons use 8px */
+  --radius: 0.5rem;
+}
+
+/* Dark-section nested scope (used in prototype alternating sections) */
+[data-style="apple"] .apple-dark {
+  --background: #000000;
+  --foreground: #f5f5f7;
+  --card: #272729;
+  --card-foreground: #f5f5f7;
+  --popover: #262628;
+  --popover-foreground: #f5f5f7;
+  --secondary: #28282a;
+  --secondary-foreground: #f5f5f7;
+  --muted: #1d1d1f;
+  --muted-foreground: #86868b;
+  --accent: #28282a;
+  --accent-foreground: #f5f5f7;
+  --border: #424245;
+  --input: #424245;
+  --ring: #2997ff;
+  --primary: #2997ff;
+  --primary-foreground: #000000;
+
+  --sidebar: #1d1d1f;
+  --sidebar-foreground: #f5f5f7;
+  --sidebar-primary: #2997ff;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #28282a;
+  --sidebar-accent-foreground: #f5f5f7;
+  --sidebar-border: #424245;
+  --sidebar-ring: #2997ff;
+
+  background-color: #000000;
+  color: #f5f5f7;
+}
+
+/* Defensive: ShowcaseNav's ThemeSwitcher toggles `.dark` on <html>, which
+   would otherwise propagate into Apple scope via the global `.dark` variant.
+   Re-apply Apple light tokens so Apple scope stays Apple regardless. */
+.dark [data-style="apple"],
+[data-style="apple"].dark {
+  --background: #f5f5f7;
+  --foreground: #1d1d1f;
+  --card: #ffffff;
+  --card-foreground: #1d1d1f;
+  --popover: #ffffff;
+  --popover-foreground: #1d1d1f;
+  --secondary: #e8e8ed;
+  --secondary-foreground: #1d1d1f;
+  --muted: #f5f5f7;
+  --muted-foreground: #6e6e73;
+  --accent: #e8e8ed;
+  --accent-foreground: #1d1d1f;
+  --border: #d2d2d7;
+  --input: #d2d2d7;
+  --ring: #0071e3;
+  --primary: #0071e3;
+  --primary-foreground: #ffffff;
+}
+
+/* Card: Apple surfaces have no visible border/ring (see DESIGN.md) */
+[data-style="apple"] [data-slot="card"] {
+  --tw-ring-color: transparent;
+  box-shadow: none;
+  border: none;
+}
+
+/* Typography helpers — apply where Apple's display/section scales are needed.
+   Component demos inherit Pretendard + Apple colors automatically. */
+[data-style="apple"] .apple-display {
+  font-size: 56px;
+  font-weight: 600;
+  line-height: 1.07;
+  letter-spacing: -0.28px;
+}
+
+[data-style="apple"] .apple-section {
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1.10;
+  letter-spacing: -0.28px;
+}
+
+[data-style="apple"] .apple-tile {
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.14;
+  letter-spacing: -0.28px;
+}
+
+[data-style="apple"] .apple-body {
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.47;
+  letter-spacing: -0.022em;
+}
+
+[data-style="apple"] .apple-caption {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.29;
+  letter-spacing: -0.016em;
+}
+
+/* Pill CTA — Apple's "Buy" / "Learn more" style */
+[data-style="apple"] .apple-cta {
+  border-radius: 980px;
+  padding: 0.75rem 1.5rem;
+}
+
+/* Apple link color — light-bg vs dark-bg */
+[data-style="apple"] .apple-link {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+[data-style="apple"] .apple-link:hover {
+  text-decoration: underline;
+}
+
+[data-style="apple"] .apple-dark .apple-link {
+  color: #2997ff;
+}
