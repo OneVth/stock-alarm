@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SessionProvider } from "@/components/providers/session-provider";
-import "./globals.css";
+import "@/styles/index.css";
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-mono",

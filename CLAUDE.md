@@ -443,3 +443,30 @@ pnpm dlx shadcn@latest add [컴포넌트명]
 - ❌ `.env.local` 파일을 Git에 커밋하지 않는다
 - ❌ API 키를 로그, 에러 메시지, 클라이언트 코드에 노출하지 않는다
 - ❌ 하드코딩된 시크릿 — 반드시 환경변수 사용
+
+---
+
+## 디자인 시스템
+
+UI/디자인 작업 시 다음 파일들을 참조한다:
+
+- **`CLAUDE-styleseed.md`** — StyleSeed 디자인 엔진 가이드 (디자인 토큰, 컴포넌트 API, 금지 패턴)
+- **`docs/design/DESIGN-LANGUAGE.md`** — 69개 시각 디자인 규칙 (레이아웃, 구성, 타이포, 리듬)
+- **`docs/design/tokens/`** — 디자인 토큰 JSON 파일 (colors, typography, spacing, shadows, motion, radii)
+
+UI 페이지 작성 전 `DESIGN-LANGUAGE.md`의 목차를 먼저 읽고, 특히 규칙 14, 18, 19, 61-63을 참조한다.
+
+UI 작업 관련 슬래시 커맨드:
+- `/ss-setup` — 초기 설정 마법사
+- `/ss-page` — 페이지 스캐폴딩
+- `/ss-component` — 컴포넌트 생성
+- `/ss-review` — 디자인 규칙 준수 검증
+- `/ss-lint` — 빠른 위반 스캔
+- `/ss-tokens` — 토큰 관리
+- `/ss-a11y` — 접근성 감사
+- `/ss-flow` — 사용자 플로우 설계
+- `/ss-audit` — UX 휴리스틱 평가
+- `/ss-copy` — UX 마이크로카피 생성
+- `/ss-feedback` — 로딩/에러/빈 상태 추가
+- `/ss-pattern` — 레이아웃 패턴 구성
+- `/ss-update` — StyleSeed 엔진 업데이트
