@@ -21,7 +21,7 @@ export function Header({ loginSlot }: HeaderProps = {}) {
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-14 max-w-5xl items-center gap-4 px-4">
         <span className="text-lg font-semibold">Stock Alarm</span>
-        <div className="ml-auto">
+        <div className="ms-auto">
           {loginSlot ?? (
             <Button variant="outline" size="sm" nativeButton={false} render={<Link href="/login" />}>
               로그인

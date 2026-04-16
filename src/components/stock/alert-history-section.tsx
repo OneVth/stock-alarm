@@ -9,6 +9,7 @@ import {
   CollapsibleTrigger,
   CollapsibleContent,
 } from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
 import type { AlertLog } from "@/generated/prisma/client";
 
 /**
@@ -69,15 +70,13 @@ export function AlertHistorySection({
   return (
     <div className="border-t pt-4">
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        <CollapsibleTrigger className="w-full">
-          <div className="flex cursor-pointer items-center justify-between py-1 hover:opacity-70">
-            <p className="font-medium">알림 이력 ({totalCount}건)</p>
-            {isOpen ? (
-              <ChevronUp className="h-4 w-4 text-muted-foreground" />
-            ) : (
-              <ChevronDown className="h-4 w-4 text-muted-foreground" />
-            )}
-          </div>
+        <CollapsibleTrigger className="flex w-full cursor-pointer items-center justify-between py-1 hover:opacity-70">
+          <p className="font-medium">알림 이력 ({totalCount}건)</p>
+          {isOpen ? (
+            <ChevronUp className="size-4 text-muted-foreground" />
+          ) : (
+            <ChevronDown className="size-4 text-muted-foreground" />
+          )}
         </CollapsibleTrigger>
         <CollapsibleContent>
           <div className="mt-3">
@@ -108,11 +107,10 @@ export function AlertHistorySection({
                             {formatPrice(log.triggeredPrice)}
                           </td>
                           <td
-                            className={`py-2 pr-4 font-medium ${
-                              log.changeRate > 0
-                                ? "text-success"
-                                : "text-destructive"
-                            }`}
+                            className={cn(
+                              "py-2 pr-4 font-medium",
+                              log.changeRate > 0 ? "text-success" : "text-destructive",
+                            )}
                           >
                             {log.changeRate > 0 ? "+" : ""}
                             {log.changeRate.toFixed(2)}%
