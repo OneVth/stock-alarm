@@ -91,7 +91,7 @@ export function FullAlertHistory({ alertLogs }: FullAlertHistoryProps) {
                 <TableCell>
                   <Badge
                     variant={
-                      log.thresholdType === "upper" ? "destructive" : "default"
+                      log.thresholdType === "upper" ? "default" : "destructive"
                     }
                   >
                     {log.thresholdType === "upper" ? "상승" : "하락"}

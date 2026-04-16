@@ -1,0 +1,229 @@
+/* ============================================================
+   StyleSeed Theme — Coinbase Skin
+   Brand: Coinbase Blue (#0052ff)
+   Fonts: Pretendard Variable + Inter (fallback)
+   ============================================================ */
+
+/* === Base Radius === */
+:root {
+  --radius: 12px;
+}
+
+/* === Font Scale === */
+:root {
+  --font-size: 16px;
+
+  --text-xs:   0.75rem;   /* 12px */
+  --text-sm:   0.875rem;  /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg:   1.125rem;  /* 18px */
+  --text-xl:   1.25rem;   /* 20px */
+  --text-2xl:  1.5rem;    /* 24px */
+  --text-3xl:  1.875rem;  /* 30px */
+  --text-4xl:  2.25rem;   /* 36px */
+  --text-5xl:  3rem;      /* 48px */
+
+  --font-weight-normal:   400;
+  --font-weight-medium:   500;
+  --font-weight-semibold: 600;
+  --font-weight-bold:     700;
+}
+
+/* === Light Mode — Coinbase White/Blue === */
+:root {
+  /* Surfaces */
+  --background:          #ffffff;
+  --foreground:          #0a0b0d;
+
+  --card:                #ffffff;
+  --card-foreground:     #0a0b0d;
+
+  --popover:             #ffffff;
+  --popover-foreground:  #0a0b0d;
+
+  /* Brand: Coinbase Blue */
+  --primary:             #0052ff;
+  --primary-foreground:  #ffffff;
+
+  /* Secondary: Cool Gray Surface */
+  --secondary:           #eef0f3;
+  --secondary-foreground:#0a0b0d;
+
+  /* Muted */
+  --muted:               #eef0f3;
+  --muted-foreground:    #5b616e;
+
+  /* Accent */
+  --accent:              #eef0f3;
+  --accent-foreground:   #0052ff;
+
+  /* Semantic */
+  --destructive:         #ef4444;
+  --destructive-foreground: #ffffff;
+
+  /* Borders & Inputs */
+  --border:              rgba(91, 97, 110, 0.2);
+  --input:               rgba(91, 97, 110, 0.15);
+  --ring:                #0052ff;
+
+  /* Brand shortcut */
+  --brand:               #0052ff;
+
+  /* Sidebar */
+  --sidebar:                    #f7f7f7;
+  --sidebar-foreground:         #0a0b0d;
+  --sidebar-primary:            #0052ff;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent:             #eef0f3;
+  --sidebar-accent-foreground:  #0052ff;
+  --sidebar-border:             rgba(91, 97, 110, 0.15);
+  --sidebar-ring:               #0052ff;
+}
+
+/* === Dark Mode — Coinbase Dark (#0a0b0d) === */
+.dark {
+  /* Surfaces */
+  --background:          #0a0b0d;
+  --foreground:          #f5f5f5;
+
+  --card:                #282b31;
+  --card-foreground:     #f5f5f5;
+
+  --popover:             #1c1e23;
+  --popover-foreground:  #f5f5f5;
+
+  /* Brand: lighter blue for dark bg */
+  --primary:             #578bfa;
+  --primary-foreground:  #0a0b0d;
+
+  /* Secondary */
+  --secondary:           #282b31;
+  --secondary-foreground:#f5f5f5;
+
+  /* Muted */
+  --muted:               #1c1e23;
+  --muted-foreground:    #8b919e;
+
+  /* Accent */
+  --accent:              #282b31;
+  --accent-foreground:   #578bfa;
+
+  /* Semantic */
+  --destructive:         #f87171;
+  --destructive-foreground: #0a0b0d;
+
+  /* Borders & Inputs */
+  --border:              rgba(255, 255, 255, 0.1);
+  --input:               rgba(255, 255, 255, 0.08);
+  --ring:                #578bfa;
+
+  /* Brand shortcut */
+  --brand:               #80a9ff;
+
+  /* Sidebar */
+  --sidebar:                    #0a0b0d;
+  --sidebar-foreground:         #f5f5f5;
+  --sidebar-primary:            #578bfa;
+  --sidebar-primary-foreground: #0a0b0d;
+  --sidebar-accent:             #282b31;
+  --sidebar-accent-foreground:  #578bfa;
+  --sidebar-border:             rgba(255, 255, 255, 0.08);
+  --sidebar-ring:               #578bfa;
+}
+
+/* === Blue Scale (Coinbase Blue centered at 500) === */
+:root {
+  --blue-50:  #eff4ff;
+  --blue-100: #d6e4ff;
+  --blue-200: #adcaff;
+  --blue-300: #85aaff;
+  --blue-400: #578bfa;   /* Coinbase hover */
+  --blue-500: #0052ff;   /* Coinbase brand */
+  --blue-600: #0042cc;
+  --blue-700: #003199;
+  --blue-800: #002166;
+  --blue-900: #001033;
+}
+
+/* === Success Scale (crypto green) === */
+:root {
+  --success-50:  #ecfdf5;
+  --success-100: #d1fae5;
+  --success-200: #a7f3d0;
+  --success-300: #6ee7b7;
+  --success-400: #34d399;
+  --success-500: #00d395;   /* Coinbase-grade emerald */
+  --success-600: #059669;
+  --success-700: #047857;
+  --success-800: #065f46;
+  --success-900: #064e3b;
+
+  --success:            #00d395;
+  --success-foreground: #ffffff;
+}
+
+/* === Warning Scale === */
+:root {
+  --warning-50:  #fffbeb;
+  --warning-100: #fef3c7;
+  --warning-200: #fde68a;
+  --warning-300: #fcd34d;
+  --warning-400: #fbbf24;
+  --warning-500: #f59e0b;
+  --warning-600: #d97706;
+  --warning-700: #b45309;
+  --warning-800: #92400e;
+  --warning-900: #78350f;
+
+  --warning:            #f59e0b;
+  --warning-foreground: #ffffff;
+}
+
+/* === Destructive Scale === */
+:root {
+  --destructive-50:  #fff1f2;
+  --destructive-100: #ffe4e6;
+  --destructive-200: #fecdd3;
+  --destructive-300: #fda4af;
+  --destructive-400: #fb7185;
+  --destructive-500: #ef4444;
+  --destructive-600: #dc2626;
+  --destructive-700: #b91c1c;
+  --destructive-800: #991b1b;
+  --destructive-900: #7f1d1d;
+}
+
+/* === Chart Colors (Fintech/Crypto palette) === */
+:root {
+  --chart-1: #0052ff;   /* Coinbase Blue — primary series */
+  --chart-2: #00d395;   /* Emerald Green — gains / up */
+  --chart-3: #578bfa;   /* Light Blue — secondary series */
+  --chart-4: #f7931a;   /* Bitcoin Orange — asset highlight */
+  --chart-5: #ef4444;   /* Red — losses / down */
+}
+
+.dark {
+  --chart-1: #578bfa;
+  --chart-2: #34d399;
+  --chart-3: #80a9ff;
+  --chart-4: #fb923c;
+  --chart-5: #f87171;
+}
+
+/* ============================================================
+   Coinbase-specific utility tokens
+   Use in components: var(--cb-*)
+   ============================================================ */
+:root {
+  --cb-blue:      #0052ff;   /* Brand */
+  --cb-hover:     #578bfa;   /* Button hover */
+  --cb-link:      #0667d0;   /* Secondary links */
+  --cb-dark:      #0a0b0d;   /* Dark section bg */
+  --cb-dark-card: #282b31;   /* Dark card bg */
+  --cb-gray:      #eef0f3;   /* Cool gray surface */
+  --cb-muted:     #5b616e;   /* Muted text / borders */
+
+  /* Pill button radius (Coinbase signature) */
+  --radius-pill:  56px;
+  --radius-full:  9999px;
+}
