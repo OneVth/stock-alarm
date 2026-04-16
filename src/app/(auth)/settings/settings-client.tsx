@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { toast } from "sonner";
-import { PencilIcon } from "lucide-react";
+import { PencilIcon, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -70,100 +70,116 @@ export function SettingsClient({ user }: SettingsClientProps) {
     <div className="flex flex-col gap-6">
       <h1 className="text-2xl font-bold leading-snug tracking-[-0.01em]">설정</h1>
 
-      <div className="w-full max-w-2xl">
+      <div className="w-full max-w-2xl space-y-6">
+        {/* 프로필 카드 */}
         <Card>
-          <CardContent className="px-12 pt-12 pb-8">
-            <p className="mb-10 text-lg font-semibold leading-snug tracking-[-0.01em]">내 프로필</p>
+          <CardContent className="p-6">
+            <p className="mb-6 text-lg font-semibold leading-snug tracking-[-0.01em]">내 프로필</p>
 
-            {/* 이미지 */}
-            <div className="mb-10 flex items-start gap-4">
-              <span className="w-16 shrink-0 text-sm text-muted-foreground">
-                이미지
-              </span>
-              <Avatar className="size-16">
-                {user.image ? (
-                  <AvatarImage src={user.image} alt={user.nickname} />
-                ) : (
-                  <AvatarFallback className="text-lg">
-                    {user.nickname.charAt(0)}
-                  </AvatarFallback>
-                )}
-              </Avatar>
-            </div>
+            <div className="space-y-6">
+              {/* 이미지 */}
+              <div>
+                <p className="mb-2 text-xs font-medium text-muted-foreground">이미지</p>
+                <Avatar className="size-16">
+                  {user.image ? (
+                    <AvatarImage src={user.image} alt={user.nickname} />
+                  ) : (
+                    <AvatarFallback className="text-lg">
+                      {user.nickname.charAt(0)}
+                    </AvatarFallback>
+                  )}
+                </Avatar>
+              </div>
 
-            {/* 이메일 */}
-            <div className="mb-10 flex items-center gap-4">
-              <span className="w-16 shrink-0 text-sm text-muted-foreground">
-                이메일
-              </span>
-              <span className="text-base">{user.email}</span>
-            </div>
+              {/* 이메일 */}
+              <div>
+                <p className="mb-1 text-xs font-medium text-muted-foreground">이메일</p>
+                <p className="text-base">{user.email}</p>
+              </div>
 
-            {/* 닉네임 — 읽기/편집 모드 */}
-            <div className="flex items-center gap-4">
-              <label htmlFor="nickname-input" className="w-16 shrink-0 text-sm text-muted-foreground">
-                닉네임
-              </label>
-              {!isEditing ? (
-                <>
-                  <span className="text-base">{nicknameVal}</span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsEditing(true)}
-                  >
-                    <PencilIcon className="size-3.5" />
-                    수정
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Input
-                    id="nickname-input"
-                    value={nicknameVal}
-                    onChange={(e) => setNicknameVal(e.target.value)}
-                    maxLength={20}
-                    className="max-w-48"
-                  />
-                  <Button
-                    size="sm"
-                    onClick={handleSave}
-                    disabled={
-                      isSaving ||
-                      !nicknameVal.trim() ||
-                      nicknameVal === user.nickname
-                    }
-                  >
-                    저장
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setNicknameVal(user.nickname);
-                      setIsEditing(false);
-                    }}
-                  >
-                    취소
-                  </Button>
-                </>
-              )}
-            </div>
-
-            {/* 구분선 + 계정 삭제 */}
-            <div className="mt-16 border-t pt-10">
-              <div className="flex justify-end">
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => setDialogOpen(true)}
+              {/* 닉네임 — 읽기/편집 모드 */}
+              <div>
+                <label
+                  htmlFor="nickname-input"
+                  className="mb-1 block text-xs font-medium text-muted-foreground"
                 >
-                  계정 삭제
-                </Button>
+                  닉네임
+                </label>
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  {!isEditing ? (
+                    <p className="text-base">{nicknameVal}</p>
+                  ) : (
+                    <Input
+                      id="nickname-input"
+                      value={nicknameVal}
+                      onChange={(e) => setNicknameVal(e.target.value)}
+                      maxLength={20}
+                      className="w-full max-w-sm"
+                    />
+                  )}
+                  {!isEditing ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsEditing(true)}
+                    >
+                      <PencilIcon className="size-3.5" />
+                      수정
+                    </Button>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={handleSave}
+                        disabled={
+                          isSaving ||
+                          !nicknameVal.trim() ||
+                          nicknameVal === user.nickname
+                        }
+                      >
+                        저장
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setNicknameVal(user.nickname);
+                          setIsEditing(false);
+                        }}
+                      >
+                        취소
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
+
+        {/* 계정 섹션 */}
+        <div>
+          <p className="mb-3 text-sm font-semibold text-muted-foreground px-1">
+            계정
+          </p>
+          <Card>
+            <CardContent className="overflow-hidden p-0">
+              <button
+                type="button"
+                className="flex w-full items-center gap-3 px-4 py-3 min-h-[44px] text-left transition-colors hover:bg-destructive/5"
+                onClick={() => setDialogOpen(true)}
+              >
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-destructive/10">
+                  <Trash2 className="size-4 text-destructive" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-destructive">계정 삭제</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">모든 데이터 영구 삭제</p>
+                </div>
+              </button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* 삭제 확인 Dialog */}
