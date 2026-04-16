@@ -61,7 +61,8 @@ export function AdminPagination({
     return `${basePath}?${params.toString()}`;
   };
 
-  const handleSizeChange = (value: string) => {
+  const handleSizeChange = (value: string | null) => {
+    if (!value) return;
     const params = new URLSearchParams(urlSearchParams.toString());
     params.set("size", value);
     params.delete("page");

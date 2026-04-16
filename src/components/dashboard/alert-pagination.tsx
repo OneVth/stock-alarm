@@ -59,7 +59,8 @@ export function AlertPagination({
     return `/dashboard?${params.toString()}`;
   }
 
-  function handleSizeChange(value: string) {
+  function handleSizeChange(value: string | null) {
+    if (!value) return;
     const params = new URLSearchParams(searchParams.toString());
     params.set("size", value);
     params.delete("page");
