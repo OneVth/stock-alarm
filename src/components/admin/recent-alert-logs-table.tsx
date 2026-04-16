@@ -69,8 +69,8 @@ export function RecentAlertLogsTable({ logs }: RecentAlertLogsTableProps) {
                   {log.changeRate.toFixed(2)}%
                 </TableCell>
                 <TableCell>
-                  <Badge variant={log.thresholdType === "rise" ? "default" : "destructive"}>
-                    {log.thresholdType === "rise" ? "상승" : "하락"}
+                  <Badge variant={log.thresholdType === "upper" ? "default" : "destructive"}>
+                    {log.thresholdType === "upper" ? "상승" : "하락"}
                   </Badge>
                 </TableCell>
                 <TableCell>
