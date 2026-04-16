@@ -141,7 +141,12 @@ export function StockPriceHero({ alert }: StockPriceHeroProps) {
       {/* 현재가 + 변동률 */}
       {priceData ? (
         <>
-          <p className="text-3xl font-bold leading-none tracking-[-0.02em]">{formatPrice(priceData.price)}</p>
+          <p className="flex items-baseline gap-1">
+            <span className="text-[48px] font-bold leading-none tracking-[-0.02em]">
+              {priceData.price.toLocaleString("ko-KR")}
+            </span>
+            <span className="text-2xl font-medium text-muted-foreground">원</span>
+          </p>
           <p
             className={cn(
               "mt-1 text-base font-medium",
@@ -150,11 +155,11 @@ export function StockPriceHero({ alert }: StockPriceHeroProps) {
           >
             {changeSign}
             {priceData.changeRate.toFixed(2)}% ({changeSign}
-            {formatPrice(priceData.change)})
+            {priceData.change.toLocaleString("ko-KR")}원)
           </p>
         </>
       ) : (
-        <p className="text-3xl font-bold leading-none tracking-[-0.02em] text-muted-foreground">--</p>
+        <p className="text-[48px] font-bold leading-none tracking-[-0.02em] text-muted-foreground">--</p>
       )}
 
       {isEditing ? (
