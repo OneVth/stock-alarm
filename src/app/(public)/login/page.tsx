@@ -25,7 +25,7 @@ export default async function LoginPage() {
       </div>
       <Card className="w-full max-w-xl">
         <CardHeader className="p-8 pb-8">
-          <CardTitle className="text-2xl font-bold">Stock Alarm</CardTitle>
+          <CardTitle className="text-2xl font-bold leading-snug tracking-[-0.01em]">Stock Alarm</CardTitle>
           <CardDescription className="text-base">
             Google 계정으로 로그인하세요
           </CardDescription>
@@ -38,7 +38,7 @@ export default async function LoginPage() {
             }}
           >
             <Button type="submit" variant="outline" className="w-full gap-2 h-12">
-              <GoogleIcon className="h-5 w-5" />
+              <GoogleIcon className="size-5" aria-hidden="true" />
                 <div className="text-base">Google로 로그인</div>
             </Button>
           </form>

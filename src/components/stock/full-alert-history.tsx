@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { MinusIcon, TrendingDownIcon, TrendingUpIcon } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -10,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import type { AlertLogWithAlert } from "@/types/alert";
 
 /**
@@ -62,7 +64,7 @@ export function FullAlertHistory({ alertLogs }: FullAlertHistoryProps) {
                     >
                       <span>{log.alert?.stockName ?? "-"}</span>
                       {log.alert?.stockCode && (
-                        <span className="ml-1 text-xs text-muted-foreground">({log.alert.stockCode})</span>
+                        <span className="ms-1 text-xs text-muted-foreground">({log.alert.stockCode})</span>
                       )}
                     </Link>
                   ) : (
@@ -77,14 +79,22 @@ export function FullAlertHistory({ alertLogs }: FullAlertHistoryProps) {
                 </TableCell>
                 <TableCell className="text-right">
                   <span
-                    className={
+                    className={cn(
+                      "inline-flex items-center justify-end gap-0.5",
                       log.changeRate > 0
                         ? "text-success"
                         : log.changeRate < 0
                           ? "text-destructive"
-                          : "text-muted-foreground"
-                    }
+                          : "text-muted-foreground",
+                    )}
                   >
+                    {log.changeRate > 0 ? (
+                      <TrendingUpIcon className="size-3" />
+                    ) : log.changeRate < 0 ? (
+                      <TrendingDownIcon className="size-3" />
+                    ) : (
+                      <MinusIcon className="size-3" />
+                    )}
                     {rateFormatted}
                   </span>
                 </TableCell>

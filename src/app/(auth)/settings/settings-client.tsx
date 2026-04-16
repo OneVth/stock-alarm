@@ -68,19 +68,19 @@ export function SettingsClient({ user }: SettingsClientProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold">설정</h1>
+      <h1 className="text-2xl font-bold leading-snug tracking-[-0.01em]">설정</h1>
 
       <div className="w-full max-w-2xl">
         <Card>
           <CardContent className="px-12 pt-12 pb-8">
-            <p className="mb-10 text-lg font-semibold">내 프로필</p>
+            <p className="mb-10 text-lg font-semibold leading-snug tracking-[-0.01em]">내 프로필</p>
 
             {/* 이미지 */}
             <div className="mb-10 flex items-start gap-4">
               <span className="w-16 shrink-0 text-sm text-muted-foreground">
                 이미지
               </span>
-              <Avatar className="h-16 w-16">
+              <Avatar className="size-16">
                 {user.image ? (
                   <AvatarImage src={user.image} alt={user.nickname} />
                 ) : (
@@ -101,9 +101,9 @@ export function SettingsClient({ user }: SettingsClientProps) {
 
             {/* 닉네임 — 읽기/편집 모드 */}
             <div className="flex items-center gap-4">
-              <span className="w-16 shrink-0 text-sm text-muted-foreground">
+              <label htmlFor="nickname-input" className="w-16 shrink-0 text-sm text-muted-foreground">
                 닉네임
-              </span>
+              </label>
               {!isEditing ? (
                 <>
                   <span className="text-base">{nicknameVal}</span>
@@ -112,13 +112,14 @@ export function SettingsClient({ user }: SettingsClientProps) {
                     size="sm"
                     onClick={() => setIsEditing(true)}
                   >
-                    <PencilIcon className="h-3.5 w-3.5" />
+                    <PencilIcon className="size-3.5" />
                     수정
                   </Button>
                 </>
               ) : (
                 <>
                   <Input
+                    id="nickname-input"
                     value={nicknameVal}
                     onChange={(e) => setNicknameVal(e.target.value)}
                     maxLength={20}

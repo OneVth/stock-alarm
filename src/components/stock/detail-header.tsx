@@ -88,11 +88,11 @@ export function DetailHeader({ alert }: DetailHeaderProps) {
       <Button
         variant="ghost"
         size="icon"
-        className="h-8 w-8 shrink-0"
+        className="size-11 shrink-0"
         nativeButton={false}
         render={<Link href="/dashboard" />}
       >
-        <ArrowLeft className="h-4 w-4" />
+        <ArrowLeft className="size-4" />
         <span className="sr-only">뒤로가기</span>
       </Button>
       <div>

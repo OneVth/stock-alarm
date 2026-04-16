@@ -148,20 +148,22 @@ export function LogFilterBar({
           </Button>
         ))}
 
-        <div className="flex items-center gap-2 ml-2">
-          <span className="text-sm text-muted-foreground">시작일</span>
+        <div className="flex items-center gap-2 ms-2">
+          <label htmlFor="filter-from" className="text-sm text-muted-foreground">시작일</label>
           <input
+            id="filter-from"
             type="date"
             value={currentFrom ?? ""}
             onChange={(e) => handleDateChange("from", e.target.value)}
-            className="h-8 rounded-md border border-input bg-background px-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+            className="h-8 rounded-md border border-input bg-background px-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           />
-          <span className="text-sm text-muted-foreground">종료일</span>
+          <label htmlFor="filter-to" className="text-sm text-muted-foreground">종료일</label>
           <input
+            id="filter-to"
             type="date"
             value={currentTo ?? ""}
             onChange={(e) => handleDateChange("to", e.target.value)}
-            className="h-8 rounded-md border border-input bg-background px-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+            className="h-8 rounded-md border border-input bg-background px-2 text-sm text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
           />
         </div>
       </div>

@@ -10,6 +10,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 import type { AdminSystemLog } from "@/types/admin";
 
@@ -63,15 +64,26 @@ export function SystemLogTable({ logs }: SystemLogTableProps) {
                 {log.category}
               </TableCell>
               <TableCell
-                className={`cursor-pointer ${
+                className={cn(
+                  "cursor-pointer",
                   expandedId === log.id
                     ? "whitespace-normal break-all"
-                    : "max-w-xs truncate"
-                }`}
+                    : "max-w-xs truncate",
+                )}
+                role="button"
+                tabIndex={0}
+                aria-expanded={expandedId === log.id}
+                aria-label={`로그 메시지 펼치기: ${log.message.slice(0, 50)}`}
                 title={expandedId !== log.id ? log.message : undefined}
                 onClick={() =>
                   setExpandedId(expandedId === log.id ? null : log.id)
                 }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setExpandedId(expandedId === log.id ? null : log.id);
+                  }
+                }}
               >
                 {log.message}
               </TableCell>

@@ -51,8 +51,12 @@ export function AlertSearch({ defaultValue }: AlertSearchProps) {
 
   return (
     <div className="relative">
-      <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      <label htmlFor="alert-search" className="sr-only">
+        종목명 또는 종목코드 검색
+      </label>
+      <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
       <Input
+        id="alert-search"
         type="search"
         placeholder="종목명 또는 종목코드 검색"
         value={value}

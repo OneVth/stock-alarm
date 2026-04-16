@@ -16,12 +16,16 @@ import { MiniChart } from "@/components/stock/mini-chart";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { AlertWithCount } from "@/types/alert";
 import {
+  MinusIcon,
   MoreHorizontalIcon,
   PencilIcon,
   ToggleLeftIcon,
   ToggleRightIcon,
   Trash2Icon,
+  TrendingDownIcon,
+  TrendingUpIcon,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface AlertListRowProps {
   /** 알림 데이터 */
@@ -70,7 +74,10 @@ export function AlertListRow({
   return (
     <>
     <div
-      className={`flex min-w-[600px] items-center justify-between gap-4 px-4 py-3 [&:not(:last-child)]:border-b ${isActive ? "" : "opacity-60"}`}
+      className={cn(
+        "flex min-w-[600px] items-center justify-between gap-4 px-4 py-3 [&:not(:last-child)]:border-b",
+        !isActive && "opacity-60",
+      )}
     >
       {/* 좌측: 그래프 + 종목정보 + 가격정보 */}
       <Link
@@ -97,14 +104,22 @@ export function AlertListRow({
           <div className="flex items-center gap-1.5 text-xs">
             {changeRate != null ? (
               <span
-                className={
+                className={cn(
+                  "inline-flex items-center gap-0.5",
                   changeRate > 0
                     ? "text-success"
                     : changeRate < 0
                       ? "text-destructive"
-                      : "text-muted-foreground"
-                }
+                      : "text-muted-foreground",
+                )}
               >
+                {changeRate > 0 ? (
+                  <TrendingUpIcon className="size-3" />
+                ) : changeRate < 0 ? (
+                  <TrendingDownIcon className="size-3" />
+                ) : (
+                  <MinusIcon className="size-3" />
+                )}
                 {formatChangeRate(changeRate)}
               </span>
             ) : (
@@ -134,10 +149,10 @@ export function AlertListRow({
         <DropdownMenu>
           <DropdownMenuTrigger
             render={
-              <Button variant="ghost" size="icon" className="h-8 w-8" />
+              <Button variant="ghost" size="icon" className="size-11" />
             }
           >
-            <MoreHorizontalIcon className="h-4 w-4" />
+            <MoreHorizontalIcon className="size-4" />
             <span className="sr-only">액션</span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">

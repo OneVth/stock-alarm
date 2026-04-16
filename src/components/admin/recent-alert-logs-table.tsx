@@ -1,3 +1,4 @@
+import { MinusIcon, TrendingDownIcon, TrendingUpIcon } from "lucide-react";
 import {
   Table,
   TableHeader,
@@ -7,6 +8,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface RecentAlertLogsTableProps {
   /** 최근 알림 발송 로그 목록 */
@@ -57,16 +59,26 @@ export function RecentAlertLogsTable({ logs }: RecentAlertLogsTableProps) {
                     : "-"}
                 </TableCell>
                 <TableCell
-                  className={`text-right text-sm font-medium ${
+                  className={cn(
+                    "text-right text-sm font-medium",
                     log.changeRate > 0
                       ? "text-success"
                       : log.changeRate < 0
                         ? "text-destructive"
-                        : ""
-                  }`}
+                        : "text-muted-foreground",
+                  )}
                 >
-                  {log.changeRate > 0 ? "+" : ""}
-                  {log.changeRate.toFixed(2)}%
+                  <span className="inline-flex items-center justify-end gap-0.5">
+                    {log.changeRate > 0 ? (
+                      <TrendingUpIcon className="size-3" />
+                    ) : log.changeRate < 0 ? (
+                      <TrendingDownIcon className="size-3" />
+                    ) : (
+                      <MinusIcon className="size-3" />
+                    )}
+                    {log.changeRate > 0 ? "+" : ""}
+                    {log.changeRate.toFixed(2)}%
+                  </span>
                 </TableCell>
                 <TableCell>
                   <Badge variant={log.thresholdType === "upper" ? "default" : "destructive"}>

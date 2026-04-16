@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import type { Alert } from "@/generated/prisma/client";
 import type { StockPrice } from "@/types/stock";
 
@@ -140,11 +141,12 @@ export function StockPriceHero({ alert }: StockPriceHeroProps) {
       {/* 현재가 + 변동률 */}
       {priceData ? (
         <>
-          <p className="text-3xl font-bold">{formatPrice(priceData.price)}</p>
+          <p className="text-3xl font-bold leading-none tracking-[-0.02em]">{formatPrice(priceData.price)}</p>
           <p
-            className={`mt-1 text-base font-medium ${
-              isPositive ? "text-success" : "text-destructive"
-            }`}
+            className={cn(
+              "mt-1 text-base font-medium",
+              isPositive ? "text-success" : "text-destructive",
+            )}
           >
             {changeSign}
             {priceData.changeRate.toFixed(2)}% ({changeSign}
@@ -152,17 +154,18 @@ export function StockPriceHero({ alert }: StockPriceHeroProps) {
           </p>
         </>
       ) : (
-        <p className="text-3xl font-bold text-muted-foreground">--</p>
+        <p className="text-3xl font-bold leading-none tracking-[-0.02em] text-muted-foreground">--</p>
       )}
 
       {isEditing ? (
         /* 편집 모드 */
         <div className="mt-3 space-y-2">
           <div className="flex items-center gap-3">
-            <label className="w-20 shrink-0 text-sm text-muted-foreground">
+            <label htmlFor="edit-base-price" className="w-20 shrink-0 text-sm text-muted-foreground">
               기준가 (원)
             </label>
             <Input
+              id="edit-base-price"
               type="number"
               value={basePriceVal}
               onChange={(e) => setBasePriceVal(e.target.value)}
@@ -171,10 +174,11 @@ export function StockPriceHero({ alert }: StockPriceHeroProps) {
           </div>
           {alert.thresholdUpper != null && (
             <div className="flex items-center gap-3">
-              <label className="w-20 shrink-0 text-sm text-muted-foreground">
+              <label htmlFor="edit-upper" className="w-20 shrink-0 text-sm text-muted-foreground">
                 상승 (%)
               </label>
               <Input
+                id="edit-upper"
                 type="number"
                 value={upperVal}
                 onChange={(e) => setUpperVal(e.target.value)}
@@ -184,10 +188,11 @@ export function StockPriceHero({ alert }: StockPriceHeroProps) {
           )}
           {alert.thresholdLower != null && (
             <div className="flex items-center gap-3">
-              <label className="w-20 shrink-0 text-sm text-muted-foreground">
+              <label htmlFor="edit-lower" className="w-20 shrink-0 text-sm text-muted-foreground">
                 하락 (%)
               </label>
               <Input
+                id="edit-lower"
                 type="number"
                 value={lowerVal}
                 onChange={(e) => setLowerVal(e.target.value)}
@@ -219,7 +224,7 @@ export function StockPriceHero({ alert }: StockPriceHeroProps) {
               size="sm"
               onClick={() => setIsEditing(true)}
             >
-              <Pencil className="h-3.5 w-3.5" />
+              <Pencil className="size-3.5" />
               수정
             </Button>
           </div>
