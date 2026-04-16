@@ -49,7 +49,7 @@ export default async function AdminPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-bold">관리자 대시보드</h1>
+      <h1 className="text-2xl font-bold leading-snug tracking-[-0.01em]">관리자 대시보드</h1>
 
       <AdminStatCards stats={stats} />
 
@@ -65,12 +65,12 @@ export default async function AdminPage() {
       </div>
 
       <section>
-        <h2 className="mb-3 text-lg font-semibold">최근 가입 사용자</h2>
+        <h2 className="mb-3 text-lg font-semibold leading-snug tracking-[-0.01em]">최근 가입 사용자</h2>
         <RecentUsersTable users={JSON.parse(JSON.stringify(recentUsers))} />
       </section>
 
       <section>
-        <h2 className="mb-3 text-lg font-semibold">최근 알림 발송</h2>
+        <h2 className="mb-3 text-lg font-semibold leading-snug tracking-[-0.01em]">최근 알림 발송</h2>
         <RecentAlertLogsTable logs={JSON.parse(JSON.stringify(recentAlertLogs))} />
       </section>
     </div>

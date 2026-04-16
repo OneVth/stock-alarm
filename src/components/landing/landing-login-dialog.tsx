@@ -40,7 +40,7 @@ export function LandingLoginDialog({
       <DialogTrigger render={trigger} />
       <DialogContent className="flex flex-col gap-6 p-8 sm:max-w-md">
         <DialogHeader className="gap-2">
-          <DialogTitle className="text-xl">Stock Alarm</DialogTitle>
+          <DialogTitle className="text-xl leading-snug tracking-[-0.01em]">Stock Alarm</DialogTitle>
           <DialogDescription>Google 계정으로 로그인하세요</DialogDescription>
         </DialogHeader>
         <form action={loginAction}>

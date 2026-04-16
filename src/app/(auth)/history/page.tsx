@@ -72,7 +72,7 @@ export default async function HistoryPage({
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center gap-3">
-        <h1 className="text-2xl font-bold">알림 이력</h1>
+        <h1 className="text-2xl font-bold leading-snug tracking-[-0.01em]">알림 이력</h1>
         <Badge variant="secondary">{totalCount}건</Badge>
       </div>
 

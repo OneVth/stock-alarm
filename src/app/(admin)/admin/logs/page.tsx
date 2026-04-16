@@ -97,7 +97,7 @@ export default async function AdminLogsPage({
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center gap-3">
-        <h1 className="text-2xl font-bold">시스템 로그</h1>
+        <h1 className="text-2xl font-bold leading-snug tracking-[-0.01em]">시스템 로그</h1>
         <Badge variant="secondary">{totalCount}건</Badge>
       </div>
 

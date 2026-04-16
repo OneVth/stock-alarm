@@ -50,7 +50,7 @@ export default async function Home() {
           <div className="mx-auto grid max-w-5xl grid-cols-1 items-center gap-8 md:grid-cols-[3fr_2fr]">
             {/* 좌측: 텍스트 + CTA */}
             <div className="flex flex-col gap-4 md:pb-20">
-              <h1 className="text-2xl font-bold md:text-4xl">
+              <h1 className="text-2xl font-bold leading-snug tracking-[-0.01em] md:text-4xl md:leading-none md:tracking-[-0.02em]">
                 매일 확인하지 않아도 괜찮아요
               </h1>
               <p className="text-lg text-muted-foreground">
@@ -91,7 +91,7 @@ export default async function Home() {
                 className="flex flex-col items-center gap-3 rounded-lg border p-6 text-center"
               >
                 <feature.icon className="h-8 w-8 text-primary" />
-                <h3 className="text-lg font-semibold">{feature.title}</h3>
+                <h3 className="text-lg font-semibold leading-snug tracking-[-0.01em]">{feature.title}</h3>
                 <p className="text-sm text-muted-foreground">{feature.description}</p>
               </div>
             ))}
