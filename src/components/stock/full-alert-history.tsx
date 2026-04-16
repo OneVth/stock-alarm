@@ -82,9 +82,9 @@ export function FullAlertHistory({ alertLogs }: FullAlertHistoryProps) {
                     className={cn(
                       "inline-flex items-center justify-end gap-0.5",
                       log.changeRate > 0
-                        ? "text-success"
+                        ? "text-price-up"
                         : log.changeRate < 0
-                          ? "text-destructive"
+                          ? "text-price-down"
                           : "text-muted-foreground",
                     )}
                   >

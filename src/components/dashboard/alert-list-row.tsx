@@ -107,9 +107,9 @@ export function AlertListRow({
                 className={cn(
                   "inline-flex items-center gap-0.5",
                   changeRate > 0
-                    ? "text-success"
+                    ? "text-price-up"
                     : changeRate < 0
-                      ? "text-destructive"
+                      ? "text-price-down"
                       : "text-muted-foreground",
                 )}
               >
@@ -137,11 +137,11 @@ export function AlertListRow({
         <div className="text-right">
           <p className="text-xs text-muted-foreground">알림 기준</p>
           <p className="text-base">
-            <span className="font-medium text-success">
+            <span className="font-medium text-price-up">
               {alert.thresholdUpper != null ? `+${alert.thresholdUpper}%` : "--"}
             </span>
             <span className="text-muted-foreground"> / </span>
-            <span className="font-medium text-destructive">
+            <span className="font-medium text-price-down">
               {alert.thresholdLower != null ? `${-Math.abs(alert.thresholdLower)}%` : "--"}
             </span>
           </p>

@@ -61,6 +61,10 @@
   --destructive:         #ef4444;
   --destructive-foreground: #ffffff;
 
+  /* 가격 전용 토큰 — 한국식 상승 빨강 / 하락 파랑 */
+  --price-up:            #ef4444;   /* 상승 = destructive 값 재사용 */
+  --price-down:          #0052ff;   /* 하락 = primary 값 재사용 */
+
   /* Borders & Inputs */
   --border:              rgba(91, 97, 110, 0.2);
   --input:               rgba(91, 97, 110, 0.15);
@@ -111,6 +115,10 @@
   /* Semantic */
   --destructive:         #f87171;
   --destructive-foreground: #0a0b0d;
+
+  /* 가격 전용 토큰 — 한국식 상승 빨강 / 하락 파랑 */
+  --price-up:            #f87171;   /* 상승 = dark destructive 값 재사용 */
+  --price-down:          #578bfa;   /* 하락 = dark primary 값 재사용 */
 
   /* Borders & Inputs */
   --border:              rgba(255, 255, 255, 0.1);

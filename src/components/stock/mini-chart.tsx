@@ -18,7 +18,7 @@ interface MiniChartProps {
  * SVG Area 스파크라인 미니차트 컴포넌트
  *
  * 외부 라이브러리 없이 순수 SVG로 구현합니다.
- * 상승 → success 색상, 하락 → destructive 색상, 동일 → muted 색상으로 표시합니다.
+ * 상승 → price-up 색상, 하락 → price-down 색상 (한국식), 동일 → muted 색상으로 표시합니다.
  *
  * @param data - 종가 배열 (최소 2개 이상의 유효값 필요)
  * @param width - SVG 너비
@@ -48,11 +48,11 @@ export function MiniChart({ data, width = 80, height = 40 }: MiniChartProps) {
   let strokeClass: string;
   let fillClass: string;
   if (last > first) {
-    strokeClass = "stroke-success";
-    fillClass = "fill-success/15";
+    strokeClass = "stroke-price-up";
+    fillClass = "fill-price-up/15";
   } else if (last < first) {
-    strokeClass = "stroke-destructive";
-    fillClass = "fill-destructive/15";
+    strokeClass = "stroke-price-down";
+    fillClass = "fill-price-down/15";
   } else {
     strokeClass = "stroke-muted-foreground";
     fillClass = "fill-muted-foreground/10";

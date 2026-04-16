@@ -224,7 +224,7 @@ function Sparkline({ data, positive }: { data: number[]; positive: boolean }) {
       aria-hidden="true"
       className={cn(
         "flex-shrink-0 overflow-visible",
-        positive ? "text-green-600" : "text-red-600"
+        positive ? "text-price-up" : "text-price-down"
       )}
     >
       <polyline
@@ -293,8 +293,8 @@ function StockRow({ stock }: { stock: Stock }) {
               "text-xs font-medium",
               thresholdReached
                 ? changeFromBase > 0
-                  ? "text-green-600"
-                  : "text-red-600"
+                  ? "text-price-up"
+                  : "text-price-down"
                 : "text-muted-foreground"
             )}
           >
@@ -315,7 +315,7 @@ function StockRow({ stock }: { stock: Stock }) {
         <p
           className={cn(
             "text-xs font-medium mt-0.5",
-            positive ? "text-green-600" : "text-red-600"
+            positive ? "text-price-up" : "text-price-down"
           )}
         >
           {sign}

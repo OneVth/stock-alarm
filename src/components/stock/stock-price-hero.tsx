@@ -150,7 +150,7 @@ export function StockPriceHero({ alert }: StockPriceHeroProps) {
           <p
             className={cn(
               "mt-1 text-base font-medium",
-              isPositive ? "text-success" : "text-destructive",
+              isPositive ? "text-price-up" : "text-price-down",
             )}
           >
             {changeSign}
@@ -237,7 +237,7 @@ export function StockPriceHero({ alert }: StockPriceHeroProps) {
             <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
               {alert.thresholdUpper != null && upperPrice != null && (
                 <span className="text-base">
-                  <span className="font-medium text-success">
+                  <span className="font-medium text-price-up">
                     상승 +{alert.thresholdUpper}%
                   </span>{" "}
                   <span className="text-muted-foreground">
@@ -250,7 +250,7 @@ export function StockPriceHero({ alert }: StockPriceHeroProps) {
               )}
               {alert.thresholdLower != null && lowerPrice != null && (
                 <span className="text-base">
-                  <span className="font-medium text-destructive">
+                  <span className="font-medium text-price-down">
                     하락 -{Math.abs(alert.thresholdLower)}%
                   </span>{" "}
                   <span className="text-muted-foreground">

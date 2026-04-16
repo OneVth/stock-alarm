@@ -81,6 +81,9 @@
   --color-destructive-700: var(--destructive-700);
   --color-destructive-800: var(--destructive-800);
   --color-destructive-900: var(--destructive-900);
+  /* Price (Korean convention: up=red, down=blue) */
+  --color-price-up: var(--price-up);
+  --color-price-down: var(--price-down);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);

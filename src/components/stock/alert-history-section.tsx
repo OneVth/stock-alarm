@@ -109,7 +109,7 @@ export function AlertHistorySection({
                           <td
                             className={cn(
                               "py-2 pr-4 font-medium",
-                              log.changeRate > 0 ? "text-success" : "text-destructive",
+                              log.changeRate > 0 ? "text-price-up" : "text-price-down",
                             )}
                           >
                             {log.changeRate > 0 ? "+" : ""}

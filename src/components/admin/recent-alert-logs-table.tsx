@@ -62,9 +62,9 @@ export function RecentAlertLogsTable({ logs }: RecentAlertLogsTableProps) {
                   className={cn(
                     "text-right text-sm font-medium",
                     log.changeRate > 0
-                      ? "text-success"
+                      ? "text-price-up"
                       : log.changeRate < 0
-                        ? "text-destructive"
+                        ? "text-price-down"
                         : "text-muted-foreground",
                   )}
                 >

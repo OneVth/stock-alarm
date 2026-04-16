@@ -740,7 +740,7 @@ function AlertHistorySection() {
                         {formatPrice(log.triggeredPrice)}
                       </td>
                       <td
-                        className={`py-2 pr-4 font-medium ${log.changeRate > 0 ? "text-success" : "text-destructive"}`}
+                        className={`py-2 pr-4 font-medium ${log.changeRate > 0 ? "text-price-up" : "text-price-down"}`}
                       >
                         {log.changeRate > 0 ? "+" : ""}
                         {log.changeRate.toFixed(2)}%

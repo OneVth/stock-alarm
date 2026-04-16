@@ -12,6 +12,7 @@ import {
   createSeriesMarkers,
 } from "lightweight-charts";
 import type { OHLCVData } from "@/types/stock";
+import { getChartPriceColors } from "@/lib/chart-colors";
 
 /**
  * 알림 로그 마커 데이터
@@ -69,6 +70,7 @@ export function PriceChart({
   useEffect(() => {
     if (!containerRef.current || ohlcvData.length === 0) return;
 
+    const priceColors = getChartPriceColors();
     const container = containerRef.current;
 
     const chart = createChart(container, {
@@ -106,12 +108,12 @@ export function PriceChart({
     if (chartType === "candle") {
       // 캔들스틱 시리즈
       const candleSeries = chart.addSeries(CandlestickSeries, {
-        upColor: "#ef4444",
-        downColor: "#3b82f6",
-        borderUpColor: "#ef4444",
-        borderDownColor: "#3b82f6",
-        wickUpColor: "#ef4444",
-        wickDownColor: "#3b82f6",
+        upColor: priceColors.up,
+        downColor: priceColors.down,
+        borderUpColor: priceColors.up,
+        borderDownColor: priceColors.down,
+        wickUpColor: priceColors.up,
+        wickDownColor: priceColors.down,
       });
 
       const candleData = ohlcvData.map((d) => ({
@@ -158,7 +160,7 @@ export function PriceChart({
       const upperPrice = Math.round(basePrice * (1 + thresholdUpper / 100));
       mainSeries.createPriceLine({
         price: upperPrice,
-        color: "#ef4444",
+        color: priceColors.up,
         lineWidth: 1,
         lineStyle: LineStyle.Dotted,
         axisLabelVisible: true,
@@ -172,7 +174,7 @@ export function PriceChart({
       const lowerPrice = Math.round(basePrice * (1 - absLower / 100));
       mainSeries.createPriceLine({
         price: lowerPrice,
-        color: "#3b82f6",
+        color: priceColors.down,
         lineWidth: 1,
         lineStyle: LineStyle.Dotted,
         axisLabelVisible: true,
@@ -192,7 +194,7 @@ export function PriceChart({
           time: log.date,
           position: log.thresholdType === "upper" ? "belowBar" as const : "aboveBar" as const,
           shape: log.thresholdType === "upper" ? "arrowUp" as const : "arrowDown" as const,
-          color: log.thresholdType === "upper" ? "#ef4444" : "#22c55e",
+          color: log.thresholdType === "upper" ? priceColors.up : priceColors.down,
           size: 1,
           text: "",
         }))
