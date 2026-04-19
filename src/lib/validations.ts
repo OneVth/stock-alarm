@@ -131,7 +131,7 @@ export const changeRoleSchema = z.object({
  * 시스템 로그 필터 스키마
  */
 export const logFilterSchema = z.object({
-  page: z.coerce.number().int().min(1).default(1),
+  page: z.coerce.number().int().min(1).max(1000).default(1),
   level: z.enum(["ERROR", "WARN", "INFO"]).optional(),
   category: z.string().optional(),
 });
