@@ -32,8 +32,8 @@ export async function GET(
   }
 
   const { searchParams } = new URL(request.url);
-  const skip = Number(searchParams.get("skip")) || 0;
-  const take = Number(searchParams.get("take")) || 5;
+  const skip = Math.max(0, Number(searchParams.get("skip")) || 0);
+  const take = Math.min(100, Math.max(1, Number(searchParams.get("take")) || 5));
 
   const logs = await prisma.alertLog.findMany({
     where: { alertId: id },

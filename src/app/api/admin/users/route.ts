@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   if ("error" in result) return result.error;
 
   const { searchParams } = new URL(request.url);
-  const page = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10) || 1);
+  const page = Math.min(1000, Math.max(1, parseInt(searchParams.get("page") ?? "1", 10) || 1));
 
   const [users, totalCount] = await Promise.all([
     prisma.user.findMany({
