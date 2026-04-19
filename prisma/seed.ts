@@ -74,12 +74,18 @@ const dummyAlerts = [
  * 기존 데이터가 20건 이상이면 스킵합니다.
  */
 async function seedAlerts() {
+  const seedEmail = process.env["SEED_USER_EMAIL"];
+  if (!seedEmail) {
+    console.error("❌ SEED_USER_EMAIL 환경변수가 필요합니다 (개발 환경 전용)");
+    process.exit(1);
+  }
+
   const user = await prisma.user.findUnique({
-    where: { email: "okayha1726@gmail.com" },
+    where: { email: seedEmail },
   });
 
   if (!user) {
-    console.warn("⚠ Alert 시딩 스킵: okayha1726@gmail.com 사용자를 찾을 수 없습니다.");
+    console.warn(`⚠ Alert 시딩 스킵: ${seedEmail} 사용자를 찾을 수 없습니다.`);
     return;
   }
 
@@ -124,12 +130,14 @@ async function seedAlerts() {
  * 기존 User와 Alert 데이터를 기반으로 생성하며, Alert가 없으면 스킵합니다.
  */
 async function seedAlertLogs() {
+  const seedEmail = process.env["SEED_USER_EMAIL"]!;
+
   const user = await prisma.user.findUnique({
-    where: { email: "okayha1726@gmail.com" },
+    where: { email: seedEmail },
   });
 
   if (!user) {
-    console.warn("⚠ AlertLog 시딩 스킵: okayha1726@gmail.com 사용자를 찾을 수 없습니다.");
+    console.warn(`⚠ AlertLog 시딩 스킵: ${seedEmail} 사용자를 찾을 수 없습니다.`);
     return;
   }
 

@@ -393,6 +393,11 @@ pnpm prisma generate    # 타입 생성
 pnpm prisma migrate dev # 마이그레이션 (개발)
 pnpm prisma studio      # DB GUI
 
+# 시딩 (개발 환경 전용)
+# .env.local에 SEED_USER_EMAIL=your@email.com 설정 필요
+pnpm db:seed            # 더미 알림 30건 + AlertLog 생성 (개발 전용)
+pnpm db:seed:essential  # Role 시딩만 (프로덕션에서도 실행 가능)
+
 # shadcn/ui 컴포넌트 추가
 pnpm dlx shadcn@latest add [컴포넌트명]
 ```
