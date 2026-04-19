@@ -24,7 +24,9 @@ export function AdminUserSearch({ defaultValue }: AdminUserSearchProps) {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [value, setValue] = useState(defaultValue ?? "");
 
+  // 외부 URL 변경(필터 탭 전환 등)으로 defaultValue가 바뀌면 동기화
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setValue(defaultValue ?? "");
   }, [defaultValue]);
 
