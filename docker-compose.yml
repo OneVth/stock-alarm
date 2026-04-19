@@ -1,3 +1,5 @@
+# 로컬 개발 전용. 프로덕션은 docker-compose.prod.yml 사용 (환경변수 분리됨)
+
 services:
   db:
     image: postgres:16-alpine
