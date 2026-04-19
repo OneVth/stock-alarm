@@ -32,6 +32,12 @@ export type AlertLogWithAlert = AlertLog & {
 };
 
 /**
+ * AlertLog (Alert join 없이 stockName 직접 보유)
+ * AlertLog.stockName이 추가된 이후 단순 조회용
+ */
+export type AlertLogBase = AlertLog;
+
+/**
  * 종목 검색 결과
  */
 export interface StockSearchResult {

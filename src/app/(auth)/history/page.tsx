@@ -31,11 +31,7 @@ export default async function HistoryPage({
     userId,
     ...(type === "upper" || type === "lower" ? { thresholdType: type } : {}),
     ...(stock
-      ? {
-          alert: {
-            stockName: { contains: stock, mode: "insensitive" as const },
-          },
-        }
+      ? { stockName: { contains: stock, mode: "insensitive" as const } }
       : {}),
   };
 

@@ -62,13 +62,11 @@ export function FullAlertHistory({ alertLogs }: FullAlertHistoryProps) {
                       href={`/dashboard/${log.alertId}`}
                       className="text-primary hover:underline"
                     >
-                      <span>{log.alert?.stockName ?? "-"}</span>
-                      {log.alert?.stockCode && (
-                        <span className="ms-1 text-xs text-muted-foreground">({log.alert.stockCode})</span>
-                      )}
+                      <span>{log.stockName}</span>
+                      <span className="ms-1 text-xs text-muted-foreground">({log.stockCode})</span>
                     </Link>
                   ) : (
-                    log.alert?.stockName ?? log.alertId ?? "-"
+                    log.stockName
                   )}
                 </TableCell>
                 <TableCell className="text-right">

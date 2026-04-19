@@ -14,14 +14,12 @@ interface RecentAlertLogsTableProps {
   /** 최근 알림 발송 로그 목록 */
   logs: {
     id: string;
+    stockName: string;
+    stockCode: string;
     changeRate: number;
     thresholdType: string;
     emailSent: boolean;
     createdAt: string;
-    alert: {
-      stockName: string;
-      stockCode: string;
-    } | null;
   }[];
 }
 
@@ -54,9 +52,7 @@ export function RecentAlertLogsTable({ logs }: RecentAlertLogsTableProps) {
             logs.map((log) => (
               <TableRow key={log.id}>
                 <TableCell className="text-sm">
-                  {log.alert
-                    ? `${log.alert.stockName} (${log.alert.stockCode})`
-                    : "-"}
+                  {`${log.stockName} (${log.stockCode})`}
                 </TableCell>
                 <TableCell
                   className={cn(

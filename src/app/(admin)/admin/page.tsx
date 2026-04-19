@@ -39,7 +39,6 @@ export default async function AdminPage() {
       take: 5,
     }),
     prisma.alertLog.findMany({
-      include: { alert: { select: { stockName: true, stockCode: true } } },
       orderBy: { createdAt: "desc" },
       take: 5,
     }),
