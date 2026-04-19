@@ -51,5 +51,6 @@ next-env.d.ts
 /docs/personal
 /docs/analyze
 /docs/backlog
+/docs/security-check
 /docs/working-context.md
 /src/generated/prisma
