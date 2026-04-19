@@ -92,6 +92,7 @@ model AlertLog {
   alertId        String?
   userId         String
   stockCode      String
+  stockName      String
   basePrice      Int
   triggeredPrice Int
   changeRate     Float
