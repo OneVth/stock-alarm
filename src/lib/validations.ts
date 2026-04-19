@@ -22,7 +22,17 @@ export const createAlertSchema = z
       .max(-0.1, "하락 임계값은 -0.1% 이하여야 합니다")
       .nullable()
       .optional(),
-    memo: z.unknown().optional(),
+    memo: z
+      .unknown()
+      .refine(
+        (val) => val == null || (typeof val === "object" && !Array.isArray(val)),
+        { message: "메모는 객체 형태여야 합니다" }
+      )
+      .refine(
+        (val) => val == null || JSON.stringify(val).length <= 10_000,
+        { message: "메모 크기는 10KB를 초과할 수 없습니다" }
+      )
+      .optional(),
   })
   .refine(
     (data) =>
@@ -44,7 +54,17 @@ export const updateAlertSchema = z
     basePrice: z.number().int().min(1).optional(),
     thresholdUpper: z.number().min(0.1).max(100).nullable().optional(),
     thresholdLower: z.number().min(-100).max(-0.1).nullable().optional(),
-    memo: z.unknown().optional(),
+    memo: z
+      .unknown()
+      .refine(
+        (val) => val == null || (typeof val === "object" && !Array.isArray(val)),
+        { message: "메모는 객체 형태여야 합니다" }
+      )
+      .refine(
+        (val) => val == null || JSON.stringify(val).length <= 10_000,
+        { message: "메모 크기는 10KB를 초과할 수 없습니다" }
+      )
+      .optional(),
   })
   .refine(
     (data) => {
