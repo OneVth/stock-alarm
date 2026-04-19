@@ -13,7 +13,10 @@ import Google from "next-auth/providers/google";
  */
 export const authConfig = {
   providers: [Google],
-  session: { strategy: "jwt" },
+  session: {
+    strategy: "jwt",
+    maxAge: 60 * 60 * 24 * 7, // 7일
+  },
   pages: {
     signIn: "/login",
   },
