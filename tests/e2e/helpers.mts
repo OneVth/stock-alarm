@@ -98,13 +98,15 @@ export async function createTestAlert(userId: string, data: AlertData) {
  * @param stockCode - 종목 코드
  * @param basePrice - 기준가
  * @param count - 생성할 건수
+ * @param stockName - 종목명 (기본값: "(테스트 종목)")
  */
 export async function createTestAlertLogs(
   alertId: string,
   userId: string,
   stockCode: string,
   basePrice: number,
-  count: number
+  count: number,
+  stockName: string = "(테스트 종목)"
 ) {
   const logs = Array.from({ length: count }, (_, i) => {
     const isUpper = i % 2 === 0;
@@ -114,6 +116,7 @@ export async function createTestAlertLogs(
       alertId,
       userId,
       stockCode,
+      stockName,
       basePrice,
       triggeredPrice,
       changeRate,

@@ -181,6 +181,7 @@ async function seedAlertLogs() {
       alertId: alert.id,
       userId: user.id,
       stockCode: alert.stockCode,
+      stockName: alert.stockName,
       basePrice: alert.basePrice,
       triggeredPrice,
       changeRate: Math.round(changeRate * 100) / 100,

@@ -168,6 +168,7 @@ async function main() {
                 alertId: alert.id,
                 userId: alert.userId,
                 stockCode: alert.stockCode,
+                stockName: alert.stockName,
                 basePrice: alert.basePrice,
                 triggeredPrice: currentPrice,
                 changeRate,
