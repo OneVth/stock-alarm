@@ -208,7 +208,8 @@ export async function sendAlertEmail(
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
       await transporter.sendMail({
-        from: `"StockAlarm" <${process.env["GMAIL_ADDRESS"]}>`,
+        // MAIL_FROM_NAME에 큰따옴표가 포함되면 SMTP 파싱이 깨질 수 있음. 환경변수 설정 시 주의.
+        from: `"${process.env["MAIL_FROM_NAME"] ?? "StockAlarm"}" <${process.env["MAIL_FROM_ADDRESS"] ?? process.env["GMAIL_ADDRESS"]}>`,
         to: params.to,
         subject,
         html,
