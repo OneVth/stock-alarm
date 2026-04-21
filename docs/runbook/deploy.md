@@ -696,9 +696,9 @@ cron은 실행됐으나 명령 실패:
 
 의심 징후 발견 시 **침착함 + 속도**가 동시에 중요하다. 이 섹션은 "첫 10분"에 취할 행동을 정해둔 것이다. 원인 분석과 복구는 그 다음 단계.
 
-### 7.1 의심 징후의 예
+### 8.1 의심 징후의 예
 
-다음 중 하나라도 해당되면 "해킹 의심" 상태로 간주하고 7.2로 이동한다.
+다음 중 하나라도 해당되면 "해킹 의심" 상태로 간주하고 8.2로 이동한다.
 
 - 등록하지 않은 관리자 계정이 보인다
 - 가족이 받지 않은 시점에 알림 메일이 발송되었다는 보고를 받았다
@@ -709,7 +709,7 @@ cron은 실행됐으나 명령 실패:
 - GitHub에서 의심스러운 로그인/push 알림이 온다
 - 라즈베리파이 CPU/메모리 사용량이 장시간 비정상적으로 높다 (채굴 등 목적의 침입 징후)
 
-### 7.2 1차 대응 — 즉시 격리 (첫 5분)
+### 8.2 1차 대응 — 즉시 격리 (첫 5분)
 
 **목표**: 추가 피해 차단. 진상 규명은 나중.
 
@@ -733,7 +733,7 @@ docker compose --env-file .env.prod -f docker-compose.prod.yml stop cloudflared
 1. **Cloudflare Tunnel 재생성**:
    - Zero Trust 대시보드 → Networks → Tunnels → 해당 tunnel 삭제
    - 신규 tunnel 생성 (섹션 3.2 참조)
-   - 새 token을 아직 적용하지 않음 (7.3 복구 단계에서 적용)
+   - 새 token을 아직 적용하지 않음 (8.3 복구 단계에서 적용)
 
 2. **Google OAuth Client Secret 재발급**:
    - Google Cloud Console → Credentials → 해당 Client → **Add secret**
@@ -779,7 +779,7 @@ docker logs stockalarm-cloudflared > cloudflared.log 2>&1
 # 이 디렉토리를 외부 저장소(암호화된 USB 등)에 복사 보관
 ```
 
-### 7.3 2차 대응 — 조사 및 복구 (다음 수 시간)
+### 8.3 2차 대응 — 조사 및 복구 (다음 수 시간)
 
 **조사**:
 
@@ -796,12 +796,12 @@ docker logs stockalarm-cloudflared > cloudflared.log 2>&1
 
 | 상황 | 조치 |
 |------|------|
-| 자격증명 유출만, DB 조작 없음 | 7.2의 credential 교체만으로 충분. 재기동 |
+| 자격증명 유출만, DB 조작 없음 | 8.2의 credential 교체만으로 충분. 재기동 |
 | DB 데이터 변조 의심 | 백업에서 복원 (별도 백업 런북 수립 필요) |
 | 코드베이스 변조 의심 (GitHub에 모르는 커밋) | 해당 커밋 revert → force push → 재배포 |
 | 침해 범위 판단 불가 | 전체 재구축: DB 볼륨 삭제, 이미지 재빌드, 새 계정으로 OAuth Client 재생성 |
 
-### 7.4 재기동
+### 8.4 재기동
 
 자격증명 교체 및 증거 보존 완료 후:
 
@@ -812,7 +812,7 @@ docker logs stockalarm-cloudflared > cloudflared.log 2>&1
    ```
 3. 섹션 6.5~6.6 smoke test 재수행
 
-### 7.5 사후 조치
+### 8.5 사후 조치
 
 **법적 의무 (한국 개인정보보호법 제34조)**
 
@@ -864,7 +864,7 @@ docker logs stockalarm-cloudflared > cloudflared.log 2>&1
 - 공격 경로 분석 결과를 기반으로 보안 체크리스트 업데이트
 - 해당 경로에 대한 방어책을 백로그에 추가 (예: WAF 규칙, Rate limit 강화, 2FA 도입)
 
-### 7.6 평시 준비
+### 8.6 평시 준비
 
 해킹이 발생한 **후**에 이 런북을 처음 읽으면 늦다. 평시에 다음을 준비해둔다:
 
