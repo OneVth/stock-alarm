@@ -1,0 +1,18 @@
+# Stock Alarm v2 Cron Jobs
+# 설치: crontab -e 로 편집 후 아래 내용 추가
+#
+# 주의:
+# - 모든 명령은 $HOME/stock-alarm 기준으로 실행된다. 실제 경로가 다르면 cd 뒤 경로를 수정.
+# - docker compose 명령은 PATH에 docker가 없으면 실패한다. PATH 선언 유지.
+# - 프로덕션 환경변수는 .env.prod에 있어야 한다.
+
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+# 매일 평일 11:35 - 알림 체크 (장중)
+35 11 * * 1-5 cd $HOME/stock-alarm && docker compose --env-file .env.prod -f docker-compose.prod.yml --profile tools run --rm tools pnpm check-alerts >> logs/check-alerts.log 2>&1
+
+# 매월 1일 03:00 - KRX 종목 목록 갱신
+0 3 1 * * cd $HOME/stock-alarm && docker compose --env-file .env.prod -f docker-compose.prod.yml --profile tools run --rm tools-py python scripts/update-stock-list.py >> logs/update-stock-list.log 2>&1
+
+# 매일 02:00 - DB 백업
+0 2 * * * cd $HOME/stock-alarm && bash scripts/db-backup.sh >> logs/db-backup.log 2>&1
