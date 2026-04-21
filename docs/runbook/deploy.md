@@ -434,7 +434,7 @@ Google 측 설정 전파에는 최대 몇 분이 걸린다. 배포 직후 로그
 
 ### 6.2 Database 마이그레이션 준비
 
-v2 스키마로 DB를 초기화하려면 Prisma 마이그레이션이 필요하다. 현재 Dockerfile은 마이그레이션을 자동 실행하지 않으므로 **첫 기동 시 수동으로 수행**한다. (자동화는 세션 2 crontab 작업에서 다룬다.)
+v2 스키마로 DB를 초기화하려면 Prisma 마이그레이션이 필요하다. app 컨테이너(standalone 빌드)에는 prisma CLI가 없으므로 **첫 기동 후 tools 이미지를 통해 수동으로 수행**한다 (6.4 참조).
 
 ### 6.3 전체 스택 기동
 
@@ -462,15 +462,17 @@ docker compose --env-file .env.prod -f docker-compose.prod.yml ps
 
 ### 6.4 Prisma 마이그레이션 실행 (최초 1회)
 
+프로덕션은 tools 이미지를 통해 수동 실행한다. 세션 2에서 자동화 여부를 검토했으나, 가족 서비스 규모에서는 수동 실행 + 런북 문서화로 충분하다고 결정했다.
+
 ```bash
-docker compose --env-file .env.prod -f docker-compose.prod.yml exec app \
+docker compose --env-file .env.prod -f docker-compose.prod.yml --profile tools run --rm tools \
   npx prisma migrate deploy
 ```
 
 예상 출력: "N migrations applied" 메시지. Role 시딩이 필요한 경우 이어서:
 
 ```bash
-docker compose --env-file .env.prod -f docker-compose.prod.yml exec app \
+docker compose --env-file .env.prod -f docker-compose.prod.yml --profile tools run --rm tools \
   pnpm db:seed:essential
 ```
 
