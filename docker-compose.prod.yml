@@ -81,6 +81,33 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  tools:
+    build:
+      context: .
+      dockerfile: Dockerfile.tools
+    profiles: ["tools"]
+    env_file:
+      - .env.prod
+    environment:
+      DATABASE_URL: "postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - stockalarm-network
+
+  tools-py:
+    build:
+      context: .
+      dockerfile: Dockerfile.tools-py
+    profiles: ["tools"]
+    env_file:
+      - .env.prod
+    volumes:
+      - ./src/data:/app/src/data
+    networks:
+      - stockalarm-network
+
 volumes:
   postgres_data:
     name: stockalarm_prod_postgres_data
