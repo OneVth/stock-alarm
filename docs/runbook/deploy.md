@@ -566,7 +566,133 @@ docker logs --tail 100 stockalarm-app
 
 ---
 
-## 7. 해킹 인지 시 1차 대응 절차
+## 7. 운영 자동화
+
+배포가 정상 기동된 뒤 수행. 라즈베리파이 호스트에서 실행.
+
+### 7.1 crontab 등록
+
+Stock Alarm v2는 3종의 cron 작업이 필요하다:
+
+- **check-alerts** — 평일 11:35 알림 체크
+- **update-stock-list** — 매월 1일 03:00 종목 마스터 갱신
+- **db-backup** — 매일 02:00 DB 백업
+
+프로젝트의 `deploy/crontab`에 전체 내용이 정의되어 있다. 아래 절차로 등록한다.
+
+```bash
+# 1. 로그 디렉토리 준비
+cd $HOME/stock-alarm
+mkdir -p logs backups
+
+# 2. crontab 내용 확인
+cat deploy/crontab
+
+# 3. crontab 편집기 열기
+crontab -e
+
+# 4. deploy/crontab의 내용을 복사해 편집기에 붙여넣기
+#    (기존 crontab에 다른 항목이 있다면 보존)
+
+# 5. 저장 후 등록 확인
+crontab -l
+```
+
+**주의**:
+- 배포 사용자가 `onev`가 아닌 경우 `$HOME` 변수 때문에 자동 대응되나, 확인 필요
+- `docker compose` 명령이 PATH에 없으면 실패. `which docker`로 확인 후 crontab 상단 `PATH=...`가 맞는지 검토
+
+### 7.2 DB 백업 수동 실행 및 복구 절차
+
+초기 배포 직후 수동으로 한 번 실행해 동작 확인:
+
+```bash
+cd $HOME/stock-alarm
+bash scripts/db-backup.sh
+ls -la backups/
+```
+
+기대 결과:
+- `backups/stockalarm-YYYY-MM-DD.sql.gz` 파일 생성
+- 파일 크기 수 MB (알림 데이터량에 따라 다름)
+
+**복구 절차** (장애 시):
+
+```bash
+# 1. 압축 해제
+cd $HOME/stock-alarm
+gunzip -k backups/stockalarm-YYYY-MM-DD.sql.gz
+# → backups/stockalarm-YYYY-MM-DD.sql 생성
+
+# 2. db 컨테이너로 복원
+# 주의: 기존 데이터를 덮어씀. 복구 전 별도 백업 권장
+docker compose --env-file .env.prod -f docker-compose.prod.yml exec -T db \
+  psql -U $(grep '^DB_USER=' .env.prod | cut -d= -f2) -d $(grep '^DB_NAME=' .env.prod | cut -d= -f2) \
+  < backups/stockalarm-YYYY-MM-DD.sql
+
+# 3. app 재시작 권장 (Prisma 연결 리셋)
+docker compose --env-file .env.prod -f docker-compose.prod.yml restart app
+```
+
+### 7.3 logrotate 설정
+
+`deploy/logrotate.conf`를 시스템 logrotate 디렉토리로 복사:
+
+```bash
+cd $HOME/stock-alarm
+sudo cp deploy/logrotate.conf /etc/logrotate.d/stock-alarm
+sudo chown root:root /etc/logrotate.d/stock-alarm
+
+# 설정 문법 검증 (dry-run)
+sudo logrotate -d /etc/logrotate.d/stock-alarm
+
+# 즉시 적용 확인 (실제 rotate 실행)
+sudo logrotate -f /etc/logrotate.d/stock-alarm
+ls -la logs/
+```
+
+라즈베리파이 사용자 이름이 `onev`가 아니면 `deploy/logrotate.conf`의 와일드카드(`/home/*/stock-alarm/logs/*.log`)가 자동 매칭한다. 필요 시 실제 경로로 치환.
+
+### 7.4 주 1회 로그 점검 체크리스트
+
+cron 작업 실패는 자동 알림되지 않으므로 주 1회 수동 확인한다. dead man's switch(Healthchecks.io 등) 도입은 배포 후 백로그 항목.
+
+```bash
+cd $HOME/stock-alarm/logs
+# 최근 로그 훑어보기
+tail -50 check-alerts.log
+tail -50 update-stock-list.log
+tail -50 db-backup.log
+
+# 각 작업의 마지막 실행 시각 확인
+grep "완료" check-alerts.log | tail -3
+grep "완료" db-backup.log | tail -3
+
+# 디스크 여유 확인
+df -h $HOME
+du -sh backups/ logs/
+```
+
+확인 항목:
+- [ ] check-alerts 평일마다 실행됐나
+- [ ] db-backup 매일 실행됐나
+- [ ] 에러 메시지 없나
+- [ ] backups/ 디렉토리에 7일치 파일이 있나
+- [ ] 로그 디스크 사용량 비정상 증가 없나
+
+### 7.5 실패 감지와 대응
+
+cron 작업이 한 번도 실행되지 않은 경우 (예: PATH 누락):
+- `logs/*.log` 파일 자체가 생성되지 않았거나 비어 있음
+- `grep CRON /var/log/syslog` 로 cron 데몬 실행 기록 확인
+
+cron은 실행됐으나 명령 실패:
+- `logs/*.log`에 stderr 출력 확인
+- 일반적 원인: `docker compose` PATH 누락, `.env.prod` 누락, db 컨테이너 미기동
+
+---
+
+## 8. 해킹 인지 시 1차 대응 절차
 
 의심 징후 발견 시 **침착함 + 속도**가 동시에 중요하다. 이 섹션은 "첫 10분"에 취할 행동을 정해둔 것이다. 원인 분석과 복구는 그 다음 단계.
 
