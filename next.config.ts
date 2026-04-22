@@ -1,6 +1,15 @@
 import type { NextConfig } from "next";
+import createMDX from "@next/mdx";
+
+const withMDX = createMDX({
+  options: {
+    remarkPlugins: [["remark-gfm"]],
+    rehypePlugins: [],
+  },
+});
 
 const nextConfig: NextConfig = {
+  pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
   output: "standalone",
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
@@ -22,4 +31,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withMDX(nextConfig);

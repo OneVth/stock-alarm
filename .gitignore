@@ -59,3 +59,4 @@ next-env.d.ts
 # 운영 로그 및 백업 (호스트 생성)
 /logs/
 /backups/
+.claude/skills/

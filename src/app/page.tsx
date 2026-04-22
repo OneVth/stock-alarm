@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { BellPlus, CalendarCheck, MailCheck } from "lucide-react";
 import { auth, signIn } from "@/lib/auth";
@@ -101,7 +102,12 @@ export default async function Home() {
       </main>
 
       <footer className="border-t py-6 text-center text-sm text-muted-foreground">
-        © 2026 Stock Alarm
+        <div className="flex items-center justify-center gap-4">
+          <span>© 2026 Stock Alarm</span>
+          <Link href="/privacy" className="hover:underline">
+            개인정보처리방침
+          </Link>
+        </div>
       </footer>
     </div>
   );
