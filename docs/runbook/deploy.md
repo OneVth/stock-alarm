@@ -83,8 +83,10 @@ git --version
 cd $HOME
 git clone https://github.com/OneVth/stock-alarm.git
 cd stock-alarm
-git checkout main
+git checkout develop
 ```
+
+검증 기간 동안은 `develop` 브랜치를 사용한다. 메인 도메인 전환(섹션 3.6) 시점에 `develop → main` 머지 + 태그를 부여하고 그 이후엔 `main`을 사용한다. Git Flow 원칙: `develop`에서 검증 → 안정화 후 `main` 머지.
 
 ### 2.2 `.env.prod` 파일 작성
 
@@ -198,10 +200,10 @@ Tunnel 생성 직후 커넥터 설치 화면이 표시된다.
 - `.env.prod` 외부 어디에도 저장하지 않는다 (클립보드에서 바로 `.env.prod`로 붙여넣는다).
 - 토큰 노출 의심 시 즉시 Tunnel을 삭제하고 재생성한다.
 
-### 3.4 Public Hostname 설정
+### 3.4 Public Hostname 설정 (현재 UI: "Add route → Published application")
 
-1. Tunnel 생성 마지막 단계의 **Public Hostnames** 화면 (또는 생성 완료 후 Tunnel 상세 → **Public Hostname** 탭).
-2. **Add a public hostname** 클릭.
+1. Tunnel 생성 마지막 단계 또는 Tunnel 상세 화면. **Cloudflare UI는 자주 변경된다** — 현재(2026-04 기준) "Add route → Published application" 흐름을 사용한다. 이전 UI는 "Public Hostnames → Add a public hostname"이었다.
+2. **Add route** 클릭 → **Published application** 선택.
 3. 입력 값:
 
 | 필드 | 값 |
@@ -232,6 +234,16 @@ v2 서비스가 `v2.stockalarm.co.kr`에서 안정적으로 운영됨을 검증�
 3. 변경 즉시 트래픽이 v2로 전환된다 (Cloudflare 내부 라우팅이므로 DNS TTL 대기 없음).
 4. legacy cloudflared 컨테이너와 Flask 프로세스를 중단한다.
 5. 불필요해진 DNS 레코드(`v2.stockalarm.co.kr`)는 Cloudflare 대시보드에서 제거한다 — 서브도메인 탈취 방지 (보안 체크리스트 8-7).
+6. (저장소 작업) 검증이 완료된 develop 브랜치를 main에 머지하고 태그를 부여한다:
+   ```bash
+   cd ~/stock-alarm
+   git checkout main
+   git pull origin main
+   git merge develop
+   git tag -a v2.0.0 -m "Stock Alarm v2 production release"
+   git push origin main --tags
+   ```
+   이후 운영용 작업 디렉토리는 `main`을 사용한다.
 
 ---
 
@@ -248,6 +260,15 @@ NextAuth v5의 Google Provider 동작을 위해 Google Cloud Console에 OAuth Cl
    - Organization: 개인 계정이면 "No organization"
 4. 생성 후 프로젝트 전환.
 
+**소유권 이전이 필요한 경우** (예: 개인 Gmail로 만든 프로젝트를 운영용 Gmail로 옮기는 경우):
+
+1. Google Cloud Console → IAM 및 관리자 → IAM.
+2. **+ 액세스 권한 부여** → 새 운영자 이메일에 **소유자(Owner)** 역할 부여.
+3. 새 운영자 계정으로 로그인 → 동일 IAM 화면에서 이전 계정 권한 제거 (단, 권한 회수는 검증 후 수행).
+4. OAuth Consent Screen / Credentials 등 모든 설정의 사용자 지원 이메일 / 개발자 연락처가 새 이메일과 일치하는지 확인.
+
+⚠️ Google Workspace 도메인 외 일반 Gmail 계정 간 이전은 모두 IAM 기반 수동 작업이다.
+
 ### 4.2 OAuth Consent Screen 설정
 
 Client 생성 전에 동의 화면부터 구성한다. 이 화면은 로그인 시 사용자에게 표시된다.
@@ -259,13 +280,13 @@ Client 생성 전에 동의 화면부터 구성한다. 이 화면은 로그인 �
 | 필드 | 값 |
 |------|-----|
 | App name | `Stock Alarm` |
-| User support email | 관리자 Gmail 주소 |
+| User support email | 운영자 Gmail 주소 (alias 드롭다운 불가, 계정 단위 선택만 가능) |
 | App logo | 선택 (생략 가능) |
 | Application home page | `https://stockalarm.co.kr` |
 | Privacy policy link | `https://stockalarm.co.kr/privacy`. 해당 페이지가 아직 없다면 비워두되, **개인정보처리방침은 한국 개인정보보호법상 필수**이므로 공개 배포 전까지는 반드시 페이지를 작성하고 이 필드에 등록해야 한다. |
 | Terms of service link | 선택 |
 | Authorized domains | `stockalarm.co.kr` (서브도메인은 자동 커버됨) |
-| Developer contact information | 관리자 Gmail 주소 |
+| Developer contact information | 운영자 Gmail 주소 (User support email과 동일 권장) |
 
 4. **Save and continue**.
 5. **Scopes** 단계:
@@ -327,6 +348,11 @@ legacy 등에서 이미 사용 중인 OAuth Client를 재활용하는 경우, 4.
 4. **Save**.
 5. 이미 발급된 Client ID / Secret을 `.env.prod`에 기록한다. Client Secret을 모르는 경우 **Add secret**으로 새 Secret을 발급하고 기록 후 이전 Secret은 삭제한다.
 6. 동의 화면이 Testing 상태라면 4.3에 따라 Production으로 전환한다.
+7. **Privacy URL 등록 (필수)**: Google 인증 플랫폼 → **브랜딩** → "애플리케이션 개인정보처리방침 링크"에 다음을 입력:
+   - 초기 배포: `https://v2.stockalarm.co.kr/privacy`
+   - 메인 도메인 전환 후: `https://stockalarm.co.kr/privacy`
+
+   **저장** 클릭. 등록 시점에 Google이 URL 접근성을 검증하지 않으므로, 외부 접근 불가 상태(앱 미기동)에서도 사전 등록 가능하다.
 
 ### 4.7 legacy 전환 이후 URI 정리
 
@@ -385,9 +411,17 @@ Google 측 설정 전파에는 최대 몇 분이 걸린다. 배포 직후 로그
 | Monitor Timeout | `30 seconds` |
 
 3. **Advanced Settings** 펼침:
-   - **HTTP Method**: `GET`
+   - **HTTP Method**: `HEAD` (무료 tier 강제 — GET은 유료 플랜 전용)
    - **Expected Status Codes**: `200` (기본값 유지 — 503이나 다른 코드는 실패로 간주)
    - **Keyword Monitoring**: 설정하지 않음 (본문 검증은 불필요. `/api/health`는 status code로 충분히 구분된다)
+
+**HEAD 호환성 메모**: Next.js 16 App Router는 `GET` 핸들러가 정의되어 있으면 `HEAD` 요청을 자동 처리한다 (응답 본문만 제거하고 헤더/status code만 반환). `/api/health`의 GET 핸들러가 DB 체크까지 수행하므로 HEAD로도 200/503 정상 분기된다. 단, 명시적 `HEAD` export로 안정성을 더 보장하려면 별도 fix가 필요(백로그).
+
+배포 후 호환성 직접 검증:
+```bash
+curl -I https://v2.stockalarm.co.kr/api/health
+# 기대: HTTP/1.1 200 OK 또는 HTTP/2 200
+```
 
 4. **Alert Contacts To Notify** 섹션에서 5.2에서 등록한 Alert Contact 선택.
 
@@ -475,16 +509,45 @@ docker compose --env-file .env.prod -f docker-compose.prod.yml ps
 
 프로덕션은 tools 이미지를 통해 수동 실행한다. 세션 2에서 자동화 여부를 검토했으나, 가족 서비스 규모에서는 수동 실행 + 런북 문서화로 충분하다고 결정했다.
 
+**전제 조건**: 섹션 6.3의 모든 컨테이너가 `Up (healthy)` 상태일 것.
+
+마이그레이션 실행:
+
 ```bash
-docker compose --env-file .env.prod -f docker-compose.prod.yml --profile tools run --rm tools \
-  npx prisma migrate deploy
+docker compose --env-file .env.prod -f docker-compose.prod.yml --profile tools run --rm \
+  tools npx prisma migrate deploy
 ```
 
-예상 출력: "N migrations applied" 메시지. Role 시딩이 필요한 경우 이어서:
+기대 출력:
+
+```
+Loaded Prisma config from prisma.config.ts.
+Prisma schema loaded from prisma/schema.prisma.
+Datasource "db": PostgreSQL database "stockalarm", schema "public" at "db:5432"
+
+N migrations found in prisma/migrations
+
+Applying migration `...`
+...
+
+All migrations have been successfully applied.
+```
+
+핵심 신호: `Loaded Prisma config from prisma.config.ts.` — Prisma v7 외부 datasource config 패턴이 정상 인식됐음을 의미한다. 이 줄이 안 보이거나 `Error: The datasource.url property is required ...` 에러가 발생하면 `Dockerfile.tools`에 `COPY prisma.config.ts ./` 누락이 의심된다 (`docs/report/dockerfile-tools-prisma-config-fix-2026-04-22.md` 참조).
+
+마이그레이션 성공 후 Role 시딩:
 
 ```bash
-docker compose --env-file .env.prod -f docker-compose.prod.yml --profile tools run --rm tools \
-  pnpm db:seed:essential
+docker compose --env-file .env.prod -f docker-compose.prod.yml --profile tools run --rm \
+  tools pnpm db:seed:essential
+```
+
+기대 출력:
+
+```
+Role upserted: user (...)
+Role upserted: admin (...)
+Essential seed completed.
 ```
 
 `db:seed:essential`은 Role 시딩만 수행하므로 프로덕션에서도 안전하다 (`db:seed`는 더미 알림 포함이므로 프로덕션 실행 금지).
@@ -523,7 +586,17 @@ Cloudflare Tunnel을 거쳐 실제 인터넷에서 접근 가능한지 확인한
 - 로그인 버튼 클릭 → Google 동의 화면 → 콜백 → 대시보드 진입.
 - `redirect_uri_mismatch` 에러 발생 시 섹션 4.2/4.6의 redirect URI 등록 확인.
 
-**4) UptimeRobot 정상 감지**:
+**4) ADMIN 권한 검증**:
+
+`.env.prod`의 `ADMIN_EMAILS`에 자신의 이메일이 포함된 상태로 첫 로그인했다면 자동으로 admin role이 부여되어 좌측 메뉴에 "관리자" 항목이 표시된다.
+
+만약 다음 중 하나에 해당하면 `auth-callbacks.ts`가 admin role을 부여하지 않는다:
+- `ADMIN_EMAILS`에 자신의 이메일이 없는 상태에서 로그인 후 나중에 변경한 경우
+- `ADMIN_EMAILS`가 비어있는 상태로 첫 로그인한 경우
+
+이 경우 DB에 직접 SQL로 admin role을 부여한다 (섹션 9 부록 참조).
+
+**5) UptimeRobot 정상 감지**:
 
 - UptimeRobot 대시보드에서 해당 모니터가 **Up** 상태로 바뀌었는지 확인.
 - 바뀌지 않으면 URL, 타임아웃, 네트워크 방화벽(라즈베리파이 쪽 아님, Cloudflare 쪽) 점검.
@@ -873,3 +946,81 @@ docker logs stockalarm-cloudflared > cloudflared.log 2>&1
 - [ ] DB 자동 백업 스케줄 동작 (세션 2 이후)
 - [ ] 백업 복구 리허설 경험 (별도 백업 런북 수립 이후)
 - [ ] 이 런북을 **오프라인에서도 접근 가능한 위치**(예: 종이 인쇄본, 다른 기기의 암호화 저장소)에 복사 보관 — 서버 해킹 시 GitHub에 접근 못 할 수 있음
+
+---
+
+## 9. 부록 — 첫 가입자 ADMIN 권한 SQL 직접 부여
+
+### 9.1 배경
+
+`src/lib/auth-callbacks.ts`의 `handleSignIn` 콜백은 **신규 사용자 생성 시점에만** `ADMIN_EMAILS` 환경변수와 비교해 admin role을 부여한다. googleId가 이미 등록된 기존 사용자는 분기 1에서 즉시 `return true`되어 ADMIN_EMAILS 검사 자체가 일어나지 않는다.
+
+따라서 다음 두 시나리오에서는 자동 부여가 안 된다:
+- 본인이 admin이 되어야 하는데 `ADMIN_EMAILS`가 비어있거나 다른 이메일이었던 상태에서 첫 로그인한 경우
+- 추가 admin을 도중에 등록하고 싶은 경우 (해당 사용자가 이미 일반 user로 가입한 상태)
+
+이 경우 DB에 직접 SQL로 admin role을 부여한다.
+
+### 9.2 사전 확인
+
+```bash
+cd ~/stock-alarm
+
+DB_USER=$(grep '^DB_USER=' .env.prod | cut -d= -f2 | tr -d '"')
+DB_NAME=$(grep '^DB_NAME=' .env.prod | cut -d= -f2 | tr -d '"')
+
+# 1. 대상 사용자의 id 확인
+docker compose --env-file .env.prod -f docker-compose.prod.yml exec db \
+  psql -U "$DB_USER" -d "$DB_NAME" -c \
+  "SELECT id, email, nickname FROM \"User\" WHERE email = 'TARGET_EMAIL';"
+
+# 2. admin role의 id 확인
+docker compose --env-file .env.prod -f docker-compose.prod.yml exec db \
+  psql -U "$DB_USER" -d "$DB_NAME" -c \
+  "SELECT id, name FROM \"Role\" WHERE name = 'admin';"
+
+# 3. 현재 UserRole 확인
+docker compose --env-file .env.prod -f docker-compose.prod.yml exec db \
+  psql -U "$DB_USER" -d "$DB_NAME" -c \
+  "SELECT u.email, r.name AS role
+   FROM \"User\" u
+   JOIN \"UserRole\" ur ON u.id = ur.\"userId\"
+   JOIN \"Role\" r ON ur.\"roleId\" = r.id
+   WHERE u.email = 'TARGET_EMAIL';"
+```
+
+### 9.3 admin role 부여 SQL
+
+```bash
+# 변수 치환은 지양 — 1, 2 단계에서 확보한 id를 직접 입력
+docker compose --env-file .env.prod -f docker-compose.prod.yml exec db \
+  psql -U "$DB_USER" -d "$DB_NAME" -c "
+INSERT INTO \"UserRole\" (id, \"userId\", \"roleId\", \"createdAt\")
+VALUES (
+  gen_random_uuid()::text,
+  'USER_ID_HERE',
+  'ADMIN_ROLE_ID_HERE',
+  CURRENT_TIMESTAMP
+);
+"
+```
+
+⚠️ **`UserRole.id`는 PK이지만 자동 생성되지 않는다** (Default 없음). `gen_random_uuid()::text`로 직접 생성. cuid 형식이 아니지만 PostgreSQL UUID는 text 컬럼에 정상 저장된다.
+
+### 9.4 검증
+
+9.2의 3번 쿼리를 다시 실행해 user + admin 두 role이 표시되는지 확인:
+
+```
+         email          | role
+------------------------+-------
+ ...                    | user
+ ...                    | admin
+(2 rows)
+```
+
+대상 사용자가 로그아웃 후 재로그인하면 좌측 메뉴에 "관리자" 항목이 표시된다.
+
+### 9.5 향후 자동화 (백로그)
+
+`auth-callbacks.ts`를 멱등 처리로 변경하면 본 부록이 불필요해진다. 매 로그인 시 ADMIN_EMAILS와 비교해 admin role 자동 sync. 운영자 변경 시 SQL 직접 수정 부담 제거. 가족 단위 운영에선 자주 일어나지 않는 작업이므로 우선순위는 낮음.
