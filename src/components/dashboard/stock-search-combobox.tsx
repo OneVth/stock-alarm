@@ -15,7 +15,7 @@ import {
   CommandGroup,
   CommandItem,
 } from "@/components/ui/command";
-import { ChevronsUpDownIcon } from "lucide-react";
+import { ChevronsUpDownIcon, Loader2 } from "lucide-react";
 import type { StockSearchResult } from "@/types/alert";
 
 interface StockSearchComboboxProps {
@@ -98,10 +98,11 @@ export function StockSearchCombobox({
           />
           <CommandList>
             {loading ? (
-              <div className="py-6 text-center text-sm text-muted-foreground">
-                검색 중...
+              <div className="flex items-center justify-center gap-2 py-6 text-sm text-muted-foreground">
+                <Loader2 className="size-4 animate-spin" />
+                <span>검색 중...</span>
               </div>
-            ) : query.trim() && results.length === 0 ? (
+            ) :query.trim() && results.length === 0 ? (
               <CommandEmpty>검색 결과가 없습니다</CommandEmpty>
             ) : (
               <CommandGroup className="max-w-xs mx-auto">
