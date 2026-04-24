@@ -9,8 +9,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { useThemeColor } from "@/components/theme-provider";
 
 const modes = [
   { value: "light", label: "Light", icon: Sun },
@@ -20,7 +18,6 @@ const modes = [
 
 export function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
-  const { themeColor, setThemeColor, colors } = useThemeColor();
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => setMounted(true), []);
@@ -56,34 +53,6 @@ export function ThemeSwitcher() {
                   <Icon className="h-3.5 w-3.5" />
                   {label}
                 </Button>
-              ))}
-            </div>
-          </div>
-          <div className="space-y-2">
-            <p className="text-sm font-medium">Color</p>
-            <div className="grid grid-cols-4 gap-2">
-              {colors.map(({ name, label, color }) => (
-                <button
-                  key={name}
-                  className={cn(
-                    "group flex flex-col items-center gap-1 rounded-md p-1.5 transition-colors hover:bg-accent",
-                    themeColor === name && "bg-accent"
-                  )}
-                  onClick={() => setThemeColor(name)}
-                >
-                  <span
-                    className={cn(
-                      "h-6 w-6 rounded-full border-2 transition-transform",
-                      themeColor === name
-                        ? "border-foreground scale-110"
-                        : "border-transparent group-hover:border-muted-foreground/50"
-                    )}
-                    style={{ backgroundColor: color }}
-                  />
-                  <span className="text-[10px] text-muted-foreground">
-                    {label}
-                  </span>
-                </button>
               ))}
             </div>
           </div>

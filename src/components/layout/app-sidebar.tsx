@@ -1,11 +1,11 @@
 "use client";
 
+import * as React from "react";
 import { useMemo } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
-import { useThemeColor } from "@/components/theme-provider";
 import {
   LayoutDashboardIcon,
   HistoryIcon,
@@ -15,11 +15,11 @@ import {
   ChevronsUpDownIcon,
   PanelLeftCloseIcon,
   PanelLeftOpenIcon,
-  PaletteIcon,
   SettingsIcon,
   SunIcon,
   MoonIcon,
   MonitorIcon,
+  SunMoonIcon,
 } from "lucide-react";
 import {
   Sidebar,
@@ -58,7 +58,6 @@ import {
   AvatarImage,
   AvatarFallback,
 } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
 
 /** 기본 네비게이션 항목 */
 const baseNavItems = [
@@ -255,16 +254,29 @@ const modeItems = [
 /**
  * 테마 서브메뉴
  *
- * 모드(라이트/다크/시스템) 라디오 선택 + 색상 팔레트 그리드를 표시합니다.
+ * 모드(라이트/다크/시스템) 라디오 선택을 표시합니다.
  */
 function ThemeSubMenu() {
   const { theme, setTheme } = useTheme();
-  const { themeColor, setThemeColor, colors } = useThemeColor();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => setMounted(true), []);
+
+  // hydration 전에는 중립 아이콘(SunMoonIcon) 표시 → flash 방지
+  const TriggerIcon = !mounted
+    ? SunMoonIcon
+    : theme === "light"
+      ? SunIcon
+      : theme === "dark"
+        ? MoonIcon
+        : theme === "system"
+          ? MonitorIcon
+          : SunMoonIcon;
 
   return (
     <DropdownMenuSub>
       <DropdownMenuSubTrigger>
-        <PaletteIcon />
+        <TriggerIcon />
         테마
       </DropdownMenuSubTrigger>
       <DropdownMenuSubContent className="min-w-48">
@@ -281,35 +293,6 @@ function ThemeSubMenu() {
               </DropdownMenuRadioItem>
             ))}
           </DropdownMenuRadioGroup>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuLabel>색상</DropdownMenuLabel>
-          <div className="grid grid-cols-4 gap-1.5 px-2 py-1.5">
-            {colors.map(({ name, label, color }) => (
-              <button
-                key={name}
-                className={cn(
-                  "group/color flex flex-col items-center gap-0.5 rounded-md p-1 transition-colors hover:bg-accent",
-                  themeColor === name && "bg-accent"
-                )}
-                onClick={() => setThemeColor(name)}
-              >
-                <span
-                  className={cn(
-                    "size-5 rounded-full border-2 transition-transform",
-                    themeColor === name
-                      ? "border-foreground scale-110"
-                      : "border-transparent group-hover/color:border-muted-foreground/50"
-                  )}
-                  style={{ backgroundColor: color }}
-                />
-                <span className="text-[10px] text-muted-foreground">
-                  {label}
-                </span>
-              </button>
-            ))}
-          </div>
         </DropdownMenuGroup>
       </DropdownMenuSubContent>
     </DropdownMenuSub>
