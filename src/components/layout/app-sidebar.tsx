@@ -80,7 +80,7 @@ const adminNavItems = [
 export function AppSidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const { state, toggleSidebar } = useSidebar();
+  const { state, toggleSidebar, isMobile, setOpenMobile } = useSidebar();
 
   const router = useRouter();
   const isAdmin = session?.user?.roles?.includes("admin");
@@ -91,6 +91,12 @@ export function AppSidebar() {
     () => (user?.name ?? user?.email ?? "U").charAt(0).toUpperCase(),
     [user?.name, user?.email]
   );
+
+  React.useEffect(() => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  }, [pathname, isMobile, setOpenMobile]);
 
   return (
     <Sidebar side="left" collapsible="icon">
