@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useMemo } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
 import {
@@ -58,12 +58,12 @@ import {
   AvatarImage,
   AvatarFallback,
 } from "@/components/ui/avatar";
+import { SettingsModal } from "@/components/settings";
 
 /** 기본 네비게이션 항목 */
 const baseNavItems = [
   { href: "/dashboard", label: "대시보드", icon: LayoutDashboardIcon },
   { href: "/history", label: "알림 이력", icon: HistoryIcon },
-  { href: "/settings", label: "설정", icon: SettingsIcon },
 ];
 
 /** 관리자 네비게이션 항목 */
@@ -82,7 +82,7 @@ export function AppSidebar() {
   const { data: session } = useSession();
   const { state, toggleSidebar, isMobile, setOpenMobile } = useSidebar();
 
-  const router = useRouter();
+  const [settingsOpen, setSettingsOpen] = React.useState(false);
   const isAdmin = session?.user?.roles?.includes("admin");
   const user = session?.user;
   const isExpanded = state === "expanded";
@@ -99,6 +99,7 @@ export function AppSidebar() {
   }, [pathname, isMobile, setOpenMobile]);
 
   return (
+    <>
     <Sidebar side="left" collapsible="icon">
       <SidebarHeader>
         <SidebarMenu>
@@ -223,7 +224,7 @@ export function AppSidebar() {
                 sideOffset={4}
               >
                 <DropdownMenuGroup>
-                  <DropdownMenuItem onClick={() => router.push("/settings")}>
+                  <DropdownMenuItem onClick={() => setSettingsOpen(true)}>
                     <SettingsIcon />
                     설정
                   </DropdownMenuItem>
@@ -247,7 +248,17 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
-  );
+    <SettingsModal
+      open={settingsOpen}
+      onOpenChange={setSettingsOpen}
+      user={{
+        email: user?.email ?? "",
+        nickname: user?.name ?? null,
+        image: user?.image ?? null,
+      }}
+    />
+  </>
+);
 }
 
 /** 모드 선택지 */

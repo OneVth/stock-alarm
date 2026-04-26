@@ -39,14 +39,6 @@ export function resolveAuthRedirect(
     return { type: "pass" };
   }
 
-  // /settings: 비로그인 시 로그인 페이지로
-  if (pathname === "/settings") {
-    if (!isLoggedIn) {
-      return { type: "redirect", destination: "/login" };
-    }
-    return { type: "pass" };
-  }
-
   // /admin/*: 비로그인 → /login, 로그인(non-admin) → /dashboard, admin → 통과
   if (pathname === "/admin" || pathname.startsWith("/admin/")) {
     if (!isLoggedIn) {
