@@ -62,7 +62,7 @@ export function SettingsModal({ open, onOpenChange, user }: SettingsModalProps) 
     <>
       {activeTab === "profile"  && <ProfileTab user={user} />}
       {activeTab === "data"     && <DataTab />}
-      {activeTab === "app-info" && <AppInfoTab />}
+      {activeTab === "app-info" && <AppInfoTab onClose={() => onOpenChange(false)} />}
       {activeTab === "account"  && <AccountTab />}
     </>
   );

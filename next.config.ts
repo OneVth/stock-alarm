@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import createMDX from "@next/mdx";
+import { version as appVersion } from "./package.json";
 
 const withMDX = createMDX({
   options: {
@@ -13,6 +14,9 @@ const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
+  env: {
+    NEXT_PUBLIC_APP_VERSION: appVersion,
+  },
   async headers() {
     return [
       {
