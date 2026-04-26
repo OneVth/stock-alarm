@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import * as React from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import {
@@ -34,7 +34,29 @@ interface SettingsModalProps {
 
 export function SettingsModal({ open, onOpenChange, user }: SettingsModalProps) {
   const isMobile = useIsMobile();
-  const [activeTab, setActiveTab] = useState<SettingsTabId>("profile");
+  const [activeTab, setActiveTab] = React.useState<SettingsTabId>("profile");
+
+  // 모달 오픈 시 history entry 추가 → 뒤로가기 버튼으로 모달 닫기
+  React.useEffect(() => {
+    if (!open) return;
+
+    let closedByPopState = false;
+    window.history.pushState({ settingsModalOpen: true }, "");
+
+    const handlePopState = () => {
+      closedByPopState = true;
+      onOpenChange(false);
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+      // X/ESC/backdrop 으로 닫힌 경우 pushState 한 entry 정리
+      if (!closedByPopState) {
+        window.history.back();
+      }
+    };
+  }, [open, onOpenChange]);
 
   const tabContent = (
     <>
@@ -48,12 +70,16 @@ export function SettingsModal({ open, onOpenChange, user }: SettingsModalProps) 
   if (isMobile) {
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
+        {/* 100dvh 풀스크린 — iOS Safari 16+ 지원, 주소창 높이 미포함 */}
         <SheetContent
           side="bottom"
           className="flex flex-col gap-0 p-0"
-          style={{ height: "90vh" }}
+          style={{ height: "100dvh" }}
         >
-          <SheetHeader className="shrink-0 border-b px-4 py-4">
+          {/* pt: max(기본, 노치/DynamicIsland 높이) */}
+          <SheetHeader
+            className="shrink-0 border-b px-4 pb-4 pt-[max(1rem,env(safe-area-inset-top,0px))]"
+          >
             <SheetTitle>설정</SheetTitle>
           </SheetHeader>
 
@@ -78,8 +104,12 @@ export function SettingsModal({ open, onOpenChange, user }: SettingsModalProps) 
             ))}
           </div>
 
-          {/* 스크롤 가능한 컨텐츠 */}
-          <div className="flex-1 overflow-y-auto p-4">{tabContent}</div>
+          {/* 스크롤 가능한 컨텐츠 — pb: max(기본, 홈 인디케이터 높이) */}
+          <div
+            className="flex-1 overflow-y-auto px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))]"
+          >
+            {tabContent}
+          </div>
         </SheetContent>
       </Sheet>
     );
