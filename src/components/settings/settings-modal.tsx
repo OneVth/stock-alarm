@@ -41,6 +41,8 @@ export function SettingsModal({ open, onOpenChange, user }: SettingsModalProps) 
     if (!open) return;
 
     let closedByPopState = false;
+    // 모달 오픈 시점의 pathname 캡처 — cleanup 시 외부 navigation 발생 여부 판단용
+    const initialPathname = window.location.pathname;
     window.history.pushState({ settingsModalOpen: true }, "");
 
     const handlePopState = () => {
@@ -51,8 +53,11 @@ export function SettingsModal({ open, onOpenChange, user }: SettingsModalProps) 
     window.addEventListener("popstate", handlePopState);
     return () => {
       window.removeEventListener("popstate", handlePopState);
-      // X/ESC/backdrop 으로 닫힌 경우 pushState 한 entry 정리
-      if (!closedByPopState) {
+      // 외부 navigation으로 pathname이 변경된 경우 back() 스킵
+      // (예: 처리방침 Link 클릭 — router.push 후 cleanup이 실행되면 back이 navigation을 취소함)
+      const navigated = window.location.pathname !== initialPathname;
+      // X/ESC/backdrop 닫기에서만 pushState 한 entry 정리
+      if (!closedByPopState && !navigated) {
         window.history.back();
       }
     };
