@@ -4,11 +4,11 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 
 interface AppInfoTabProps {
-  /** 모달 닫기 콜백 — 처리방침 링크 클릭 시 호출 */
-  onClose: () => void;
+  /** 외부 navigation 시작 직전 호출 — 모달 close + cleanup back() 스킵 지시 */
+  onCloseForNavigation: () => void;
 }
 
-export function AppInfoTab({ onClose }: AppInfoTabProps) {
+export function AppInfoTab({ onCloseForNavigation }: AppInfoTabProps) {
   return (
     <div className="space-y-6">
       <h2 className="text-[18px] font-bold">앱 정보</h2>
@@ -25,7 +25,7 @@ export function AppInfoTab({ onClose }: AppInfoTabProps) {
         {/* 개인정보 처리방침 — 클릭 시 모달 닫고 /privacy 이동 */}
         <Link
           href="/privacy"
-          onClick={onClose}
+          onClick={onCloseForNavigation}
           className="flex items-center justify-between rounded-lg px-1 py-3 transition-colors hover:bg-accent/50"
         >
           <span className="text-[14px] font-medium">개인정보 처리방침</span>

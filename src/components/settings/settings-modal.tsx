@@ -36,13 +36,21 @@ export function SettingsModal({ open, onOpenChange, user }: SettingsModalProps) 
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = React.useState<SettingsTabId>("profile");
 
+  // 외부 navigation으로 인해 모달이 닫히는 경우 cleanup의 history.back()을 스킵하기 위한 플래그
+  // (예: 처리방침 Link 클릭 — router.push 후 cleanup back()이 호출되면 in-flight transition을 abort)
+  const skipBackRef = React.useRef(false);
+
+  /** 외부 navigation 직전 호출. setOpen(false)와 함께 cleanup의 back() 스킵을 지시 */
+  const closeForNavigation = React.useCallback(() => {
+    skipBackRef.current = true;
+    onOpenChange(false);
+  }, [onOpenChange]);
+
   // 모달 오픈 시 history entry 추가 → 뒤로가기 버튼으로 모달 닫기
   React.useEffect(() => {
     if (!open) return;
 
     let closedByPopState = false;
-    // 모달 오픈 시점의 pathname 캡처 — cleanup 시 외부 navigation 발생 여부 판단용
-    const initialPathname = window.location.pathname;
     window.history.pushState({ settingsModalOpen: true }, "");
 
     const handlePopState = () => {
@@ -53,13 +61,14 @@ export function SettingsModal({ open, onOpenChange, user }: SettingsModalProps) 
     window.addEventListener("popstate", handlePopState);
     return () => {
       window.removeEventListener("popstate", handlePopState);
-      // 외부 navigation으로 pathname이 변경된 경우 back() 스킵
-      // (예: 처리방침 Link 클릭 — router.push 후 cleanup이 실행되면 back이 navigation을 취소함)
-      const navigated = window.location.pathname !== initialPathname;
       // X/ESC/backdrop 닫기에서만 pushState 한 entry 정리
-      if (!closedByPopState && !navigated) {
+      // 외부 navigation(예: Link 클릭)인 경우 skipBackRef가 true → back() 스킵
+      // (back()이 in-flight router.push transition을 abort하기 때문)
+      if (!closedByPopState && !skipBackRef.current) {
         window.history.back();
       }
+      // 다음 모달 오픈 사이클을 위해 ref 리셋
+      skipBackRef.current = false;
     };
   }, [open, onOpenChange]);
 
@@ -67,7 +76,7 @@ export function SettingsModal({ open, onOpenChange, user }: SettingsModalProps) 
     <>
       {activeTab === "profile"  && <ProfileTab user={user} />}
       {activeTab === "data"     && <DataTab />}
-      {activeTab === "app-info" && <AppInfoTab onClose={() => onOpenChange(false)} />}
+      {activeTab === "app-info" && <AppInfoTab onCloseForNavigation={closeForNavigation} />}
       {activeTab === "account"  && <AccountTab />}
     </>
   );
