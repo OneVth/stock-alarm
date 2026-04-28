@@ -17,6 +17,12 @@ import {
 export function AccountTab() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  async function handleSignOut() {
+    setIsSigningOut(true);
+    await signOut({ redirectTo: "/login" });
+  }
 
   async function handleDelete() {
     setIsDeleting(true);
@@ -36,21 +42,40 @@ export function AccountTab() {
       <div className="space-y-6">
         <h2 className="text-[18px] font-bold">계정</h2>
 
-        <button
-          type="button"
-          className="flex w-full items-center gap-3 rounded-lg px-1 py-2 text-left transition-colors hover:bg-destructive/5"
-          onClick={() => setConfirmOpen(true)}
-        >
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-destructive/10">
-            <Trash2 className="size-4 text-destructive" />
+        <div className="space-y-1">
+          <div className="flex items-center justify-between gap-4 px-1 py-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-[14px] font-medium">로그아웃</p>
+              <p className="mt-0.5 text-[12px] text-muted-foreground">
+                현재 계정에서 로그아웃합니다
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSignOut}
+              disabled={isSigningOut}
+            >
+              로그아웃
+            </Button>
           </div>
-          <div className="flex-1">
-            <p className="text-[14px] font-medium text-destructive">계정 탈퇴</p>
-            <p className="mt-0.5 text-[12px] text-muted-foreground">
-              모든 데이터가 영구 삭제됩니다
-            </p>
-          </div>
-        </button>
+
+          <button
+            type="button"
+            className="flex w-full items-center gap-3 rounded-lg px-1 py-2 text-left transition-colors hover:bg-destructive/5"
+            onClick={() => setConfirmOpen(true)}
+          >
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-destructive/10">
+              <Trash2 className="size-4 text-destructive" />
+            </div>
+            <div className="flex-1">
+              <p className="text-[14px] font-medium text-destructive">계정 탈퇴</p>
+              <p className="mt-0.5 text-[12px] text-muted-foreground">
+                모든 데이터가 영구 삭제됩니다
+              </p>
+            </div>
+          </button>
+        </div>
       </div>
 
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
