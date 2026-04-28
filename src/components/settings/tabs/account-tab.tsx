@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { signOut } from "next-auth/react";
 import { toast } from "sonner";
-import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -60,21 +59,23 @@ export function AccountTab() {
             </Button>
           </div>
 
-          <button
-            type="button"
-            className="flex w-full items-center gap-3 rounded-lg px-1 py-2 text-left transition-colors hover:bg-destructive/5"
-            onClick={() => setConfirmOpen(true)}
-          >
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-destructive/10">
-              <Trash2 className="size-4 text-destructive" />
-            </div>
-            <div className="flex-1">
+          <div className="flex items-center justify-between gap-4 px-1 py-3">
+            <div className="min-w-0 flex-1">
               <p className="text-[14px] font-medium text-destructive">계정 탈퇴</p>
               <p className="mt-0.5 text-[12px] text-muted-foreground">
                 모든 데이터가 영구 삭제됩니다
               </p>
             </div>
-          </button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-destructive/40 text-destructive hover:bg-destructive/5 hover:text-destructive"
+              onClick={() => setConfirmOpen(true)}
+              disabled={isDeleting}
+            >
+              계정 탈퇴
+            </Button>
+          </div>
         </div>
       </div>
 
