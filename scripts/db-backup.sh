@@ -44,7 +44,7 @@ echo "[db-backup] 시작: ${TIMESTAMP}"
 # 실패 시 부분 파일 삭제
 trap 'rm -f "${BACKUP_FILE}"' ERR
 
-docker compose --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" exec -T db \
+docker compose -p stock-alarm-v2 --env-file "${ENV_FILE}" -f "${COMPOSE_FILE}" exec -T db \
   pg_dump -U "${DB_USER}" -d "${DB_NAME}" --no-owner --no-privileges \
   | gzip > "${BACKUP_FILE}"
 
