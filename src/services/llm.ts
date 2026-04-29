@@ -98,8 +98,8 @@ ${marketInfo ? `시장 지수: ${marketInfo}` : ""}`;
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: userMessage },
         ],
-        max_tokens: 200,
-        temperature: 0.7,
+        max_completion_tokens: 1000,
+        reasoning_effort: "minimal",
       });
 
       const content = response.choices[0]?.message?.content?.trim();
