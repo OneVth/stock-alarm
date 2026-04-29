@@ -118,9 +118,13 @@ nano .env.prod
 | `OPENAI_API_KEY` | OpenAI 콘솔에서 발급 (선택) |
 | `GMAIL_ADDRESS` | 발송용 Gmail 주소 |
 | `GMAIL_APP_PASSWORD` | Gmail 앱 비밀번호 (공백 제거하여 입력) |
+| `MAIL_FROM_ADDRESS` | (선택) From 주소 분리. 미설정 시 `GMAIL_ADDRESS` 사용. Gmail "Send mail as" 검증 완료된 alias만 사용 가능 |
+| `MAIL_FROM_NAME` | (선택) From 표시 이름. 미설정 시 "StockAlarm" 사용 |
 | `TUNNEL_TOKEN` | 섹션 3에서 확보 |
 | `NEXT_PUBLIC_APP_URL` | `NEXTAUTH_URL`과 동일 |
 | `NODE_ENV` | `production` 유지 |
+| `HOST_UID` | `id -u` 결과 (§2.3 참조) |
+| `HOST_GID` | `id -g` 결과 (§2.3 참조) |
 
 **보안 경고**:
 
@@ -227,23 +231,119 @@ Cloudflare 대시보드 → 해당 도메인 → **SSL/TLS → Overview**에서 
 
 ### 3.6 legacy → v2 도메인 전환 (최종 배포 이후)
 
-v2 서비스가 `v2.stockalarm.co.kr`에서 안정적으로 운영됨을 검증한 뒤 메인 도메인을 전환한다:
+v2 검증 기간 안정화 확인 후 진행한다. 확인 기준:
+- UptimeRobot이 v2.stockalarm.co.kr에서 7일 Up 상태 유지
+- check-alerts cron이 평일마다 정상 실행됨 (`logs/check-alerts.log` 누적)
+- 가족 사용자 사용 중 치명 이슈 보고 없음
 
-1. 현재 legacy용 Tunnel의 **Public Hostnames**에서 `stockalarm.co.kr` 항목을 제거한다.
-2. `stockalarm-v2` Tunnel의 **Public Hostnames**에 `stockalarm.co.kr` (또는 빈 subdomain = apex)을 추가한다. URL은 동일하게 `nginx:80`.
-3. 변경 즉시 트래픽이 v2로 전환된다 (Cloudflare 내부 라우팅이므로 DNS TTL 대기 없음).
-4. legacy cloudflared 컨테이너와 Flask 프로세스를 중단한다.
-5. 불필요해진 DNS 레코드(`v2.stockalarm.co.kr`)는 Cloudflare 대시보드에서 제거한다 — 서브도메인 탈취 방지 (보안 체크리스트 8-7).
-6. (저장소 작업) 검증이 완료된 develop 브랜치를 main에 머지하고 태그를 부여한다:
+1. **`.env.prod` 갱신 (라즈베리파이)**:
+   - `NEXTAUTH_URL`을 `https://stockalarm.co.kr`로 변경
+   - `NEXT_PUBLIC_APP_URL`은 현재 코드에서 미사용이므로 갱신 불필요. 일관성 차원에서 같이 갱신해도 무방하나 본 절차에선 생략 가능.
+
+2. **app 컨테이너 재기동 (라즈베리파이)**:
    ```bash
    cd ~/stock-alarm
-   git checkout main
-   git pull origin main
-   git merge develop
-   git tag -a v2.0.0 -m "Stock Alarm v2 production release"
-   git push origin main --tags
+   docker compose --env-file .env.prod -f docker-compose.prod.yml restart app
    ```
-   이후 운영용 작업 디렉토리는 `main`을 사용한다.
+   이미지 재빌드 불필요. NextAuth 라이브러리가 `process.env.NEXTAUTH_URL`을 직접 읽으므로 재기동만으로 새 origin이 적용됨.
+
+3. **Cloudflare 라우팅 전환**:
+   - legacy tunnel 상세 → 기존 `stockalarm.co.kr` route 삭제 (Add route → Published application 화면에서 관리)
+   - `stockalarm-v2` tunnel → **Add route → Published application**으로 새 route 추가:
+
+     | 필드 | 값 |
+     |------|-----|
+     | Subdomain | (빈 값 — apex) |
+     | Domain | `stockalarm.co.kr` |
+     | Type | `HTTP` |
+     | URL | `nginx:80` |
+
+   - 변경 즉시 트래픽이 v2로 전환됨 (Cloudflare 내부 라우팅, DNS TTL 대기 없음)
+
+4. **legacy 프로세스 중단**:
+   - legacy cloudflared 컨테이너 중단
+   - legacy Flask 프로세스 중단
+
+5. **`v2.stockalarm.co.kr` DNS 레코드 수동 제거**:
+   - Cloudflare 대시보드 → 해당 도메인 → DNS → Records → `v2` 항목 삭제
+   - ⚠️ Cloudflare는 public hostname route 삭제 시 DNS 레코드를 자동 제거하지 않는다. 수동 삭제 필수. (Cloudflare 공식 문서 — "If a tunnel stops, the DNS record is not deleted")
+   - 보안 체크리스트 8-7 (사용하지 않는 서브도메인 제거)
+
+6. **Google OAuth + UptimeRobot URL 갱신**:
+   - §4.7 (redirect URI / JS origins / Privacy URL 정리)
+   - §5.5 (UptimeRobot URL 변경)
+
+7. **도메인 전환 후 smoke test 재실행**:
+   - §6.6의 1~4번을 `https://stockalarm.co.kr`로 재실행
+   - Health 엔드포인트, 홈페이지 로드, Google 로그인 플로우, ADMIN 권한
+   - Google OAuth 설정 전파 최대 5분 대기 (§4.8). 직후 redirect_uri_mismatch가 발생해도 5분 대기 후 재시도.
+
+#### 3.6.1 롤백 절차
+
+§3.6의 1~7번 진행 중 또는 직후, redirect_uri_mismatch가 5분 후에도 지속되거나 가족 사용자가 치명적 문제를 보고할 경우 즉시 역순 복귀:
+
+1. **Cloudflare 라우팅 역순 복귀**:
+   - `stockalarm-v2` tunnel에서 `stockalarm.co.kr` route 삭제
+   - legacy tunnel에 `stockalarm.co.kr` route 재추가 (URL은 legacy의 기존 service)
+
+2. **`v2.stockalarm.co.kr` DNS 레코드 복원**:
+   - §3.6 5번에서 제거한 DNS 레코드를 다시 등록
+   - 또는 stockalarm-v2 tunnel에 `v2.stockalarm.co.kr` route를 다시 등록하면 자동 생성됨
+   - 권장: §3.6 5번 실행 직전에 DNS 레코드 화면 스크린샷을 운영자 메모에 보관
+
+3. **`.env.prod` 역순 복귀 + app 재기동**:
+   - `NEXTAUTH_URL=https://v2.stockalarm.co.kr`로 되돌림
+   - `docker compose --env-file .env.prod -f docker-compose.prod.yml restart app`
+
+4. **legacy 프로세스 재기동**:
+   - §3.6 4번에서 중단했던 legacy cloudflared + Flask 재기동
+
+5. **장애 원인 분석 후 재시도**:
+   - smoke test 재통과 전까지 메인 도메인 전환 보류
+
+### 3.7 develop → main 머지 (PC에서)
+
+§3.6의 1~7번이 정상 완료되고 smoke test가 통과한 직후, PC 작업 트리에서 (사용자 정책: git 작업은 PC에서 수동):
+
+```bash
+git checkout main
+git pull origin main
+git merge --no-ff develop
+git push origin main
+```
+
+⚠️ **이 시점엔 태그를 부여하지 않는다.** v2.0.0 태그는 §3.8에서 자연 검증 통과 후 별도 부여.
+
+라즈베리파이 작업 트리도 main으로 정렬:
+
+```bash
+# 라즈베리파이에서
+cd ~/stock-alarm
+git fetch origin
+git checkout main
+git pull origin main
+```
+
+이후 라즈베리파이 운영 트리는 main 사용. develop 브랜치는 다음 기능 개발의 출발점이 된다.
+
+### 3.8 v2.0.0 태그 부여 (자연 검증 통과 후)
+
+§3.7의 PC merge가 완료된 후, 다음 항목을 모두 확인한 뒤 태그를 부여한다 (production grade의 자연 시점 정의):
+
+확인 항목:
+- [ ] 도메인 전환 후 첫 평일 11:35 cron(check-alerts) 실행 완료 (`logs/check-alerts.log` 누적)
+- [ ] 메일 발송 use case 1건 이상 검증 통과 (자연 발송 또는 수동 trigger)
+- [ ] UptimeRobot이 stockalarm.co.kr/api/health에서 Up 상태 24시간 이상 유지
+- [ ] 가족 사용자 보고 이슈 없음
+
+확인 후 PC에서:
+
+```bash
+git checkout main
+git pull origin main
+git tag -a v2.0.0 -m "Stock Alarm v2 production release"
+git push origin v2.0.0
+```
 
 ---
 
@@ -361,6 +461,7 @@ v2 서비스가 `stockalarm.co.kr`에서 안정 운영됨을 검증한 뒤 반�
 1. Authorized redirect URIs에서 `https://v2.stockalarm.co.kr/api/auth/callback/google` **제거**.
 2. Authorized JavaScript origins에서 `https://v2.stockalarm.co.kr` **제거**.
 3. **Save**.
+4. **Privacy URL 갱신**: Google 인증 플랫폼 → **브랜딩** → "애플리케이션 개인정보처리방침 링크"를 `https://stockalarm.co.kr/privacy`로 변경 후 저장. 등록 시점에 Google이 URL 접근성을 검증하지 않으므로 즉시 반영됨.
 
 사용하지 않는 서브도메인을 승인 목록에 남겨두면 서브도메인 탈취 공격의 접점이 될 수 있다 (보안 체크리스트 8-7).
 
@@ -635,7 +736,7 @@ docker logs --tail 100 stockalarm-app
 
 이 단계까지 완료되면 v2 서비스가 서브도메인에서 정상 운영되는 상태. **legacy 서비스는 계속 병렬 운영 중**이므로 가족들에게 안내 전 검증 기간을 둔다 (권장: 최소 3~7일).
 
-검증 기간 안정화 확인 후 섹션 3.6(legacy 전환) + 섹션 4.7(OAuth URI 정리) + 섹션 5.5(UptimeRobot URL 변경) 수행.
+검증 기간 안정화 확인 후 섹션 3.6(메인 도메인 전환) + 섹션 4.7(OAuth URI/Privacy 정리) + 섹션 5.5(UptimeRobot URL 변경) 수행. 그 뒤 섹션 3.7(PC develop→main 머지) → 섹션 3.8(자연 검증 통과 후 v2.0.0 태그) 순으로 마무리.
 
 ---
 
