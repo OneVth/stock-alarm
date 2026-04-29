@@ -86,7 +86,7 @@ cd stock-alarm
 git checkout develop
 ```
 
-검증 기간 동안은 `develop` 브랜치를 사용한다. 메인 도메인 전환(섹션 3.6) 시점에 `develop → main` 머지 + 태그를 부여하고 그 이후엔 `main`을 사용한다. Git Flow 원칙: `develop`에서 검증 → 안정화 후 `main` 머지.
+검증 기간 동안은 `develop` 브랜치를 사용한다. 메인 도메인 전환은 §3.6, `develop → main` 머지는 §3.7, v2.0.0 태그는 §3.8(자연 검증 통과 후)에서 다룬다. 이후엔 `main`을 사용한다. Git Flow 원칙: `develop`에서 검증 → 안정화 후 `main` 머지.
 
 ### 2.2 `.env.prod` 파일 작성
 
