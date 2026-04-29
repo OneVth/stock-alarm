@@ -263,6 +263,27 @@ v2 검증 기간 안정화 확인 후 진행한다. 확인 기준:
 4. **legacy 프로세스 중단**:
    - legacy cloudflared 컨테이너 중단
    - legacy Flask 프로세스 중단
+   - **legacy crontab 라인 주석 처리** (`crontab -e`로 편집, 각 라인 앞에 `#` 추가):
+     - `35 11 * * 1-5 ... scripts/check_alert.py ...` (legacy 평일 알림 체크)
+     - `0 8 * * 1-5 ... scripts/update_stock_list.py ...` (legacy 종목 갱신, 환경에 따라 다른 시간대 가능)
+     - 그 외 legacy 시절 등록된 cron 라인이 있다면 모두 주석
+   - 즉시 롤백 가능성을 위해 삭제 대신 주석 처리한다. 자연 검증 통과(§3.8) 후 별도 정리.
+
+4-1. **v2 crontab 등록** (라즈베리파이):
+   - 로그/백업 디렉토리 준비 (이미 있으면 무해):
+     ```bash
+     cd $HOME/stock-alarm
+     mkdir -p logs backups
+     ```
+   - `deploy/crontab` 내용을 사용자 crontab에 추가:
+     ```bash
+     cat deploy/crontab          # 등록할 내용 확인
+     crontab -e                  # 편집기 열기 → 4번에서 주석 처리한 legacy 라인 아래에 deploy/crontab 내용 붙여넣기
+     crontab -l                  # 등록 확인
+     ```
+   - 등록 확인 후 첫 평일 11:35에 자동 실행 → `logs/check-alerts.log` 누적 확인 (§3.8 자연 검증의 한 항목)
+   - 자세한 절차 + 트러블슈팅은 §7.1 참조
+   - ⚠️ `deploy/crontab`은 `cd $HOME/stock-alarm`을 사용한다. 사용자 환경에서 이 경로가 symlink여도 docker compose project name은 `-p stock-alarm-v2`로 고정되어 있어 안전. (Session 20 검증으로 확인됨)
 
 5. **`v2.stockalarm.co.kr` DNS 레코드 수동 제거**:
    - Cloudflare 대시보드 → 해당 도메인 → DNS → Records → `v2` 항목 삭제
@@ -297,6 +318,13 @@ v2 검증 기간 안정화 확인 후 진행한다. 확인 기준:
 
 4. **legacy 프로세스 재기동**:
    - §3.6 4번에서 중단했던 legacy cloudflared + Flask 재기동
+
+4-1. **crontab 역순 복귀** (단일 편집으로 묶음):
+   - `crontab -e`로 다음 두 작업을 한 번에 처리:
+     - §3.6 4-1에서 추가한 v2 라인 모두를 주석 처리(또는 삭제)
+     - §3.6 4번에서 주석 처리한 legacy 라인의 `#` 제거하여 복구
+   - 두 작업을 같은 편집 세션에 묶어서 두 cron이 동시 활성 상태가 되는 시간 창을 막는다.
+   - `crontab -l`로 확인
 
 5. **장애 원인 분석 후 재시도**:
    - smoke test 재통과 전까지 메인 도메인 전환 보류
