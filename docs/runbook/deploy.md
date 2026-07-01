@@ -1153,3 +1153,124 @@ VALUES (
 ### 9.5 향후 자동화 (백로그)
 
 `auth-callbacks.ts`를 멱등 처리로 변경하면 본 부록이 불필요해진다. 매 로그인 시 ADMIN_EMAILS와 비교해 admin role 자동 sync. 운영자 변경 시 SQL 직접 수정 부담 제거. 가족 단위 운영에선 자주 일어나지 않는 작업이므로 우선순위는 낮음.
+
+## 10. 트래픽 분석 (GoAccess)
+ 
+nginx access 로그를 GoAccess로 분석해 실시간 웹 대시보드로 확인한다.
+Cloudflare 대시보드(무료 tier)가 제공하지 못하는 오리진 레벨 상세
+(URL별 요청/방문자, 상태코드, User-Agent, 404 스캔 탐지 등)를 확보하기 위함이다.
+ 
+### 10.1 아키텍처
+ 
+```
+stock-alarm nginx
+  └─ access 로그를 bind mount(./logs/nginx/stockalarm-access.log)에 파일로 기록
+       │  (/api/health 는 access_log off 로 애초에 기록 안 함)
+       ▼
+  goaccess 컨테이너: 로그 파일을 --log-file 로 직접 읽음
+       │  --real-time-html --persist (누적 DB)
+       ▼  report/index.html + WebSocket :7890
+  report-nginx (:8080) ──► http://<pi-ip>:8080
+```
+ 
+설계 원칙:
+- **파이프/systemd 불필요**. GoAccess가 로그 파일을 직접 읽으므로
+  `restart: unless-stopped` 만으로 stock-alarm 스택처럼 자립한다.
+- **로그는 bind mount**. named volume 대신 프로젝트 내 `./logs/nginx/`에 두어
+  logrotate 및 외부 분석 접근을 쉽게 한다.
+- **관리 대시보드는 외부 비공개**. 방문자 IP·URL 등 관리 정보가 노출되므로
+  절대 Cloudflare Tunnel 로 공개하지 않는다. 로컬 네트워크 또는 Tailscale 로만 접근.
+### 10.2 사전 조건 (nginx 로그를 파일로 남기기)
+ 
+기본 `nginx:stable-alpine` 이미지는 `access.log → /dev/stdout` 심볼릭 링크라
+로그가 파일로 남지 않는다. 아래 두 가지가 §2.4 / 배포 전에 반영되어 있어야 한다.
+ 
+1. **nginx.conf**: access_log 파일명을 심볼릭 링크가 없는 이름으로 지정하고,
+   헬스체크는 로그에서 제외 (§10.5 참조 — `deploy/nginx/nginx.conf`).
+   - `access_log /var/log/nginx/stockalarm-access.log stockalarm;`
+   - `location = /api/health { access_log off; ... }`
+2. **docker-compose.prod.yml**: nginx 서비스에 로그 bind mount.
+   - `- ./logs/nginx:/var/log/nginx`
+### 10.3 배포 절차
+ 
+```bash
+# 1. 로그 디렉토리 준비
+cd $HOME/stock-alarm
+mkdir -p logs/nginx
+ 
+# 2. nginx 재생성 (로그 bind mount + nginx.conf 반영)
+docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --force-recreate nginx
+ 
+# 3. 로그가 실제 파일로 생기는지 확인
+docker exec stockalarm-nginx ls -la /var/log/nginx/
+# stockalarm-access.log 가 심볼릭 링크가 아닌 실제 파일(-rw-...)이면 OK
+ 
+# 4. GoAccess 스택 기동 (deploy/goaccess/)
+cd deploy/goaccess
+mkdir -p data report
+docker compose up -d
+ 
+# 5. 확인
+docker ps | grep -E "goaccess|goaccess-report"
+docker logs goaccess     # "WebSocket server ready" + 에러 없음
+```
+ 
+브라우저에서 `http://<pi-ip>:8080` 접속 → 대시보드 표시 + 우측 상단
+"Last Updated" 가 실시간 갱신되면 성공.
+ 
+### 10.4 로그 로테이션 (copytruncate 필수)
+ 
+nginx access 로그가 무한정 커지지 않도록 매일 로테이션한다.
+설정은 `deploy/logrotate-nginx.conf` → `/etc/logrotate.d/stockalarm-nginx`.
+ 
+```bash
+sudo cp deploy/logrotate-nginx.conf /etc/logrotate.d/stockalarm-nginx
+sudo chown root:root /etc/logrotate.d/stockalarm-nginx
+sudo chmod 644 /etc/logrotate.d/stockalarm-nginx
+ 
+# 문법 검증 (dry-run)
+sudo logrotate -d /etc/logrotate.d/stockalarm-nginx
+ 
+# 강제 실행 테스트
+sudo logrotate -f /etc/logrotate.d/stockalarm-nginx
+```
+ 
+⚠️ **반드시 `copytruncate` 방식을 사용한다.** 이유:
+ 
+GoAccess가 로그 파일을 실시간으로 열어 읽고 있다. 일반적인 로테이션
+(`create` + 파일 이동)은 새 파일을 만들면서 **inode 가 바뀌는데**,
+GoAccess 는 inode 로 파일을 추적하므로 로테이션 직후 새 파일을 놓쳐
+**대시보드가 갱신을 멈춘다** (실측으로 확인된 문제).
+ 
+`copytruncate` 는 파일 내용을 회전본으로 복사한 뒤 원본을 비우므로
+inode 가 유지된다. GoAccess/nginx 모두 같은 파일을 계속 보게 되어
+로테이션 후에도 실시간 갱신이 끊기지 않는다. 이 방식에서는
+`nginx -s reopen` (postrotate) 도 불필요하다 (파일이 교체되지 않으므로).
+ 
+trade-off: 복사~truncate 사이 찰나에 로그 몇 줄 유실 가능성이 있으나,
+트래픽 분석 용도에서는 무시할 수준이다.
+ 
+### 10.5 커스텀 로그 포맷 참고
+ 
+stock-alarm nginx 는 커스텀 `stockalarm` 로그 포맷을 사용한다.
+`$request` 대신 `$request_method $uri $server_protocol` 로 쪼개고 `$uri` 를 써서
+**쿼리스트링을 전역 제외**한다 (OAuth code/state 등 민감 파라미터 로그 유출 방지).
+ 
+GoAccess 는 현재 `--log-format=COMBINED` 로 파싱하며 실용상 충분하다.
+정밀도를 높이려면 GoAccess 에 커스텀 포맷 문자열을 지정할 수 있다(백로그).
+ 
+### 10.6 외부 접근 (Tailscale)
+ 
+대시보드는 기본적으로 로컬 네트워크(`<pi-ip>:8080`)에서만 접근 가능하다.
+집 밖에서 확인하려면 Tailscale 로 파이에 접속 후 동일 주소를 사용한다.
+**Cloudflare Tunnel 로 공개하지 않는다** (관리 정보 노출).
+ 
+### 10.7 트러블슈팅
+ 
+| 증상 | 확인 |
+|------|------|
+| 대시보드 숫자가 안 변함 | GoAccess 가 옛 named volume 등 잘못된 파일을 읽는지 확인: `docker inspect goaccess --format '{{json .Mounts}}'` — `/srv/logs` 가 bind mount(`./logs/nginx`)인지 |
+| 로테이션 후 갱신 멈춤 | logrotate 가 `copytruncate` 인지 확인. `create` 방식이면 inode 변경으로 GoAccess 가 파일을 놓침 |
+| 로그 파일이 안 생김 | nginx.conf 의 access_log 가 `stockalarm-access.log`(심볼릭 링크 아닌 이름)인지, compose 에 로그 bind mount 가 있는지 |
+| WebSocket 갱신 안 됨 | `--ws-url` 설정 및 report-nginx 의 `/ws` 프록시 확인. 브라우저 F12 콘솔에서 ws 에러 확인 |
+| DB 꼬임 의심 | `docker compose down && rm -rf data/* && docker compose up -d` 로 --persist DB 초기화 후 재읽기 |
